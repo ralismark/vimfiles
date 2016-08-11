@@ -25,15 +25,12 @@
 [submodule "bundle/vim-markdown"]
 	path = bundle/vim-markdown
 	url = https://github.com/plasticboy/vim-markdown
-[submodule "bundle/vim-signature"]
-	path = bundle/vim-signature
-	url = https://github.com/kshenoy/vim-signature
 [submodule "bundle/vim-startify"]
 	path = bundle/vim-startify
 	url = https://github.com/mhinz/vim-startify.git
-[submodule "bundle/vim-table-mode"]
-	path = bundle/vim-table-mode
-	url = https://github.com/dhruvasagar/vim-table-mode.git
 [submodule "bundle/vim-textobj-user"]
 	path = bundle/vim-textobj-user
 	url = https://github.com/kana/vim-textobj-user.git
+[submodule "bundle/vim-textobj-parameter"]
+	path = bundle/vim-textobj-parameter
+	url = https://github.com/sgur/vim-textobj-parameter.git
