@@ -14,4 +14,4 @@ if &ft == "c"
 elseif &ft == "cpp"
 	let &l:makeprg = $cxx
 endif
-let &l:makeprg .= ' ' . $cflags . ' $* % -o %:r.exe'
+let &l:makeprg .= ' ' . $cflags . ' % $*'

@@ -11,12 +11,14 @@ let con = !gui
   " Plugins {{{1 --------------------------------------------------------------
 
 runtime bundle/vim-pathogen/autoload/pathogen.vim
-
-let g:pathogen_blacklist = ['delimitMate']
 execute pathogen#infect()
 Helptags
 
 let g:cpp_class_scope_highlight = true
+
+" vimproc {{{2
+
+let g:vimproc#download_windows_dll = true
 
 " gundo {{{ -------------------------------------------------------------------
 
@@ -181,6 +183,7 @@ set linebreak
 
 " Fold on triple brace
 set foldmethod=marker
+set foldlevel=999
 
 " Make with tee
 set shellpipe=2>&1\ \|\ tee
@@ -283,24 +286,12 @@ function! LineHome() " {{{2
 endfunction
 
 function! PartPath() " {{{2
-	if strlen(expand('%:p')) == 0
-		return '[Untitled]'
-	endif
+	let parts = (['', '', ''] + split(expand('%:p:h'), '\'))[-3:]
+	let fname = strlen(expand('%')) ? expand('%:t') : '*'
 
-	let parts = split(expand('%:p'), '\')
-	let minipart = []
-	if len(parts) < 3
-		let minipart = parts
-	else
-		let minipart = parts[-3:-2]
-	endif
-	let fname = parts[-1]
-	let str = ''
-	for i in minipart
-		let str .= i[:2] . '/'
-	endfor
+	let str = printf('%3.3S/%3.3S/%3.3S', parts[0], parts[1], parts[2])
 
-	return str . fname
+	return str . ' / ' . fname
 endfunction
 
 function! BufCleanup() " {{{2
@@ -373,6 +364,9 @@ function! MakeModeSwitch() " {{{2
 	if g:make_mode == 'exe'
 		let g:make_mode = 'syn' " syntax checking [-fsyntax-only]
 		echo '\m -> syntax check only'
+	elseif g:make_mode == 'syn'
+		let g:make_mode = 'obj' " object file, -c
+		echo '\m -> object file'
 	else
 		let g:make_mode = 'exe' " fallback for unknown options
 		echo '\m -> compile'
@@ -384,11 +378,16 @@ function! Make() " {{{2
 	if !exists('g:make_args')
 		let g:make_args = ''
 	endif
-	if !exists('g:make_mode') || g:make_mode == 'exe'
+	if !exists('g:make_mode')
 		let g:make_mode = 'exe'
-		let args = ''
+	endif
+
+	if g:make_mode == 'exe'
+		let args = '-o ' . expand('%:r') . '.exe'
 	elseif g:make_mode == 'syn'
 		let args = '-fsyntax-only'
+	elseif g:make_mode == 'obj'
+		let args = '-c -o ' . expand('%:r') . '.o'
 	endif
 
 	exec 'make! ' . args . ' ' . g:make_args
@@ -474,9 +473,9 @@ endif
 
 " Autocommands {{{1 -----------------------------------------------------------
 
-augroup fts
+augroup filetypes
 	au!
-	au Filetype markdown setl spell
+	au Filetype markdown setl spell tw=80
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	au BufNewFile,BufFilePre,BufRead *.h set filetype=c
@@ -491,7 +490,9 @@ let mapleader = "\<Space>"
 noremap ; :
 noremap zz za
 noremap s <c-w>
-noremap 0 :call LineHome()<cr>
+noremap , ;
+noremap <silent> 0 :call LineHome()<cr>
+noremap U <c-r>
 
 " Registers, much easier to reach
 noremap _ "_
@@ -529,12 +530,15 @@ nnoremap <c-right> <c-w>>
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
 nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>om :call MakeModeSwitch()<cr>
-nnoremap <silent> <leader>ou :GundoToggle<cr>
+nnoremap <silent> <leader>ou :UndotreeToggle<cr>
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 
 " file ctl
 nnoremap <leader>w :w<cr>
 nnoremap <leader>q :q<cr>
+nnoremap <leader>aq :wa<cr>
+nnoremap <leader>az :wqa<cr>
+
 nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $myvimrc<cr>
 nnoremap <leader>x :call ExecFile()<cr>
