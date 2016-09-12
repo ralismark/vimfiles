@@ -10,20 +10,52 @@ let con = !gui
 
   " Plugins {{{1 --------------------------------------------------------------
 
+if &loadplugins
+
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 execute pathogen#infect()
 Helptags
 
 let g:cpp_class_scope_highlight = true
 
+" Syntastic {{{2
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 2
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+let g:syntastic_c_clang_check_args = "-std=c11 -fms-compatibility-version=19"
+let g:syntastic_c_clang_check_post_args = "-Wall -Wextra -pedantic -O2 -D_CRT_SECURE_NO_WARNINGS"
+
+let g:syntastic_cpp_clang_check_args = "-std=c++14  -fms-compatibility-version=19"
+let g:syntastic_cpp_clang_check_post_args = "-Wall -Wextra -pedantic -O2 -D_CRT_SECURE_NO_WARNINGS"
+
+" Unite {{{2
+
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+
+" Using ag as recursive command.
+let g:unite_source_rec_async_command =
+\ ['ag', '--follow', '--nocolor', '--nogroup',
+\  '--hidden', '-g', '']
+
+call unite#custom#profile('def', 'context', {
+\	'no_split': true,
+\	'prompt': "> ",
+\	'prompt_direction': "top",
+\	'start_insert': true,
+\	'here': true,
+\ })
+
+au Filetype unite call s:unite_settings()
+function! s:unite_settings()
+	imap <buffer> <esc> <Plug>(unite_exit)
+endfunction
+
 " vimproc {{{2
 
 let g:vimproc#download_windows_dll = true
-
-" gundo {{{ -------------------------------------------------------------------
-
-let g:gundo_width = 60
-let g:gundo_preview_height = 30
 
 " vim-easy-align {{{2 ---------------------------------------------------------
 
@@ -33,7 +65,7 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-" lightline {{{2 --------------------------------------------------------------
+" Lightline {{{2 --------------------------------------------------------------
 
 if con == true
 	set showtabline=2
@@ -62,16 +94,18 @@ let g:lightline = {
 \	'component': {
 \		'paste': '%{&paste ? "cp" : ""}',
 \		'rostate': '%{(&modified ? "' . (gui ? '±' : '∓'). '" : &modifiable ? "w" : "r") . (&readonly ? "!" : "")}',
-\		'filename': '%n# %{winwidth(0) > 60 ? PartPath() : (len(expand("%")) > 0 ? expand("%") : "[Untitled]")}',
+\		'filename': '%n# %{winwidth(0) > 65 ? PartPath() : (len(expand("%")) > 0 ? expand("%") : "*")}',
 \
-\		'fileformat': '%{&ff == "dos" ? "" : &ff == "unix" ? "\\n" : "\\r"}',
+\		'filetype': '%{winwidth(0) <= 40 ? "" : &ft == "" ? "*" : &ft}',
+\		'eoltype': '%{&ff == "dos" ? "" : &ff == "unix" ? "\\n" : "\\r"}',
 \
-\		'spell': '%{&spell ? (winwidth(0) > 70 ? "s:" . &spelllang : winwidth(0) > 50 ? "s:" : "") : ""}',
+\		'spell': '%{&spell ? (winwidth(0) > 70 ? "s:" . &spelllang : winwidth(0) > 50 ? "s..." : "") : ""}',
 \
-\		'location': '%P %3l:%-2v',
+\		'location': '%{winwidth(0) > 50 ? printf("%s %03d:%-2d", LocPercent(), line("."), col(".")) : printf("%03d", line("."))}',
 \	},
 \	'component_visible_condition': {
-\		'fileformat': '(&ff != "dos")',
+\		'filetype': '(winwidth(0) > 40)',
+\		'eoltype': '(&ff != "dos")',
 \		'spell': '(&spell && winwidth(0) > 50)',
 \	},
 \	'active': {
@@ -79,21 +113,45 @@ let g:lightline = {
 \			  [ 'filename', 'rostate' ],
 \			  [ 'spell' ], ],
 \		'right': [ [ 'location' ],
-\			   [ 'filetype', 'fileformat' ] ],
+\			   [ 'filetype', 'eoltype' ] ],
 \	},
 \	'inactive': {
 \		'left': [
 \				[ 'filename', 'rostate' ],
-\				[ 'fileencoding', 'fileformat' ],
+\				[ 'fileencoding', 'eoltype' ],
 \			],
 \		'right': [
 \				[ 'lineinfo' ],
 \			],
 \	},
 \	'colorscheme': gui ? 'powerline' : 'cs',
-\	'separator': { 'left': '▓▒░', 'right': '░▒▓' },
-\	'subseparator': { 'left': '░', 'right': '░' },
+\	'separator': gui ? { 'left': '', 'right': '' } : { 'left': '▓▒░', 'right': '░▒▓' },
+\	'subseparator': gui ? {'left': '|', 'right': '|' } : { 'left': '░', 'right': '░' },
 \ }
+
+function! PartPath() " {{{2
+	let parts = (['', '', ''] + split(expand('%:p:h'), '\'))[-3:]
+	let fname = strlen(expand('%')) ? expand('%:t') : '*'
+
+	let str = printf('%3.3S/%3.3S/%3.3S', parts[0], parts[1], parts[2])
+
+	return str . ' / ' . fname
+endfunction
+
+function! LocPercent() " {{{2
+	let cur = line('.')
+	let top = 1
+	let bot = line('$')
+
+	if line('w$') == bot
+		return "bot"
+	elseif line('w0') == top
+		return "top"
+	else
+		let prog = cur * 100 / bot
+		return printf('%02d%%', prog)
+	endif
+endfunction
 
 " DelimitMate {{{2 ------------------------------------------------------------
 
@@ -128,12 +186,9 @@ let g:startify_change_to_dir = true
 let g:startify_change_to_vcs_root = true
 let g:startify_custom_indices = map(add(range(1,9), 0), 'string(v:val)')
 
-" CtrlP {{{2 ------------------------------------------------------------------
+" }}}
 
-let g:ctrlp_map = '<c-p>'
-let g:ctrlp_cmd = 'CtrlP'
-
-let g:ctrlp_match_window = 'min:10,max:10'
+endif
 
 " Options {{{1 ----------------------------------------------------------------
 
@@ -193,7 +248,7 @@ set shortmess=ilnxIT
 
 " Split options
 set splitright
-set splitbelow
+" set splitbelow
 
 " % for angle brackets
 set matchpairs+=<:>
@@ -219,14 +274,9 @@ endif
 
 set encoding=utf-8
 
-" kernel style indents
-set tabstop=8
-set shiftwidth=0
-set noexpandtab
-
 " Word formatting
 set textwidth=0
-set formatoptions=croqnl1j
+set formatoptions=crqlnt
 
 " Tempfiles {{{2 --------------------------------------------------------------
 
@@ -266,10 +316,20 @@ set viminfo=!,%,'64,/16,s10,c,f1,h,rD:,rE:
 
 " C Indent {{{2 ---------------------------------------------------------------
 
-set cino+=(s  " Contents of unclosed parentheses
+" kernel style indents
+set tabstop=8
+set shiftwidth=0
+set noexpandtab
+
+set copyindent
+set preserveindent
+
+" c indent
+set cino+=(0  " Contents of unclosed parentheses
 set cino+=:0  " Case labels
 set cino+=Ls  " Jump labels
-set cino+=U1  " Do not ignore when parens are first char in line
+set cino+=u0
+set cino+=U0  " Do not ignore when parens are first char in line
 set cino+=b0  " Align break with case
 set cino+=g0  " Scope labels
 set cino+=l1  " No align with label
@@ -277,21 +337,34 @@ set cino+=t0  " Function return type declarations
 
 " Functions {{{1 --------------------------------------------------------------
 
+function! ReloadAll() " {{{2
+	" lightline
+	if !exists('g:loaded_lightline')
+		return
+	endif
+	try
+		call lightline#init()
+		call lightline#colorscheme()
+		call lightline#update()
+	catch
+	endtry
+
+	" fix width and height
+	set columns=999 lines=999
+
+	" fix syntax
+	syntax sync fromstart
+
+	" redraw
+	redraw!
+endfunction
+
 function! LineHome() " {{{2
 	let x = col('.')
 	normal! ^
-	if x == col('.')
+	if x <= col('.')
 		normal! 0
 	endif
-endfunction
-
-function! PartPath() " {{{2
-	let parts = (['', '', ''] + split(expand('%:p:h'), '\'))[-3:]
-	let fname = strlen(expand('%')) ? expand('%:t') : '*'
-
-	let str = printf('%3.3S/%3.3S/%3.3S', parts[0], parts[1], parts[2])
-
-	return str . ' / ' . fname
 endfunction
 
 function! BufCleanup() " {{{2
@@ -313,6 +386,8 @@ function! BufCleanup() " {{{2
 	endfor
 	echomsg nWipeouts . ' buffer(s) wiped out'
 endfunction
+
+command! -nargs=0 KillBuffers call BufCleanup()
 
 function! DumpOpts() " {{{2
 	let msg = ''
@@ -360,7 +435,7 @@ function! MakeModeSwitch() " {{{2
 	if !exists('g:make_mode')
 		let g:make_mode = 'exe'
 	endif
-	
+
 	if g:make_mode == 'exe'
 		let g:make_mode = 'syn' " syntax checking [-fsyntax-only]
 		echo '\m -> syntax check only'
@@ -410,14 +485,6 @@ function! ToggleWrap() " {{{2
 		silent! unmap <buffer> ^
 		silent! unmap <buffer> $
 	endif
-endfunction
-
-function! Rmtrails() " {{{2
-	normal! mz
-	%s/\s\+$//ge
-	normal! `z
-
-	return "<nop>"
 endfunction
 
 function! SudoRepeat() " {{{2
@@ -493,6 +560,9 @@ noremap s <c-w>
 noremap , ;
 noremap <silent> 0 :call LineHome()<cr>
 noremap U <c-r>
+noremap <expr> <cr> empty(&buftype) ? '@@' : '<cr>'
+
+noremap! <c-> <c-w>
 
 " Registers, much easier to reach
 noremap _ "_
@@ -526,18 +596,23 @@ nnoremap <c-down> <c-w>+
 nnoremap <c-up> <c-w>-
 nnoremap <c-right> <c-w>>
 
+" misc
+nnoremap <silent> <leader>rr :call ReloadAll()<cr>
+
 " toggles
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
 nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>om :call MakeModeSwitch()<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr>
 nnoremap <silent> <leader>os :set scrollbind!<cr>
+nnoremap <expr> <silent> <leader>od (&diff ? ":diffoff" : ":diffthis") . "<cr>"
 
 " file ctl
 nnoremap <leader>w :w<cr>
 nnoremap <leader>q :q<cr>
-nnoremap <leader>aq :wa<cr>
+nnoremap <leader>aw :wa<cr>
 nnoremap <leader>az :wqa<cr>
+nnoremap <leader>aq :qa<cr>
 
 nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $myvimrc<cr>
@@ -545,9 +620,15 @@ nnoremap <leader>x :call ExecFile()<cr>
 nnoremap <leader>m :call Make()<cr>
 
 " Splits
-nnoremap <leader>s :new<cr>
-nnoremap <leader>v :vert new<cr>
+nnoremap <leader>s <nop>
+nnoremap <silent> <leader>sh :aboveleft vertical new<cr>
+nnoremap <silent> <leader>sk :aboveleft new<cr>
+nnoremap <silent> <leader>sj :belowright new<cr>
+nnoremap <silent> <leader>sl :belowright vertical new<cr>
 nnoremap <leader>t :tab new<cr>
+
+" unite binds
+nnoremap <silent> <c-p> :UniteWithCurrentDir -profile-name=def file<cr>
 
 " Other Features {{{1 ---------------------------------------------------------
 

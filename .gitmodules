@@ -37,3 +37,9 @@
 [submodule "bundle/undotree"]
 	path = bundle/undotree
 	url = https://github.com/mbbill/undotree.git
+[submodule "bundle/unite.vim"]
+	path = bundle/unite.vim
+	url = https://github.com/shougo/unite.vim
+[submodule "bundle/vim-smarttabs"]
+	path = bundle/vim-smarttabs
+	url = https://github.com/dpc/vim-smarttabs.git
