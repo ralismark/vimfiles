@@ -81,8 +81,10 @@ fun! s:CheckAlign(line)
 
 	let big_ident_sz = 80
 
-	let is_eol = col('.') == col('$')
 	let pos = getpos('.')
+	let vcol = virtcol('.')
+
+	let pos[1] = a:line
 
 	let tskeep = &tabstop
 	let swkeep = &shiftwidth
@@ -117,6 +119,8 @@ fun! s:CheckAlign(line)
 		let &ts=tskeep
 		let &sw=swkeep
 	endtry
+
+	call setpos('.', pos)
 	if inda == 0
 		return "^\<c-d>"
 	endif
@@ -125,8 +129,9 @@ fun! s:CheckAlign(line)
 	" no of spaces
 	let indaspace=inda % big_ident_sz
 
-	call setpos('.', pos)
-	return "\<home>^\<c-d>" . repeat("\<tab>", indatabs) . repeat(' ', indaspace) . "\<c-o>^a" . (is_eol ? "\<end>" : "")
+	let mov_seq = getline(a:line) =~ '^\s*$' ? "\<esc>^a" : ""
+
+	return "\<home>^\<c-d>" . repeat("\<tab>", indatabs) . repeat(' ', indaspace) . mov_seq
 endfun
 
 " get SID of current script
