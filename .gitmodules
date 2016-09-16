@@ -43,3 +43,12 @@
 [submodule "bundle/vim-smarttabs"]
 	path = bundle/vim-smarttabs
 	url = https://github.com/dpc/vim-smarttabs.git
+[submodule "bundle/Recover.vim"]
+	path = bundle/Recover.vim
+	url = https://github.com/chrisbra/Recover.vim.git
+[submodule "bundle/vim-smooth-scroll"]
+	path = bundle/vim-smooth-scroll
+	url = https://github.com/terryma/vim-smooth-scroll.git
+[submodule "bundle/accelerated-smooth-scroll"]
+	path = bundle/accelerated-smooth-scroll
+	url = https://github.com/yonchu/accelerated-smooth-scroll.git
