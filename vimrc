@@ -94,14 +94,14 @@ let g:lightline = {
 \	'component': {
 \		'paste': '%{&paste ? "cp" : ""}',
 \		'rostate': '%{(&modified ? "' . (gui ? '±' : '∓'). '" : &modifiable ? "w" : "r") . (&readonly ? "!" : "")}',
-\		'filename': '%n# %{winwidth(0) > 65 ? PartPath() : (len(expand("%")) > 0 ? expand("%") : "*")}',
+\		'filename': '%n# %{winwidth(0) > 75 ? PartPath() : (len(expand("%")) > 0 ? expand("%") : "*")}',
 \
 \		'filetype': '%{winwidth(0) <= 40 ? "" : &ft == "" ? "*" : &ft}',
 \		'eoltype': '%{&ff == "dos" ? "" : &ff == "unix" ? "\\n" : "\\r"}',
 \
-\		'spell': '%{&spell ? (winwidth(0) > 70 ? "s:" . &spelllang : winwidth(0) > 50 ? "s..." : "") : ""}',
+\		'spell': '%{&spell ? (winwidth(0) > 80 ? "s:" . &spelllang : winwidth(0) > 50 ? "s..." : "") : ""}',
 \
-\		'location': '%{winwidth(0) > 50 ? printf("%s %03d:%-2d", LocPercent(), line("."), col(".")) : printf("%03d", line("."))}',
+\		'location': '%{winwidth(0) > 60 ? printf("%s %3d:%-2d", LocPercent(), line("."), col(".")) : printf("%3d", line("."))}',
 \	},
 \	'component_visible_condition': {
 \		'filetype': '(winwidth(0) > 40)',
@@ -124,7 +124,7 @@ let g:lightline = {
 \				[ 'lineinfo' ],
 \			],
 \	},
-\	'colorscheme': gui ? 'powerline' : 'cs',
+\	'colorscheme': gui ? 'powerline' : 'll_theme',
 \	'separator': gui ? { 'left': '', 'right': '' } : { 'left': '▓▒░', 'right': '░▒▓' },
 \	'subseparator': gui ? {'left': '|', 'right': '|' } : { 'left': '░', 'right': '░' },
 \ }
@@ -540,13 +540,15 @@ endif
 
 " Autocommands {{{1 -----------------------------------------------------------
 
-augroup filetypes
+augroup vimrc
 	au!
 	au Filetype markdown setl spell tw=80
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	au BufNewFile,BufFilePre,BufRead *.h set filetype=c
 	au Filetype c,cpp compiler gcc | compiler envcc
+
+	au VimResized * exec "normal \<c-w>="
 augroup END
 
 " Bindings {{{1 ---------------------------------------------------------------
