@@ -1,33 +1,8 @@
 " Intelligent Indent
-" Author: Michael Geddes < vimmer at frog dot wheelycreek dot net >
-" Version: 2.6
-" Last Modified: December 2010
-"
-" Histroy:
-"   1.0: - Added RetabIndent command - similar to :retab, but doesn't cause
-"         internal tabs to be modified.
-"   1.1: - Added support for backspacing over spaced tabs 'smarttab' style
-"        - Clean up the look of it by blanking the :call
-"        - No longer a 'filetype' plugin by default.
-"   1.2: - Interactions with 'smarttab' were causing problems. Now fall back to
-"          vim's 'smarttab' setting when inserting 'indent' tabs.
-"        - Fixed compat with digraphs (which were getting swallowed)
-"        - Made <BS> mapping work with the 'filetype' plugin mode.
-"        - Make CTabAlignTo() public.
-"   1.3: - Fix removing trailing spaces with RetabIndent! which was causing
-"          initial indents to disappear.
-"   1.4: - Fixed Backspace tab being off by 1
-"   2.0: - Add support for alignment whitespace for mismatched brackets to be spaces.
-"   2.1: - Fix = operator
-"   2.3: - Fix (Gene Smith) for error with non C files
-"        - Add option for filetype maps
-"        - Allow for lisp indentation
-"   2.4: - Fix bug in Retab
-"   2.5: - Fix issue with <CR> not aligning
-"   2.6: - Fix issue with alignment not disappearing.
+" Author: Timmy Yao
+" Version: 0.9.0
+" Last Modified: 26 September 2016
 
-" This is designed as a filetype plugin (originally a 'Buffoptions.vim' script).
-"
 " The aim of this script is to be able to handle the mode of tab usage which
 " distinguishes 'indent' from 'alignment'.  The idea is to use <tab>
 " characters only at the beginning of lines.
@@ -39,7 +14,7 @@
 " that you never 'align' elements that have different 'indent' levels.
 "
 " g:ctab_disable_tab_maps
-"   disable the (original) tab mappings
+"   disable tab insertion and deletion mappings
 
 if !exists('g:ctab_disable_tab_maps') || !g:ctab_disable_tab_maps
 	imap <silent> <expr> <tab> <SID>InsertSmartTab()
@@ -129,7 +104,9 @@ fun! s:CheckAlign(line)
 	" no of spaces
 	let indaspace=inda % big_ident_sz
 
-	let mov_seq = getline(a:line) =~ '^\s*$' ? "\<esc>^a" : ""
+	" indent only: move to end of indent (and make vim think we're there)
+	" indent + text: move to original cursor position
+	let mov_seq = getline(a:line) =~ '^\s*$' ? "\<esc>^a" : repeat("\<right>", vcol - indatabs * shiftwidth() + indaspace - 1)
 
 	return "\<home>^\<c-d>" . repeat("\<tab>", indatabs) . repeat(' ', indaspace) . mov_seq
 endfun

@@ -8,7 +8,35 @@ let true = !false
 let gui = has('gui_running') ? true : false
 let con = !gui
 
+let windows = has('win32') || has('win64')
+let unix = has('unix')
+
+if unix
+	let $VIM = $HOME . '/.vim'
+	let $myvimrc = $VIM . '/vimrc'
+endif
+
   " Plugins {{{1 --------------------------------------------------------------
+
+" vim depth, when running vim inside vim
+function! s:vimdepth() " {{{
+	if !exists('g:vim_did_depth')
+		let g:vim_did_depth = 1
+	else
+		return
+	endif
+
+	if !exists('$vim_depth')
+		let $vim_depth = 0 " original root vim
+	else
+		let $vim_depth = $vim_depth + 1
+	endif
+endfunction " }}}
+if exists('v:vim_did_enter')
+	call s:vimdepth()
+else
+	au! VimEnter * call s:vimdepth()
+endif
 
 if &loadplugins
 
@@ -18,27 +46,14 @@ Helptags
 
 let g:cpp_class_scope_highlight = true
 
-" Syntastic {{{2
-
-let g:syntastic_always_populate_loc_list = 1
-let g:syntastic_auto_loc_list = 2
-let g:syntastic_check_on_open = 1
-let g:syntastic_check_on_wq = 0
-
-let g:syntastic_c_clang_check_args = "-std=c11 -fms-compatibility-version=19"
-let g:syntastic_c_clang_check_post_args = "-Wall -Wextra -pedantic -O2 -D_CRT_SECURE_NO_WARNINGS"
-
-let g:syntastic_cpp_clang_check_args = "-std=c++14  -fms-compatibility-version=19"
-let g:syntastic_cpp_clang_check_post_args = "-Wall -Wextra -pedantic -O2 -D_CRT_SECURE_NO_WARNINGS"
-
 " Unite {{{2
 
 call unite#filters#matcher_default#use(['matcher_fuzzy'])
 
 " Using ag as recursive command.
 let g:unite_source_rec_async_command =
-\ ['ag', '--follow', '--nocolor', '--nogroup',
-\  '--hidden', '-g', '']
+\	[ 'ag', '--follow', '--nocolor', '--nogroup',
+\	  '--hidden', '-g', '' ]
 
 call unite#custom#profile('def', 'context', {
 \	'no_split': true,
@@ -72,7 +87,7 @@ if con == true
 endif
 
 set laststatus=2
-set noshowmode
+" set noshowmode
 
 let g:lightline = {
 \	'mode_map': {
@@ -93,52 +108,94 @@ let g:lightline = {
 \	},
 \	'component': {
 \		'paste': '%{&paste ? "cp" : ""}',
-\		'rostate': '%{(&modified ? "' . (gui ? '±' : '∓'). '" : &modifiable ? "w" : "r") . (&readonly ? "!" : "")}',
-\		'filename': '%n# %{winwidth(0) > 75 ? PartPath() : (len(expand("%")) > 0 ? expand("%") : "*")}',
-\
-\		'filetype': '%{winwidth(0) <= 40 ? "" : &ft == "" ? "*" : &ft}',
-\		'eoltype': '%{&ff == "dos" ? "" : &ff == "unix" ? "\\n" : "\\r"}',
 \
 \		'spell': '%{&spell ? (winwidth(0) > 80 ? "s:" . &spelllang : winwidth(0) > 50 ? "s..." : "") : ""}',
-\
-\		'location': '%{winwidth(0) > 60 ? printf("%s %3d:%-2d", LocPercent(), line("."), col(".")) : printf("%3d", line("."))}',
+\	},
+\	'component_function': {
+\		'filename': 'LL_Filename',
+\		'location': 'LL_Location',
+\		'rostate': 'LL_ROState',
+\		'filetype': 'LL_Filetype',
+\		'fileinfo': 'LL_Fileinfo',
+\		'bufinfo': 'LL_BufInfo',
 \	},
 \	'component_visible_condition': {
 \		'filetype': '(winwidth(0) > 40)',
-\		'eoltype': '(&ff != "dos")',
 \		'spell': '(&spell && winwidth(0) > 50)',
 \	},
 \	'active': {
-\		'left': [ [ 'mode' ],
-\			  [ 'filename', 'rostate' ],
-\			  [ 'spell' ], ],
-\		'right': [ [ 'location' ],
-\			   [ 'filetype', 'eoltype' ] ],
+\		'left': [
+\				[ 'bufinfo' ],
+\				[ 'filename', 'rostate' ],
+\				[ 'spell' ],
+\			],
+\		'right': [
+\				[ 'location' ],
+\				[ 'filetype' ],
+\			],
 \	},
 \	'inactive': {
 \		'left': [
 \				[ 'filename', 'rostate' ],
-\				[ 'fileencoding', 'eoltype' ],
+\				[ 'fileinfo' ],
 \			],
 \		'right': [
 \				[ 'lineinfo' ],
 \			],
 \	},
+\	'tabline': {
+\		'left': [
+\				[ 'tabs' ],
+\		],
+\		'right': [
+\				[ 'close' ],
+\		],
+\	},
+\
 \	'colorscheme': gui ? 'powerline' : 'll_theme',
+\
 \	'separator': gui ? { 'left': '', 'right': '' } : { 'left': '▓▒░', 'right': '░▒▓' },
 \	'subseparator': gui ? {'left': '|', 'right': '|' } : { 'left': '░', 'right': '░' },
+\
+\	'tabline_separator': { 'left': '░', 'right': '░' },
+\	'tabline_subseparator': { 'left': '', 'right': '' },
 \ }
 
-function! PartPath() " {{{2
-	let parts = (['', '', ''] + split(expand('%:p:h'), '\'))[-3:]
-	let fname = strlen(expand('%')) ? expand('%:t') : '*'
+function! LL_BufInfo() " {{{3
+	let cur_buf = bufnr('%')
+	let end_buf = bufnr('$')
 
-	let str = printf('%3.3S/%3.3S/%3.3S', parts[0], parts[1], parts[2])
+	let cur_tab = tabpagenr()
+	let end_tab = tabpagenr('$')
 
-	return str . ' / ' . fname
+	let lvl_str = 'level ' . $vim_depth
+	let buf_str = 'b' . cur_buf . '/' . end_buf
+	let tab_str = 't' . cur_tab . '/' . end_tab
+
+	return ($vim_depth ? lvl_str . ' : ' : '') . buf_str . (end_tab != 1 ? ' : ' . tab_str : '')
 endfunction
 
-function! LocPercent() " {{{2
+function! LL_Filename() " {{{3
+	if expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
+		return ''
+	endif
+
+	let bufnum = bufnr('%') . '#'
+	let name = expand('%:t') == '' ? '*' : expand('%:t')
+	if winwidth(0) > 75
+		let fsegs = (['', '', ''] + split(expand('%:p:h'), g:windows ? '\' : '/'))[-3:]
+		let minisegs = map(fsegs, 'matchstr(v:val, "...")')
+		let name = join(minisegs, '/') . ' / ' . name
+	endif
+	return name
+endfunction
+
+function! LL_Filetype() " {{{3
+	let ft = &ft == '' ? 'no ft' : &ft
+	return ft
+endfunction
+
+function! LocPercent() " {{{3
 	let cur = line('.')
 	let top = 1
 	let bot = line('$')
@@ -153,19 +210,27 @@ function! LocPercent() " {{{2
 	endif
 endfunction
 
-" DelimitMate {{{2 ------------------------------------------------------------
+function! LL_Location() " {{{3
+	if winwidth(0) > 60
+		return printf('%s %3d:%-2d', LocPercent(), line('.'), col('.'))
+	else
+		return printf("%3d", line("."))
+	endif
+endfunction
 
-let delimitMate_expand_cr = true
-let delimitMateBalance = true
+function! LL_ROState() " {{{3
+	if &ft =~? 'help' || expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
+		return ''
+	endif
 
-" ConqueTerm {{{2 -------------------------------------------------------------
+	let modified_char = g:gui ? '±' : '∓'
+	return (&modified ? modified_char : &modifiable ? 'w' : 'r') . (&readonly ? '!' : '')
+endfunction
 
-let g:ConqueTerm_EscKey = '<c-space>'
-
-" Table Mode {{{2 -------------------------------------------------------------
-
-let g:table_mode_map_prefix = 'gt'
-let g:table_mode_toggle_map = 't'
+function! LL_Fileinfo() " {{{3
+	let eol = &ff == 'dos' ? '' : &ff == 'unix' ? '\\n' : '\\r'
+	return LL_Filetype() . ' '. eol . ' '. &fenc
+endfunction
 
 " Startify {{{2 ---------------------------------------------------------------
 
@@ -174,12 +239,16 @@ let g:startify_list_order = ['sessions', 'bookmarks', 'commands', 'files']
 if getcwd() != $home
 	call add(g:startify_list_order, 'dir')
 endif
+
 let g:startify_bookmarks = [
-	\ {'h': $home },
-	\ {'v': '~/vimfiles/vimrc' },
-	\ {'V': '~/vimfiles' },
-	\ {'s': '~/Onedrive/local/source' },
+	\ {'h': $HOME },
+	\ {'v': $VIM . '/vimrc' },
+	\ {'V': $VIM },
 	\]
+if windows
+	g:startify_bookmarks += [ {'s': '~/Onedrive/local/source' } ]
+endif
+
 let g:startify_files_number = 5
 let g:startify_session_autoload = true
 let g:startify_change_to_dir = true
@@ -281,15 +350,23 @@ set formatoptions=crqlnt
 " Tempfiles {{{2 --------------------------------------------------------------
 
 set backup
-set backupdir=$VIM/tempfiles/backup//,$TEMP
-
 set swapfile
-set directory=$VIM/tempfiles/swap//,$TEMP
-
 set undofile
-set undodir=$VIM/tempfiles/undo//,$TEMP
+
+if windows
+	set directory=$VIM/tempfiles/swap//,$TEMP
+	set backupdir=$VIM/tempfiles/backup//,$TEMP
+	set undodir=$VIM/tempfiles/undo//,$TEMP
+else
+	set directory=$HOME/.vim/swap//,/var/tmp//,/tmp//
+	set backupdir=$HOME/.vim/backup//,/var/tmp//,/tmp//
+	set undodir=$HOME/.vim/undo//,/var/tmp//,/tmp//
+endif
 
 " Editing {{{2 ----------------------------------------------------------------
+
+" Modeline
+set nomodeline
 
 " No timeout
 set notimeout
@@ -386,8 +463,6 @@ function! BufCleanup() " {{{2
 	endfor
 	echomsg nWipeouts . ' buffer(s) wiped out'
 endfunction
-
-command! -nargs=0 KillBuffers call BufCleanup()
 
 function! DumpOpts() " {{{2
 	let msg = ''
@@ -546,12 +621,17 @@ augroup vimrc
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	au BufNewFile,BufFilePre,BufRead *.h set filetype=c
-	au Filetype c,cpp compiler gcc | compiler envcc
 
-	au VimResized * exec "normal \<c-w>="
+	au Filetype c,cpp compiler gcc | compiler envcc | set commentstring=//%s
+
+	au FocusLost,VimLeavePre * silent wa
+	au VimResized * exec "normal! \<c-w>="
 augroup END
 
 " Bindings {{{1 ---------------------------------------------------------------
+
+command! -nargs=0 KillBuffers call BufCleanup()
+command! -nargs=0 KillWhitespace KillWhitespace
 
 let mapleader = "\<Space>"
 
@@ -564,6 +644,9 @@ noremap <silent> 0 :call LineHome()<cr>
 noremap U <c-r>
 noremap <expr> <cr> empty(&buftype) ? '@@' : '<cr>'
 
+" gui variant
+noremap! <c-bs> <c-w>
+" console variant
 noremap! <c-> <c-w>
 
 " Registers, much easier to reach
@@ -605,7 +688,7 @@ nnoremap <silent> <leader>rr :call ReloadAll()<cr>
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
 nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>om :call MakeModeSwitch()<cr>
-nnoremap <silent> <leader>ou :UndotreeToggle<cr>
+nnoremap <silent> <leader>ou :GundoToggle<cr>
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? ":diffoff" : ":diffthis") . "<cr>"
 
