@@ -55,3 +55,6 @@
 [submodule "bundle/gundo.vim"]
 	path = bundle/gundo.vim
 	url = https://github.com/sjl/gundo.vim.git
+[submodule "bundle/vim-mucomplete"]
+	path = bundle/vim-mucomplete
+	url = https://github.com/lifepillar/vim-mucomplete.git
