@@ -13,12 +13,14 @@
 " The one caveat with this method of tabs is that you need to follow the rule
 " that you never 'align' elements that have different 'indent' levels.
 "
-" g:ctab_disable_tab_maps
+" g:ctab#disable_maps
 "   disable tab insertion and deletion mappings
 
-if !exists('g:ctab_disable_tab_maps') || !g:ctab_disable_tab_maps
+inoremap <expr> <Esc> (match(getline('.'), '^\s\+$') == -1 ? '' : "^\<c-d>") . "\<esc>"
+
+if !exists('g:ctab#disable_maps') || !g:ctab#disable_maps
 	imap <silent> <expr> <tab> <SID>InsertSmartTab()
-	inoremap <silent> <expr> <BS> <SID>DoSmartDelete()
+	inoremap <silent> <expr> <BS> <SID>SmartDelete()
 endif
 
 " Insert a smart tab.
@@ -34,7 +36,7 @@ fun! s:InsertSmartTab()
 endfun
 
 " Do a smart delete.
-fun! s:DoSmartDelete()
+fun! s:SmartDelete()
 	let line = getline('.')
 	let pos = col('.') - 1
 	let ident_sz = strlen(matchstr(line, '^\t* *'))
@@ -106,7 +108,7 @@ fun! s:CheckAlign(line)
 
 	" indent only: move to end of indent (and make vim think we're there)
 	" indent + text: move to original cursor position
-	let mov_seq = getline(a:line) =~ '^\s*$' ? "\<esc>^a" : repeat("\<right>", vcol - indatabs * shiftwidth() + indaspace - 1)
+	let mov_seq = getline(a:line) =~ '^\s*$' ? "\<esc>^a" : "\<end>"
 
 	return "\<home>^\<c-d>" . repeat("\<tab>", indatabs) . repeat(' ', indaspace) . mov_seq
 endfun
