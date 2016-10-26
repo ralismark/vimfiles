@@ -14,11 +14,14 @@ let unix = has('unix')
 if unix
 	let $VIM = $HOME . '/.vim'
 	let $myvimrc = $VIM . '/vimrc'
+else
+	let $VIM = $HOME . '/vimfiles'
 endif
 
-  " Plugins {{{1 --------------------------------------------------------------
+" Plugins {{{1 --------------------------------------------------------------
 
 " vim depth, when running vim inside vim
+
 function! s:vimdepth() " {{{
 	if !exists('g:vim_did_depth')
 		let g:vim_did_depth = 1
@@ -31,12 +34,15 @@ function! s:vimdepth() " {{{
 	else
 		let $vim_depth = $vim_depth + 1
 	endif
-endfunction " }}}
+endfunction
+
 if exists('v:vim_did_enter')
 	call s:vimdepth()
 else
 	au! VimEnter * call s:vimdepth()
 endif
+
+" }}}
 
 if &loadplugins
 
@@ -246,7 +252,7 @@ let g:startify_bookmarks = [
 	\ {'V': $VIM },
 	\]
 if windows
-	g:startify_bookmarks += [ {'s': '~/Onedrive/local/source' } ]
+	call add(g:startify_bookmarks, {'s': '~/Onedrive/local/source' })
 endif
 
 let g:startify_files_number = 5
@@ -414,6 +420,21 @@ set cino+=t0  " Function return type declarations
 
 " Functions {{{1 --------------------------------------------------------------
 
+function! SubExpr(str, expr) " {{{2
+	let subs = split(a:expr, '\([^\\]\|^\)\zs/')
+	return substitute(a:str, subs[0], len(subs) > 1 ? subs[1] : '', len(subs) > 2 ? subs[2] : '')
+endfunction
+
+function! Find(file, path) " {{{2
+	let path = substitute(substitute(a:path, ';', ',','g'), '\', '/', 'g')
+	let pathlist = split(path, ',')
+
+	let pathexpr = '\V\^\(\(' . join(pathlist, '\)\|\(') . '\)\)/\?'
+	let results = map(globpath(path, a:file, 0, 1), 'substitute(v:val, "\\", "/", "g")')
+
+	return map(results, 'substitute(v:val, pathexpr, "", "")')
+endfunction
+
 function! ReloadAll() " {{{2
 	" lightline
 	if !exists('g:loaded_lightline')
@@ -490,13 +511,9 @@ endfunction
 
 command! -narg=1 ISet call ModVar('<args>')
 
-function! SystemExec() " {{{2
-	let cmd = input('!', '', 'shellcmd')
-	exec '!cls & ' . cmd
-endfunction
-
-function! Mkcabbr(abbr, expand) " {{{2
-	exec 'cabbr ' . a:abbr . ' <c-r>=getcmdpos() == 1 && getcmdtype() == ":" ? "' . a:expand . '" : "' . a:abbr . '"<CR>'
+function! CreateAlias(from, to) " {{{2
+	exec 'cnoreabbrev <expr> ' . a:from . ' ((getcmdtype() is# ":" && getcmdline() is# "'.a:from.'")'
+		\ .'? ("'.a:to.'") : ("'.a:from.'"))'
 endfunction
 
 function! Rename(newname) " {{{2
@@ -604,7 +621,7 @@ function! ExecFile()
 		so %
 	elseif ft == "c" || ft == "cpp"
 		!cls & "%:r.exe"
-	elseif ft == "html" || ft == "registry"
+	elseif ft == "html" || ft == "registry" || ft == "dosbatch"
 		!"%"
 	else
 		echoe "Exec not defined for ft=" . ft
@@ -624,7 +641,7 @@ augroup vimrc
 
 	au Filetype c,cpp compiler gcc | compiler envcc | set commentstring=//%s
 
-	au FocusLost,VimLeavePre * silent wa
+	au FocusLost,VimLeavePre * silent! w
 	au VimResized * exec "normal! \<c-w>="
 augroup END
 
@@ -651,8 +668,6 @@ noremap! <c-> <c-w>
 
 " Registers, much easier to reach
 noremap _ "_
-
-noremap ! :call SystemExec()<cr>
 
 noremap <leader> <nop>
 noremap <silent> <leader><space> :nohl<cr>
