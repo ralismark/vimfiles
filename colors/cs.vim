@@ -9,29 +9,29 @@ let g:colors_name="cs"
 " UI Styles {{{1 -------------------------------------------------------------
 
 " General text style
-hi Normal               ctermfg=7       ctermbg=none
-hi NonText              ctermfg=8       ctermbg=none
-hi SpecialKey           ctermfg=8       ctermbg=none
+hi Normal               ctermfg=7       ctermbg=0
+hi NonText              ctermfg=8       ctermbg=bg
+hi SpecialKey           ctermfg=8       ctermbg=bg
 hi Visual               ctermfg=15      ctermbg=1
 hi link VisualNOS       Visual
 
 " Status/Tab line
 hi StatusLine           ctermfg=15      ctermbg=8
 hi StatusLineNC         ctermfg=7       ctermbg=8
-hi TabLine              ctermfg=15      ctermbg=none
-hi TabLineFill          ctermfg=7       ctermbg=none
+hi TabLine              ctermfg=15      ctermbg=bg
+hi TabLineFill          ctermfg=7       ctermbg=bg
 hi TabLineSel           ctermfg=0       ctermbg=1
 
 " Below the statusline / ex command region
 hi WarningMsg           ctermfg=0       ctermbg=6
 hi ErrorMsg             ctermfg=15      ctermbg=4
-hi ModeMsg              ctermfg=2       ctermbg=none
-hi Question             ctermfg=2       ctermbg=none
+hi ModeMsg              ctermfg=2       ctermbg=bg
+hi Question             ctermfg=2       ctermbg=bg
 hi WildMenu             ctermfg=0       ctermbg=14
 
 " Spell
-hi SpellBad             ctermfg=4       ctermbg=none
-hi SpellCap             ctermfg=6       ctermbg=none
+hi SpellBad             ctermfg=4       ctermbg=bg
+hi SpellCap             ctermfg=6       ctermbg=bg
 hi link SpellLocal      SpellCap
 hi link SpellRare       SpellCap
 
@@ -40,8 +40,8 @@ hi Search               ctermfg=0       ctermbg=6
 hi IncSearch            ctermfg=0       ctermbg=2
 
 " Gutter
-hi LineNr               ctermfg=8       ctermbg=none
-hi CursorLineNr         ctermfg=6       ctermbg=none
+hi LineNr               ctermfg=8       ctermbg=bg
+hi CursorLineNr         ctermfg=6       ctermbg=bg
 hi FoldColumn           ctermfg=1       ctermbg=0
 hi SignColumn           ctermfg=7       ctermbg=0
 
@@ -49,14 +49,14 @@ hi SignColumn           ctermfg=7       ctermbg=0
 hi ColorColumn          ctermfg=0       ctermbg=8
 hi CursorColumn                         ctermbg=8
 hi CursorLine                           ctermbg=8
-hi Folded               ctermfg=8       ctermbg=none
+hi Folded               ctermfg=8       ctermbg=bg
 hi VertSplit            ctermfg=8       ctermbg=8
 
 " Diff
-hi DiffAdd              ctermfg=2       ctermbg=none
-hi DiffChange           ctermfg=6       ctermbg=none
-hi DiffDelete           ctermfg=4       ctermbg=none
-hi DiffText             ctermfg=6       ctermbg=none
+hi DiffAdd              ctermfg=2       ctermbg=bg
+hi DiffChange           ctermfg=6       ctermbg=bg
+hi DiffDelete           ctermfg=4       ctermbg=bg
+hi DiffText             ctermfg=6       ctermbg=bg
 
 " Popup Menu
 hi Pmenu                ctermfg=15      ctermbg=8
@@ -65,7 +65,7 @@ hi PmenuSbar            ctermfg=6       ctermbg=0
 
 " Misc
 hi MatchParen           ctermfg=0       ctermbg=6
-hi Directory            ctermfg=4       ctermbg=none
+hi Directory            ctermfg=4       ctermbg=bg
 
 " Syntax {{{1 ----------------------------------------------------------------
 
@@ -96,4 +96,4 @@ hi link Typedef         StorageClass
 
 hi Error                ctermfg=7       ctermbg=4
 
-hi Todo                 ctermfg=6       ctermbg=none
+hi Todo                 ctermfg=6       ctermbg=bg

@@ -58,3 +58,6 @@
 [submodule "bundle/vim-mucomplete"]
 	path = bundle/vim-mucomplete
 	url = https://github.com/lifepillar/vim-mucomplete.git
+[submodule "bundle/asyncrun.vim"]
+	path = bundle/asyncrun.vim
+	url = https://github.com/skywind3000/asyncrun.vim.git

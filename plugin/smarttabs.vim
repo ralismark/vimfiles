@@ -1,7 +1,7 @@
 " Intelligent Indent
 " Author: Timmy Yao
 " Version: 0.9.0
-" Last Modified: 26 September 2016
+" Last Modified: 26 October 2016
 
 " The aim of this script is to be able to handle the mode of tab usage which
 " distinguishes 'indent' from 'alignment'.  The idea is to use <tab>
@@ -19,7 +19,7 @@
 inoremap <expr> <Esc> (match(getline('.'), '^\s\+$') == -1 ? '' : "^\<c-d>") . "\<esc>"
 
 if !exists('g:ctab#disable_maps') || !g:ctab#disable_maps
-	imap <silent> <expr> <tab> <SID>InsertSmartTab()
+	" imap <silent> <expr> <tab> <SID>InsertSmartTab()
 	inoremap <silent> <expr> <BS> <SID>SmartDelete()
 endif
 
@@ -108,7 +108,11 @@ fun! s:CheckAlign(line)
 
 	" indent only: move to end of indent (and make vim think we're there)
 	" indent + text: move to original cursor position
-	let mov_seq = getline(a:line) =~ '^\s*$' ? "\<esc>^a" : "\<end>"
+	let mov_seq = "\<esc>^a"
+	if getline(a:line) !~ '^\s*$'
+		let num = vcol - (shiftwidth() - 1) * indatabs - 1
+		let mov_seq = "\<home>" . repeat("\<right>", num)
+	endif
 
 	return "\<home>^\<c-d>" . repeat("\<tab>", indatabs) . repeat(' ', indaspace) . mov_seq
 endfun
