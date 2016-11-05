@@ -2,6 +2,8 @@ set nocompatible
 autocmd!
 abclear
 
+" Utility {{{1
+
 let false = 0
 let true = !false
 
@@ -18,7 +20,7 @@ else
 	let $VIM = $HOME . '/vimfiles'
 endif
 
-" Plugins {{{1 --------------------------------------------------------------
+" Plugins {{{1
 
 " vim depth, when running vim inside vim
 
@@ -46,11 +48,13 @@ endif
 
 if &loadplugins
 
+let g:cpp_class_scope_highlight = true
+
+" Pathogen {{{2
+
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 execute pathogen#infect()
 Helptags
-
-let g:cpp_class_scope_highlight = true
 
 " Unite {{{2
 
@@ -78,7 +82,7 @@ endfunction
 
 let g:vimproc#download_windows_dll = true
 
-" vim-easy-align {{{2 ---------------------------------------------------------
+" vim-easy-align {{{2
 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
 xmap ga <Plug>(EasyAlign)
@@ -86,7 +90,7 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-" Lightline {{{2 --------------------------------------------------------------
+" Lightline {{{2
 
 if con == true
 	set showtabline=2
@@ -189,7 +193,7 @@ function! LL_Filename() " {{{3
 	let bufnum = bufnr('%') . '#'
 	let name = expand('%:t') == '' ? '*' : expand('%:t')
 	if winwidth(0) > 75
-		let fsegs = (['', '', ''] + split(expand('%:p:h'), g:windows ? '\' : '/'))[-3:]
+		let fsegs = (['', '', ''] + split(expand('%:p:h'), '/'))[-3:]
 		let minisegs = map(fsegs, 'matchstr(v:val, "...")')
 		let name = join(minisegs, '/') . ' / ' . name
 	endif
@@ -238,7 +242,7 @@ function! LL_Fileinfo() " {{{3
 	return LL_Filetype() . ' '. eol . ' '. &fenc
 endfunction
 
-" Startify {{{2 ---------------------------------------------------------------
+" Startify {{{2
 
 let g:startify_session_dir = '~/vimfiles/session'
 let g:startify_list_order = ['sessions', 'bookmarks', 'commands', 'files']
@@ -255,22 +259,41 @@ if windows
 	call add(g:startify_bookmarks, {'s': '~/Onedrive/local/source' })
 endif
 
-let g:startify_files_number = 5
+let g:startify_files_number = 10
 let g:startify_session_autoload = true
 let g:startify_change_to_dir = true
 let g:startify_change_to_vcs_root = true
 let g:startify_custom_indices = map(add(range(1,9), 0), 'string(v:val)')
 
+" MuComplete {{{2
+
+let g:mucomplete#chains = {
+	\ 'default': [ 'user', 'omni', 'file', 'keyn' ],
+	\ }
+let g:mucomplete#can_complete = {
+	\ 'default' : {
+	\ 	'dict':  { t -> strlen(&l:dictionary) > 0 },
+	\ 	'file':  { t -> t =~# '/' },
+	\ 	'omni':  { t -> strlen(&l:omnifunc) > 0 },
+	\ 	'spel':  { t -> &l:spell },
+	\ 	'tags':  { t -> !empty(tagfiles()) },
+	\ 	'thes':  { t -> strlen(&l:thesaurus) > 0 },
+	\ 	'user':  { t -> strlen(&l:completefunc) > 0 },
+	\ 	},
+	\ }
+let g:mucomplete#no_mappings = true
+imap <s-tab> <plug>(MUcompleteFwd)
+
 " }}}
 
 endif
 
-" Options {{{1 ----------------------------------------------------------------
+" Options {{{1
 
 filetype plugin indent on
 let $vim = $home . "/vimfiles"
 
-" User Interface {{{2 ---------------------------------------------------------
+" User Interface {{{2
 
 " Line buffer at top/bottom when scrolling
 set scrolloff=10
@@ -319,7 +342,7 @@ set foldlevel=999
 set shellpipe=2>&1\ \|\ tee
 
 " hit-enter prompt
-set shortmess=ilnxIT
+set shortmess=nxcIT
 
 " Split options
 set splitright
@@ -328,7 +351,7 @@ set splitright
 " % for angle brackets
 set matchpairs+=<:>
 
-" Formatting {{{2 -------------------------------------------------------------
+" Formatting {{{2
 
 syntax enable
 
@@ -353,7 +376,7 @@ set encoding=utf-8
 set textwidth=0
 set formatoptions=crqlnt
 
-" Tempfiles {{{2 --------------------------------------------------------------
+" Tempfiles {{{2
 
 set backup
 set swapfile
@@ -369,7 +392,15 @@ else
 	set undodir=$HOME/.vim/undo//,/var/tmp//,/tmp//
 endif
 
-" Editing {{{2 ----------------------------------------------------------------
+" Editing {{{2
+
+" Shell Options
+set shellslash
+
+" Completion
+set completeopt=menu,menuone
+set infercase
+set complete=.,w,b,t,i,d
 
 " Modeline
 set nomodeline
@@ -397,7 +428,7 @@ set spellsuggest=fast,8
 " Viminfo
 set viminfo=!,%,'64,/16,s10,c,f1,h,rD:,rE:
 
-" C Indent {{{2 ---------------------------------------------------------------
+" C Indent {{{2
 
 " kernel style indents
 set tabstop=8
@@ -418,7 +449,78 @@ set cino+=g0  " Scope labels
 set cino+=l1  " No align with label
 set cino+=t0  " Function return type declarations
 
-" Functions {{{1 --------------------------------------------------------------
+" Functions {{{1
+
+function! InsertSingleChar(before) " {{{2
+	let char = getchar()
+	return type(char) == 0 ? (a:before ? 'a' : 'i') . nr2char(char) . "\<esc>" : ""
+endfunction
+
+function! Trim(str) " {{{2
+	return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
+endfunction
+
+function! PadStr(str, len) " {{{2
+	return a:str . repeat(' ', a:len - len(a:str))
+endfunction
+
+function! Completion(findstart, base) " {{{2
+	if a:findstart == 1
+		let line = getline('.')
+		let loc = match(line, '^\s*#\s*include\s*["<]\s*\zs')
+		if loc > -1
+			return loc
+		endif
+
+		return -3
+	else
+		let line = getline('.')
+
+		" include matching
+		if match(line, '^\s*#\s*include') > -1
+			let out = []
+			if match(line, '^\s*#\s*include\s*"') > -1
+				let words = glob(a:base . '*', 0, 1)
+
+				for i in range(len(words))
+					if isdirectory(words[i])
+						let out += [ {
+						\ 'word': words[i] . '/',
+						\ 'abbr': words[i]
+						\ 'menu': '(dir)',
+						\ } ]
+					else
+						let out += [ {
+						\ 'word': words[i] . '"',
+						\ 'abbr': words[i],
+						\ 'menu': '(file)',
+						\ } ]
+					endif
+				endfor
+			elseif match(line, '^\s*#\s*include\s*<') > -1
+				let words = Find(a:base . '*', $include)
+
+				for i in range(len(words))
+					if words[i][-1:-1] == '/'
+						let out += [ {
+						\ 'word': words[i],
+						\ 'abbr': words[i][:-2],
+						\ 'menu': '(dir)',
+						\ } ]
+					else
+						let out += [ {
+						\ 'word': words[i] . '>',
+						\ 'abbr': words[i],
+						\ 'menu': '(file)',
+						\ } ]
+					endif
+				endfor
+			endif
+
+			return { 'words': out, 'refresh': 'always' }
+		endif
+	endif
+endfunction
 
 function! SubExpr(str, expr) " {{{2
 	let subs = split(a:expr, '\([^\\]\|^\)\zs/')
@@ -430,7 +532,7 @@ function! Find(file, path) " {{{2
 	let pathlist = split(path, ',')
 
 	let pathexpr = '\V\^\(\(' . join(pathlist, '\)\|\(') . '\)\)/\?'
-	let results = map(globpath(path, a:file, 0, 1), 'substitute(v:val, "\\", "/", "g")')
+	let results = map(map(globpath(path, a:file, 0, 1), 'v:val . (isdirectory(v:val) ? "/" : "")'), 'substitute(v:val, "\\", "/", "g")')
 
 	return map(results, 'substitute(v:val, pathexpr, "", "")')
 endfunction
@@ -487,15 +589,15 @@ endfunction
 
 function! DumpOpts() " {{{2
 	let msg = ''
-
-	let vars = [ 'g:make_mode', 'g:make_args' ]
+	let vars = [ 'g:make_mode', 'g:make_args', '&wrap', '&scrollbind', '&diff' ]
+	let len = max(map(copy(vars), 'len(v:val)'))
 
 	for var in vars
-		let msg .= "\n  " . var . "\t"
+		let msg .= "\n  " . PadStr(var, len + 2)
 		if exists(var)
 			let msg .= eval(var)
 		else
-			let msg .= "(undefined)"
+			let msg .= '(undefined)'
 		endif
 	endfor
 
@@ -509,12 +611,7 @@ function! ModVar(varname) " {{{2
 	exec 'let  ' . a:varname . ' = input(''' . a:varname . '? '',' . a:varname . ')'
 endfunction
 
-command! -narg=1 ISet call ModVar('<args>')
-
-function! CreateAlias(from, to) " {{{2
-	exec 'cnoreabbrev <expr> ' . a:from . ' ((getcmdtype() is# ":" && getcmdline() is# "'.a:from.'")'
-		\ .'? ("'.a:to.'") : ("'.a:from.'"))'
-endfunction
+command! -narg=1 -complete=var ISet call ModVar('<args>')
 
 function! Rename(newname) " {{{2
 	exec 'saveas! ' . a:newname
@@ -560,10 +657,6 @@ function! Make() " {{{2
 	exec 'make! ' . args . ' ' . g:make_args
 endfunction
 
-function! Trim(str) " {{{2
-	return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
-endfunction
-
 function! ToggleWrap() " {{{2
 	setl wrap!
 	if &wrap
@@ -582,24 +675,6 @@ endfunction
 function! SudoRepeat() " {{{2
 	let cmdline = split(@:)
 	exec cmdline[0] . '! ' . join(cmdline[1:])
-endfunction
-
-function! ToTmpfile() " {{{2
-	if exists("b:tmpfname") && !empty(b:tmpfname) && @% == b:tmpfname
-		return
-	endif
-
-	if !empty(glob(@%))
-		let b:tmpfname = @%
-		return
-	endif
-
-	let b:tmpfname = tempname()
-	if empty(@%)
-		exec "w! " . b:tmpfname
-	else
-		exec "saveas! " . b:tmpfname
-	endif
 endfunction
 
 function! TmpTags() " {{{2
@@ -630,7 +705,7 @@ endfunction
 
 endif
 
-" Autocommands {{{1 -----------------------------------------------------------
+" Autocommands {{{1
 
 augroup vimrc
 	au!
@@ -639,16 +714,26 @@ augroup vimrc
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	au BufNewFile,BufFilePre,BufRead *.h set filetype=c
 
-	au Filetype c,cpp compiler gcc | compiler envcc | set commentstring=//%s
+	au Filetype c,cpp
+		\ compiler gcc | compiler envcc
+		\ | setl commentstring=//%s
+		\ | setl completefunc=Completion
+		\ | setl iskeyword=a-z,A-Z,48-57,_
+
+	au Filetype vim
+		\ setl iskeyword=a-z,A-Z,48-57,_,:,$
+
+	au Filetype scratch
+		\ setl buftype=nowrite
 
 	au FocusLost,VimLeavePre * silent! w
 	au VimResized * exec "normal! \<c-w>="
 augroup END
 
-" Bindings {{{1 ---------------------------------------------------------------
+" Bindings {{{1
 
 command! -nargs=0 KillBuffers call BufCleanup()
-command! -nargs=0 KillWhitespace KillWhitespace
+command! -nargs=0 KillWhitespace StripWhitespace
 
 let mapleader = "\<Space>"
 
@@ -659,15 +744,18 @@ noremap s <c-w>
 noremap , ;
 noremap <silent> 0 :call LineHome()<cr>
 noremap U <c-r>
-noremap <expr> <cr> empty(&buftype) ? '@@' : '<cr>'
+noremap <expr> <return> !empty(&buftype) ? "\<return>" : "o\<esc>"
+noremap <expr> <s-return> !empty(&buftype) ? "\<return>" : "O\<esc>"
+noremap Y y$
 
-" gui variant
+" bignum::gui variant
 noremap! <c-bs> <c-w>
 " console variant
 noremap! <c-> <c-w>
 
 " Registers, much easier to reach
 noremap _ "_
+noremap - "_
 
 noremap <leader> <nop>
 noremap <silent> <leader><space> :nohl<cr>
@@ -675,8 +763,8 @@ noremap <silent> <leader><space> :nohl<cr>
 " Buffer/Tab switching
 noremap <silent> [b :bp<cr>
 noremap <silent> ]b :bn<cr>
-noremap <silent> [t :tabn<cr>
-noremap <silent> ]t :tabp<cr>
+noremap <silent> [t :tabp<cr>
+noremap <silent> ]t :tabn<cr>
 
 " Complement <tab>
 nnoremap <s-tab> <c-o>
@@ -728,9 +816,10 @@ nnoremap <silent> <leader>sl :belowright vertical new<cr>
 nnoremap <leader>t :tab new<cr>
 
 " unite binds
-nnoremap <silent> <c-p> :UniteWithCurrentDir -profile-name=def file<cr>
+nnoremap <silent> <leader>ff :UniteWithCurrentDir -profile-name=def file<cr>
+nnoremap <silent> <leader>fb :UniteWithCurrentDir -profile-name=def buffer<cr>
 
-" Other Features {{{1 ---------------------------------------------------------
+" Other Features {{{1
 
 " Return to last edit position when opening files (You want this!)
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
