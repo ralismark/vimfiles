@@ -282,7 +282,7 @@ let g:mucomplete#can_complete = {
 	\ 	},
 	\ }
 let g:mucomplete#no_mappings = true
-imap <s-tab> <plug>(MUcompleteFwd)
+imap <s-return> <plug>(MUcompleteFwd)
 
 " }}}
 
@@ -451,17 +451,124 @@ set cino+=t0  " Function return type declarations
 
 " Functions {{{1
 
-function! InsertSingleChar(before) " {{{2
+" Compiling {{{
+function! GenMakeCommand(args) " {{{
+	let cmd = '[' . &makeprg . ']'
+	let cmd = substitute(cmd, '\$\*',      {m -> a:args},       ' ')
+	let cmd = substitute(cmd, '%',         {m -> expand(m[0])}, ' ')
+	let cmd = substitute(cmd, '#<[0-9]\+', {m -> expand(m[0])}, ' ')
+	let cmd = substitute(cmd, '#',         {m -> expand(m[0])}, ' ')
+	let cmd = substitute(cmd, '##',        {m -> expand(m[0])}, ' ')
+	let cmd = substitute(cmd, '#[0-9]\+',  {m -> expand(m[0])}, ' ')
+	return cmd[1:-2]
+endfunction " }}}
+function! Make() " {{{
+	let args = ''
+	if !exists('g:make_args')
+		let g:make_args = ''
+	endif
+	if !exists('g:make_mode')
+		let g:make_mode = 'exe'
+	endif
+
+	if g:make_mode == 'exe'
+		let args = '-o ' . expand('%:r') . '.exe'
+	elseif g:make_mode == 'syn'
+		let args = '-fsyntax-only'
+	elseif g:make_mode == 'obj'
+		let args = '-c -o ' . expand('%:r') . '.o'
+	endif
+
+	exec 'make! ' . args . ' ' . g:make_args
+endfunction " }}}
+function! MakeModeSwitch() " {{{
+	if !exists('g:make_mode')
+		let g:make_mode = 'exe'
+	endif
+
+	if g:make_mode == 'exe'
+		let g:make_mode = 'syn' " syntax checking [-fsyntax-only]
+		echo '\m -> syntax check only'
+	elseif g:make_mode == 'syn'
+		let g:make_mode = 'obj' " object file, -c
+		echo '\m -> object file'
+	else
+		let g:make_mode = 'exe' " fallback for unknown options
+		echo '\m -> compile'
+	endif
+endfunction " }}}
+" }}}
+
+function! Sort(type, ...) " {{{
+	let sel_save = &selection
+	let &selection = "inclusive"
+	let reg_save = @@
+
+	let type = a:type
+
+	if a:0
+		if a:type ==# 'v'
+			let type = 'char'
+		elseif a:type ==# 'V'
+			let type = 'line'
+		else
+			let type = 'block'
+		endif
+	endif
+
+	let range = a:0 ? '<>' : '[]'
+
+	if type == 'char'
+		silent exe 'normal! `' . range[0] . 'v`' . range[1] . 'y'
+
+		let chars = filter(split(@@, '.\zs'), { key, val -> match(val, '[[:cntrl:]]') })
+		let @@ = join(sort(chars), '')
+
+		silent exe 'normal! `' . range[0] . 'v`' . range[1] . 'c' . @@
+	else
+		silent exe "'" . range[0] . ",'" . range[1] . 'sort /\ze\%V/'
+	endif
+
+	let &selection = sel_save
+	let @@ = reg_save
+endfunction " }}}
+
+function! InsertSingleChar(before) " {{{
 	let char = getchar()
 	return type(char) == 0 ? (a:before ? 'a' : 'i') . nr2char(char) . "\<esc>" : ""
-endfunction
-
-function! Trim(str) " {{{2
-	return substitute(a:str, '^\s*\(.\{-}\)\s*$', '\1', '')
-endfunction
-
+endfunction " }}}
 function! PadStr(str, len) " {{{2
 	return a:str . repeat(' ', a:len - len(a:str))
+endfunction
+
+function! GetLocalIncludes(base) " {{{2
+	let out = []
+
+	let words = glob(a:base . '*', 0, 1)
+	let files = filter(copy(words), { key, val -> !isdirectory(val) })
+	let dirs = filter(copy(words), { key, val -> isdirectory(val) })
+
+	if a:base =~ '^\(\.\.[\\/]\)*$'
+		call insert(dirs, a:base . '..')
+	endif
+
+	for i in range(len(files))
+		let out += [ {
+		\ 'word': files[i],
+		\ 'abbr': files[i],
+		\ 'menu': 'f'
+		\ } ]
+	endfor
+
+	for i in range(len(dirs))
+		let out += [ {
+		\ 'word': dirs[i],
+		\ 'abbr': dirs[i] . '/',
+		\ 'menu': 'd'
+		\ } ]
+	endfor
+
+	return out
 endfunction
 
 function! Completion(findstart, base) " {{{2
@@ -480,38 +587,24 @@ function! Completion(findstart, base) " {{{2
 		if match(line, '^\s*#\s*include') > -1
 			let out = []
 			if match(line, '^\s*#\s*include\s*"') > -1
-				let words = glob(a:base . '*', 0, 1)
 
-				for i in range(len(words))
-					if isdirectory(words[i])
-						let out += [ {
-						\ 'word': words[i] . '/',
-						\ 'abbr': words[i]
-						\ 'menu': '(dir)',
-						\ } ]
-					else
-						let out += [ {
-						\ 'word': words[i] . '"',
-						\ 'abbr': words[i],
-						\ 'menu': '(file)',
-						\ } ]
-					endif
-				endfor
+				let out = GetLocalIncludes(a:base)
+
 			elseif match(line, '^\s*#\s*include\s*<') > -1
 				let words = Find(a:base . '*', $include)
 
 				for i in range(len(words))
 					if words[i][-1:-1] == '/'
 						let out += [ {
-						\ 'word': words[i],
-						\ 'abbr': words[i][:-2],
-						\ 'menu': '(dir)',
+						\ 'word': words[i][:-2],
+						\ 'abbr': words[i],
+						\ 'menu': 'd'
 						\ } ]
 					else
 						let out += [ {
-						\ 'word': words[i] . '>',
+						\ 'word': words[i],
 						\ 'abbr': words[i],
-						\ 'menu': '(file)',
+						\ 'menu': 'f'
 						\ } ]
 					endif
 				endfor
@@ -520,11 +613,6 @@ function! Completion(findstart, base) " {{{2
 			return { 'words': out, 'refresh': 'always' }
 		endif
 	endif
-endfunction
-
-function! SubExpr(str, expr) " {{{2
-	let subs = split(a:expr, '\([^\\]\|^\)\zs/')
-	return substitute(a:str, subs[0], len(subs) > 1 ? subs[1] : '', len(subs) > 2 ? subs[2] : '')
 endfunction
 
 function! Find(file, path) " {{{2
@@ -615,47 +703,10 @@ command! -narg=1 -complete=var ISet call ModVar('<args>')
 
 function! Rename(newname) " {{{2
 	exec 'saveas! ' . a:newname
-	call vimproc#system('rm ' . expand('#'))
+	call vimproc#system('del /f ' . expand('#'))
 endfunction
 
 command! -nargs=1 Rename call Rename('<args>')
-
-function! MakeModeSwitch() " {{{2
-	if !exists('g:make_mode')
-		let g:make_mode = 'exe'
-	endif
-
-	if g:make_mode == 'exe'
-		let g:make_mode = 'syn' " syntax checking [-fsyntax-only]
-		echo '\m -> syntax check only'
-	elseif g:make_mode == 'syn'
-		let g:make_mode = 'obj' " object file, -c
-		echo '\m -> object file'
-	else
-		let g:make_mode = 'exe' " fallback for unknown options
-		echo '\m -> compile'
-	endif
-endfunction
-
-function! Make() " {{{2
-	let args = ''
-	if !exists('g:make_args')
-		let g:make_args = ''
-	endif
-	if !exists('g:make_mode')
-		let g:make_mode = 'exe'
-	endif
-
-	if g:make_mode == 'exe'
-		let args = '-o ' . expand('%:r') . '.exe'
-	elseif g:make_mode == 'syn'
-		let args = '-fsyntax-only'
-	elseif g:make_mode == 'obj'
-		let args = '-c -o ' . expand('%:r') . '.o'
-	endif
-
-	exec 'make! ' . args . ' ' . g:make_args
-endfunction
 
 function! ToggleWrap() " {{{2
 	setl wrap!
@@ -748,7 +799,12 @@ noremap <expr> <return> !empty(&buftype) ? "\<return>" : "o\<esc>"
 noremap <expr> <s-return> !empty(&buftype) ? "\<return>" : "O\<esc>"
 noremap Y y$
 
-" bignum::gui variant
+" sort operator
+nnoremap <silent> gs :set opfunc=Sort<cr>g@
+nnoremap <silent> gss <nop>
+vnoremap <silent> gs :<c-u>call Sort(visualmode(), 1)<cr>
+
+" gui variant
 noremap! <c-bs> <c-w>
 " console variant
 noremap! <c-> <c-w>
@@ -757,6 +813,7 @@ noremap! <c-> <c-w>
 noremap _ "_
 noremap - "_
 
+" more leaders
 noremap <leader> <nop>
 noremap <silent> <leader><space> :nohl<cr>
 
@@ -806,6 +863,7 @@ nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $myvimrc<cr>
 nnoremap <leader>x :call ExecFile()<cr>
 nnoremap <leader>m :call Make()<cr>
+nnoremap <leader>M :exec 'AsyncMake -fsyntax-only ' . (exists('g:make_args') ? g:make_args : '')<cr>:copen<cr><c-w>p
 
 " Splits
 nnoremap <leader>s <nop>
@@ -820,6 +878,9 @@ nnoremap <silent> <leader>ff :UniteWithCurrentDir -profile-name=def file<cr>
 nnoremap <silent> <leader>fb :UniteWithCurrentDir -profile-name=def buffer<cr>
 
 " Other Features {{{1
+
+" Async Make
+command! -nargs=* AsyncMake exec 'AsyncRun ' . GenMakeCommand('<args>')
 
 " Return to last edit position when opening files (You want this!)
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif

@@ -13,45 +13,76 @@
 " The one caveat with this method of tabs is that you need to follow the rule
 " that you never 'align' elements that have different 'indent' levels.
 "
-" g:ctab#disable_maps
+" options:
+"
+" g:itab#disable_maps
 "   disable tab insertion and deletion mappings
+"
+" g:itab#delete_trails
+"   delete trailing spaces/tabs when going to a new line
 
-inoremap <expr> <Esc> (match(getline('.'), '^\s\+$') == -1 ? '' : "^\<c-d>") . "\<esc>"
+fun! itab#delete_trails(origin)
+	" origin is what caused this call
+	" 1: escape
+	" 2: enter
 
-if !exists('g:ctab#disable_maps') || !g:ctab#disable_maps
-	" imap <silent> <expr> <tab> <SID>InsertSmartTab()
-	inoremap <silent> <expr> <BS> <SID>SmartDelete()
-endif
+	let delete_trail_opt = exists('g:itab#delete_trails') && g:itab#delete_trails
+	let current_line = getline('.')
+
+	if delete_trail_opt
+		let trail_len = len(matchstr(current_line, '\s*$'))
+		return repeat("\<bs>", trail_len)
+	endif
+
+	let blank_line = match(current_line, '^\s\+$') != -1
+	let cpo_delete = &cpo !~# 'I'
+	let last_align = exists('b:itab_lastalign') && (line('.') == b:itab_lastalign)
+
+	let do_delete = 0
+
+	if a:origin == 1
+		let do_delete = blank_line
+	elseif a:origin == 2
+		let do_delete = cpo_delete && blank_line && last_align
+	endif
+
+	return do_delete ? "^\<c-d>" : ''
+endfun
 
 " Insert a smart tab.
-fun! s:InsertSmartTab()
+fun! itab#tab()
 	if strpart(getline('.'), 0, col('.') - 1) =~'^\s*$'
-		if exists('b:ctab_hook') && b:ctab_hook != ''
-			exe 'return '.b:ctab_hook
+		if exists('b:itab_hook') && b:itab_hook != ''
+			exe 'return '.b:itab_hook
 		endif
 		return "\<Tab>"
 	endif
 
-	return repeat(' ', 8 - (virtcol('.') % 8) + 1)
+	return repeat(' ', shiftwidth() - (virtcol('.') % shiftwidth()) + 1)
 endfun
 
 " Do a smart delete.
-fun! s:SmartDelete()
+fun! itab#delete()
 	let line = getline('.')
 	let pos = col('.') - 1
+
 	let ident_sz = strlen(matchstr(line, '^\t* *'))
+
 	let tab_sz  = strlen(matchstr(line, '^\t*'))
+	let space_sz = ident_sz - tab_sz
+
 	if pos > ident_sz || pos <= tab_sz
 		return "\<BS>"
 	else
-		return repeat("\<BS>", ident_sz - tab_sz)
+		let del_sz = space_sz % shiftwidth()
+		return repeat("\<BS>", del_sz == 0 ? shiftwidth() : del_sz)
 	endif
 endfun
 
 " Check the alignment of line.
 " Used in the case where some alignment whitespace is required .. like for unmatched brackets.
 " It does this by using a massive tabstop and shiftwidth
-fun! s:CheckAlign(line)
+fun! itab#align(line)
 	if &expandtab || !(&autoindent || &indentexpr || &cindent)
 		return ''
 	endif
@@ -67,9 +98,9 @@ fun! s:CheckAlign(line)
 	let swkeep = &shiftwidth
 	try
 		if a:line == line('.')
-			let b:ctab_lastalign = a:line
-		elseif exists('b:ctab_lastalign')
-			unlet b:ctab_lastalign
+			let b:itab_lastalign = a:line
+		elseif exists('b:itab_lastalign')
+			unlet b:itab_lastalign
 		endif
 
 		let &ts = big_ident_sz
@@ -117,54 +148,34 @@ fun! s:CheckAlign(line)
 	return "\<home>^\<c-d>" . repeat("\<tab>", indatabs) . repeat(' ', indaspace) . mov_seq
 endfun
 
-" get SID of current script
-fun! s:SID()
-	return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
-endfun
 " Get the spaces at the end of the  indent correct.
 " This is trickier than it should be, but this seems to work.
-fun! s:CheckCR()
-	" echo 'SID:'.s:SID()
-	if getline('.') =~ '^\s*$'
-		if ('cpo' !~ 'I') && exists('b:ctab_lastalign') && (line('.') == b:ctab_lastalign)
-			return "^\<c-d>\<CR>"
-		endif
-		return "\<CR>"
-	else
-		return "\<CR>\<c-r>=<SNR>".s:SID().'_CheckAlign(line(''.''))'."\<CR>"
-	endif
+fun! itab#cr()
+	return itab#delete_trails(2) . "\<CR>\<c-r>=itab#align(line('.'))" . "\<CR>"
 endfun
 
-inoremap <silent> <expr> <cr> <SID>CheckCR()
-nnoremap <silent> o o<c-r>=<SID>CheckAlign(line('.'))<cr>
-nnoremap <silent> O O<c-r>=<SID>CheckAlign(line('.'))<cr>
+fun! itab#redo_indent(type, ...)
+	let ln   = line("'[")
+	let lnto = line("']")
 
-" indentkeys and cinkeys break from the indents
-
-" Ok.. now re-evaluate the = re-indented section
-
-" The only way I can think to do this is to remap the =
-" so that it calls the original, then checks all the indents.
-map <silent> <expr> = <sid>SetupEqual()
-
-fun! s:SetupEqual()
-	set operatorfunc=CtabRedoIndent
-	" Call the operator func so we get the range
-	return 'g@'
-endfun
-
-fun! CtabRedoIndent(type,...)
-	set operatorfunc=
-	let ln=line("'[")
-	let lnto=line("']")
-	" Do the original equals
-	norm! '[=']
-
-	if ! &et
-		" Then check the alignment.
-		while ln <= lnto
-			silent call s:CheckAlign(ln)
-			let ln+=1
-		endwhile
+	if !exists('a:1')
+		" blank
+	elseif a:1 ==# 1 " visual
+		let ln   = line("'<")
+		let lnto = line("'>")
+	elseif a:1 ==# 2 " double eq given
+		let ln   = line('.')
+		let lnto = ln
 	endif
+
+	" Do the original align
+	silent exec 'normal! g' . ln . 'Vg' . lnto . '='
+
+	" Then check the alignment.
+	while ln <= lnto
+		exec 'normal! ' . ln . 'ggA' . itab#align(ln)
+		let ln += 1
+	endwhile
+
+	return ''
 endfun
