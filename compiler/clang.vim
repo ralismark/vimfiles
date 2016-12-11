@@ -3,12 +3,17 @@
 " Maintainer:           Timmy Yao
 " Latest Revision:      2016-07-29
 
-if exists("curent_compiler")
+if exists("current_compiler")
 	finish
 endif
 let current_compiler = 'clang'
 
-let &errorformat  = ''
+let s:efm = [
+	\ '%f:%l:%c: note: %m',
+	\ '%f:%l:%c: %t%s: %m',
+	\ '%I' . '%f:%l:%c: note: %m'
+	\ .'%C'. '%s'
+	\ .'%C'. '%*[ *%~*^%~*]'
+	\ ]
 
-let &errorformat .= ',%f:%l:%c: note: %m'
-let &errorformat .= ',%f:%l:%c: %t%s: %m'
+let &errorformat = join(s:efm, ',')

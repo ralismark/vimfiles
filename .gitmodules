@@ -61,3 +61,6 @@
 [submodule "bundle/asyncrun.vim"]
 	path = bundle/asyncrun.vim
 	url = https://github.com/skywind3000/asyncrun.vim.git
+[submodule "bundle/libclang-vim"]
+	path = bundle/libclang-vim
+	url = https://github.com/libclang-vim/libclang-vim.git

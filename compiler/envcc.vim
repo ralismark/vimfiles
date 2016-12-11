@@ -10,8 +10,8 @@ let current_compiler = "envcc"
 
 let &l:makeprg = ''
 if &ft == "c"
-	let &l:makeprg = $cc
+	let &l:makeprg = $cc . " -x c"
 elseif &ft == "cpp"
-	let &l:makeprg = $cxx
+	let &l:makeprg = $cxx . " -x c++"
 endif
 let &l:makeprg .= ' ' . $cflags . ' % $*'

@@ -6,8 +6,8 @@
 " This script intends to match the emacs mode header, which is declared
 " between a pair of '-*-' sequences
 
-if !exists('g:etypehead#type_map')
-	let g:etypehead#type_map = {
+if !exists('g:etypehead#map')
+	let g:etypehead#map = {
 	\ 'c++':        'cpp',
 	\ 'c':          'c',
 	\ }
@@ -41,13 +41,15 @@ function! s:match_type(type)
 
 	let type = tolower(a:type)
 
-	for key in keys(g:etypehead#type_map)
+	for key in keys(g:etypehead#map)
 		if type == key
-			return map[key]
+			return g:etypehead#map[key]
 		endif
 	endfor
 
 	return type
 endfunction
 
-au! BufReadPost,FileReadPost * let &ft = s:match_type(s:get_modeline(s:first_nonblank_line()))
+function! etypehead#set_ftype()
+	let &ft = s:match_type(s:get_modeline(s:first_nonblank_line()))
+endfunction
