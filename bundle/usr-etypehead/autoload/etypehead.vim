@@ -9,7 +9,6 @@
 if !exists('g:etypehead#map')
 	let g:etypehead#map = {
 	\ 'c++':        'cpp',
-	\ 'c':          'c',
 	\ }
 endif
 
