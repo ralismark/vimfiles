@@ -64,3 +64,9 @@
 [submodule "bundle/libclang-vim"]
 	path = bundle/libclang-vim
 	url = https://github.com/libclang-vim/libclang-vim.git
+[submodule "bundle/vim-pseudocl"]
+	path = bundle/vim-pseudocl
+	url = https://github.com/junegunn/vim-pseudocl.git
+[submodule "bundle/vim-colors-pencil"]
+	path = bundle/vim-colors-pencil
+	url = https://github.com/reedes/vim-colors-pencil.git

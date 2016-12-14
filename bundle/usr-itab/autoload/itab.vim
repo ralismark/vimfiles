@@ -63,6 +63,10 @@ endfun
 
 " Do a smart delete.
 fun! itab#delete()
+	if &smarttab
+		return "\<bs>"
+	endif
+
 	let line = getline('.')
 	let pos = col('.') - 1
 

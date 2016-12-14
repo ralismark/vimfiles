@@ -573,15 +573,22 @@ endfunction
 
 function! Completion(findstart, base) " {{{2
 	if a:findstart == 1
-		let line = getline('.')
+		let line = getline('.')[ : -len(getline('.')) + col('.') - 2]
+		let lastchar = match(line[len(line) - 1], '\S\s*$')
+
 		let loc = match(line, '^\s*#\s*include\s*["<]\s*\zs')
 		if loc > -1
 			return loc
 		endif
 
+		if match(line[lastchar], '[{}[]()|&<>;]') > -1
+			" no match, is symbol
+			" return lastchar
+		endif
+
 		return -3
 	else
-		let line = getline('.')
+		let line = getline('.')[ : -len(getline('.')) + col('.') - 2]
 
 		" include matching
 		if match(line, '^\s*#\s*include') > -1
@@ -775,7 +782,7 @@ augroup vimrc
 		\ setl iskeyword=a-z,A-Z,48-57,_,:,$
 
 	au Filetype scratch
-		\ setl buftype=nowrite
+		\ set buftype=nowrite
 
 	au FocusLost,VimLeavePre * silent! w
 	au VimResized * exec "normal! \<c-w>="
