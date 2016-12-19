@@ -1,5 +1,4 @@
 set nocompatible
-autocmd!
 abclear
 
 " Utility {{{1
@@ -50,7 +49,14 @@ if &loadplugins
 
 let g:cpp_class_scope_highlight = true
 
+" VimFiler {{{2
+
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_force_overwrite_statusline = 0
+
 " Pathogen {{{2
+
+let pathogen_blacklist = ['Recover.vim']
 
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 execute pathogen#infect()
@@ -413,7 +419,7 @@ set clipboard=unnamed
 
 " Automate
 set autoindent
-set autochdir
+" set autochdir
 set autoread
 set autowrite
 
@@ -434,6 +440,7 @@ set viminfo=!,%,'64,/16,s10,c,f1,h,rD:,rE:
 set tabstop=8
 set shiftwidth=0
 set noexpandtab
+set smarttab
 
 set copyindent
 set preserveindent
@@ -450,54 +457,6 @@ set cino+=l1  " No align with label
 set cino+=t0  " Function return type declarations
 
 " Functions {{{1
-
-" Compiling {{{
-function! GenMakeCommand(args) " {{{
-	let cmd = '[' . &makeprg . ']'
-	let cmd = substitute(cmd, '\$\*',      {m -> a:args},       ' ')
-	let cmd = substitute(cmd, '%',         {m -> expand(m[0])}, ' ')
-	let cmd = substitute(cmd, '#<[0-9]\+', {m -> expand(m[0])}, ' ')
-	let cmd = substitute(cmd, '#',         {m -> expand(m[0])}, ' ')
-	let cmd = substitute(cmd, '##',        {m -> expand(m[0])}, ' ')
-	let cmd = substitute(cmd, '#[0-9]\+',  {m -> expand(m[0])}, ' ')
-	return cmd[1:-2]
-endfunction " }}}
-function! Make() " {{{
-	let args = ''
-	if !exists('g:make_args')
-		let g:make_args = ''
-	endif
-	if !exists('g:make_mode')
-		let g:make_mode = 'exe'
-	endif
-
-	if g:make_mode == 'exe'
-		let args = '-o ' . expand('%:r') . '.exe'
-	elseif g:make_mode == 'syn'
-		let args = '-fsyntax-only'
-	elseif g:make_mode == 'obj'
-		let args = '-c -o ' . expand('%:r') . '.o'
-	endif
-
-	exec 'make! ' . args . ' ' . g:make_args
-endfunction " }}}
-function! MakeModeSwitch() " {{{
-	if !exists('g:make_mode')
-		let g:make_mode = 'exe'
-	endif
-
-	if g:make_mode == 'exe'
-		let g:make_mode = 'syn' " syntax checking [-fsyntax-only]
-		echo '\m -> syntax check only'
-	elseif g:make_mode == 'syn'
-		let g:make_mode = 'obj' " object file, -c
-		echo '\m -> object file'
-	else
-		let g:make_mode = 'exe' " fallback for unknown options
-		echo '\m -> compile'
-	endif
-endfunction " }}}
-" }}}
 
 function! Sort(type, ...) " {{{
 	let sel_save = &selection
@@ -533,6 +492,14 @@ function! Sort(type, ...) " {{{
 	let @@ = reg_save
 endfunction " }}}
 
+function! ShellLine() " {{{
+	let cmd = input(getcwd() . '> ', '')
+	if cmd =~ '^\s*$'
+		return
+	endif
+	exe 'AsyncRun! ' . cmd
+	copen
+endfunction " }}}
 function! InsertSingleChar(before) " {{{
 	let char = getchar()
 	return type(char) == 0 ? (a:before ? 'a' : 'i') . nr2char(char) . "\<esc>" : ""
@@ -782,7 +749,10 @@ augroup vimrc
 		\ setl iskeyword=a-z,A-Z,48-57,_,:,$
 
 	au Filetype scratch
-		\ set buftype=nowrite
+		\ set buftype=nofile
+
+	" Non-breaking autochdir
+	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
 
 	au FocusLost,VimLeavePre * silent! w
 	au VimResized * exec "normal! \<c-w>="
@@ -805,6 +775,7 @@ noremap U <c-r>
 noremap <expr> <return> !empty(&buftype) ? "\<return>" : "o\<esc>"
 noremap <expr> <s-return> !empty(&buftype) ? "\<return>" : "O\<esc>"
 noremap Y y$
+noremap ! :call ShellLine()<cr>
 
 " sort operator
 nnoremap <silent> gs :set opfunc=Sort<cr>g@
@@ -854,7 +825,7 @@ nnoremap <silent> <leader>rr :call ReloadAll()<cr>
 " toggles
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
 nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
-nnoremap <silent> <leader>om :call MakeModeSwitch()<cr>
+nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
 nnoremap <silent> <leader>ou :GundoToggle<cr>
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? ":diffoff" : ":diffthis") . "<cr>"
@@ -869,7 +840,7 @@ nnoremap <leader>aq :qa<cr>
 nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $myvimrc<cr>
 nnoremap <leader>x :call ExecFile()<cr>
-nnoremap <leader>m :call Make()<cr>
+nnoremap <leader>m :call rc#make()<cr>
 nnoremap <leader>M :exec 'AsyncMake -fsyntax-only ' . (exists('g:make_args') ? g:make_args : '')<cr>:copen<cr><c-w>p
 
 " Splits
@@ -881,13 +852,14 @@ nnoremap <silent> <leader>sl :belowright vertical new<cr>
 nnoremap <leader>t :tab new<cr>
 
 " unite binds
+nnoremap <silent> <leader>fv :exe 'VimFiler' expand('%:p:h')<cr>
 nnoremap <silent> <leader>ff :UniteWithCurrentDir -profile-name=def file<cr>
 nnoremap <silent> <leader>fb :UniteWithCurrentDir -profile-name=def buffer<cr>
 
 " Other Features {{{1
 
 " Async Make
-command! -nargs=* AsyncMake exec 'AsyncRun ' . GenMakeCommand('<args>')
+command! -nargs=* AsyncMake exec 'AsyncRun ' . rc#make_command('<args>')
 
 " Return to last edit position when opening files (You want this!)
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
