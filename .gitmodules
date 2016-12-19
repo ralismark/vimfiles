@@ -1,6 +1,3 @@
-[submodule "bundle/rainbow_parentheses.vim"]
-	path = bundle/rainbow_parentheses.vim
-	url = https://github.com/kien/rainbow_parentheses.vim
 [submodule "bundle/vim-commentary"]
 	path = bundle/vim-commentary
 	url = git://github.com/tpope/vim-commentary.git
@@ -46,9 +43,6 @@
 [submodule "bundle/Recover.vim"]
 	path = bundle/Recover.vim
 	url = https://github.com/chrisbra/Recover.vim.git
-[submodule "bundle/vim-smooth-scroll"]
-	path = bundle/vim-smooth-scroll
-	url = https://github.com/terryma/vim-smooth-scroll.git
 [submodule "bundle/accelerated-smooth-scroll"]
 	path = bundle/accelerated-smooth-scroll
 	url = https://github.com/yonchu/accelerated-smooth-scroll.git
@@ -64,9 +58,9 @@
 [submodule "bundle/libclang-vim"]
 	path = bundle/libclang-vim
 	url = https://github.com/libclang-vim/libclang-vim.git
-[submodule "bundle/vim-pseudocl"]
-	path = bundle/vim-pseudocl
-	url = https://github.com/junegunn/vim-pseudocl.git
 [submodule "bundle/vim-colors-pencil"]
 	path = bundle/vim-colors-pencil
 	url = https://github.com/reedes/vim-colors-pencil.git
+[submodule "bundle/vimfiler.vim"]
+	path = bundle/vimfiler.vim
+	url = https://github.com/Shougo/vimfiler.vim.git
