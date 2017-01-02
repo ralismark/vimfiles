@@ -49,11 +49,6 @@ if &loadplugins
 
 let g:cpp_class_scope_highlight = true
 
-" VimFiler {{{2
-
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_force_overwrite_statusline = 0
-
 " Pathogen {{{2
 
 let pathogen_blacklist = ['Recover.vim']
@@ -61,6 +56,11 @@ let pathogen_blacklist = ['Recover.vim']
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 execute pathogen#infect()
 Helptags
+
+" VimFiler {{{2
+
+let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_force_overwrite_statusline = 0
 
 " Unite {{{2
 
@@ -493,7 +493,7 @@ function! Sort(type, ...) " {{{
 endfunction " }}}
 
 function! ShellLine() " {{{
-	let cmd = input(getcwd() . '> ', '')
+	let cmd = input(getcwd() . '> ', '', 'shellcmd')
 	if cmd =~ '^\s*$'
 		return
 	endif
@@ -748,7 +748,7 @@ augroup vimrc
 	au Filetype vim
 		\ setl iskeyword=a-z,A-Z,48-57,_,:,$
 
-	au Filetype scratch
+	au Filetype nofile,scratch
 		\ set buftype=nofile
 
 	" Non-breaking autochdir
@@ -839,12 +839,14 @@ nnoremap <leader>aq :qa<cr>
 
 nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $myvimrc<cr>
+nnoremap <leader>et :e $temp/test.cpp<cr>
 nnoremap <leader>x :call ExecFile()<cr>
 nnoremap <leader>m :call rc#make()<cr>
 nnoremap <leader>M :exec 'AsyncMake -fsyntax-only ' . (exists('g:make_args') ? g:make_args : '')<cr>:copen<cr><c-w>p
 
 " Splits
 nnoremap <leader>s <nop>
+nnoremap <silent> <leader>ss <c-w>s
 nnoremap <silent> <leader>sh :aboveleft vertical new<cr>
 nnoremap <silent> <leader>sk :aboveleft new<cr>
 nnoremap <silent> <leader>sj :belowright new<cr>

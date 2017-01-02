@@ -28,8 +28,10 @@ fun! rc#make_arg_prep() " {{{2
 	endif
 endfun
 
-fun! rc#artificial_make(full_cmd)
-	doautocmd QuickFixCmdPre make
+fun! rc#artificial_make(full_cmd, jump_to_first)
+	if has('autocmd')
+		silent! doautocmd QuickFixCmdPre make
+	endif
 
 	if &autowrite || &autowriteall
 		silent! wall
@@ -52,18 +54,48 @@ fun! rc#artificial_make(full_cmd)
 		let matches = filter(glob(glob, v:false, v:true), { k, v -> match(v, re) >= 0 })
 
 		for i in range(len(matches))
-			let matches[i] = matches[pre_num_len:]
+			let matches[i] = +matches[pre_num_len:]
 		endfor
 
-		" TODO(timmy): finish
+		" now we have a list of numbers
+
+		let num = max(matches) + 1
+
+		let errorfile = substitute(errorfile, '##', num)
 	endif
+
+	let start_time = localtime()
+
+	let makecmd = a:full_cmd . ' ' . &shellpipe . ' ' . errorfile
+
+	let errorcode = 0
+	if exists('*vimproc#system')
+		let errorcode = vimproc#system(makecmd)
+	else
+		let errorcode = system(makecmd)
+	endif
+
+	let end_time = localtime()
+
+	let contents = readfile(errorfile)
+	let post_info = '[finished in ' . (end_time - start_time) . ' sec'
+		\ . (errorcode == 0 ? '' : '; returned ' . errorcode) . ']'
+	call writefile(['[' . a:full_cmd . ']'] + contents + [post_info], errorfile)
+
+	exe (a:jump_to_first ? 'cfile' : 'cgetfile') errorfile
+
+	if has('autocmd')
+		silent! doautocmd QuickFixCmdPost make
+	endif
+
+	call delete(errorfile)
 endfun
 
 fun! rc#make() " {{{2
 	call rc#make_arg_prep()
 	let args = g:rc#make_mappings[g:make_mode][1]()
 
-	exec 'make! ' . args . ' ' . g:make_args
+	call rc#artificial_make(args . ' ' . g:make_args, v:false)
 endfun
 
 fun! rc#make_mode_switch() " {{{2
