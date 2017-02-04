@@ -289,6 +289,7 @@ let g:mucomplete#can_complete = {
 	\ }
 let g:mucomplete#no_mappings = true
 imap <s-return> <plug>(MUcompleteFwd)
+imap <c-s-return> <plug>(MUcompleteBwd)
 
 " }}}
 
@@ -493,7 +494,7 @@ function! Sort(type, ...) " {{{
 endfunction " }}}
 
 function! ShellLine() " {{{
-	let cmd = input(getcwd() . '> ', '', 'shellcmd')
+	let cmd = input(getcwd() . '> ', '', 'file')
 	if cmd =~ '^\s*$'
 		return
 	endif
@@ -814,10 +815,10 @@ nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-l> <c-w>l
 
-nnoremap <c-left> <c-w><
-nnoremap <c-down> <c-w>+
-nnoremap <c-up> <c-w>-
-nnoremap <c-right> <c-w>>
+nnoremap <s-left> <c-w><
+nnoremap <s-down> <c-w>+
+nnoremap <s-up> <c-w>-
+nnoremap <s-right> <c-w>>
 
 " misc
 nnoremap <silent> <leader>rr :call ReloadAll()<cr>
