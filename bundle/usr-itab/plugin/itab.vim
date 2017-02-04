@@ -26,7 +26,7 @@
 inoremap <expr> <Esc> itab#delete_trails(1) . "\<esc>"
 
 if !exists('itab#disable_maps') || !itab#disable_maps
-	imap <silent> <expr> <tab> itab#tab()
+	inoremap <silent> <expr> <tab> itab#tab()
 	inoremap <silent> <expr> <BS> itab#delete()
 endif
 
@@ -34,6 +34,6 @@ inoremap <silent> <expr> <cr> itab#cr()
 nnoremap <silent> o o<c-r>=itab#align(line('.'))<cr>
 nnoremap <silent> O O<c-r>=itab#align(line('.'))<cr>
 
-nmap <silent> = :set opfunc=itab#redo_indent<cr>g@
-nmap <silent> == :call itab#redo_indent('f', 2)<cr>
-vmap <silent> = :<c-u>call itab#redo_indent('', 1)<cr>
+nnoremap <silent> = :set opfunc=itab#redo_indent<cr>g@
+nnoremap <silent> == i<c-r>=itab#align(line('.'))<cr><esc>l
+vnoremap <silent> = :<c-u>call itab#redo_indent('', 1)<cr>

@@ -28,10 +28,12 @@ fun! rc#make_arg_prep() " {{{2
 	endif
 endfun
 
-fun! rc#artificial_make(full_cmd, jump_to_first)
+fun! rc#artificial_make(full_cmd, jump_to_first, ...)
 	if has('autocmd')
 		silent! doautocmd QuickFixCmdPre make
 	endif
+
+	let cmd_shortened = a:0 >= 3 ? a:3 : a:full_cmd
 
 	if &autowrite || &autowriteall
 		silent! wall
@@ -64,23 +66,16 @@ fun! rc#artificial_make(full_cmd, jump_to_first)
 		let errorfile = substitute(errorfile, '##', num)
 	endif
 
-	let start_time = localtime()
-
 	let makecmd = a:full_cmd . ' ' . &shellpipe . ' ' . errorfile
 
-	let errorcode = 0
-	if exists('*vimproc#system')
-		let errorcode = vimproc#system(makecmd)
-	else
-		let errorcode = system(makecmd)
-	endif
-
+	let start_time = localtime()
+	let errorcode = vimproc#system(makecmd)
 	let end_time = localtime()
 
 	let contents = readfile(errorfile)
 	let post_info = '[finished in ' . (end_time - start_time) . ' sec'
 		\ . (errorcode == 0 ? '' : '; returned ' . errorcode) . ']'
-	call writefile(['[' . a:full_cmd . ']'] + contents + [post_info], errorfile)
+	call writefile(['[' . cmd_shortened . ']'] + contents + [post_info], errorfile)
 
 	exe (a:jump_to_first ? 'cfile' : 'cgetfile') errorfile
 
