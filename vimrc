@@ -684,7 +684,7 @@ augroup vimrc
 	" Non-breaking autochdir
 	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
 
-	au FocusLost,VimLeavePre * silent! w
+	au FocusLost,VimLeavePre * if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite' | silent! w | endif
 	au VimResized * exec "normal! \<c-w>="
 augroup END
 
@@ -702,8 +702,8 @@ noremap s <c-w>
 noremap , ;
 noremap <silent> 0 :call LineHome()<cr>
 noremap U <c-r>
-noremap <expr> <return> !empty(&buftype) ? "\<return>" : "o\<esc>"
-noremap <expr> <s-return> !empty(&buftype) ? "\<return>" : "O\<esc>"
+noremap <return> @q
+noremap <s-return> @w
 noremap Y y$
 noremap ! :call ShellLine()<cr>
 
