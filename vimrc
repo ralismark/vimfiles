@@ -128,12 +128,12 @@ let g:lightline = {
 \		'spell': '%{&spell ? (winwidth(0) > 80 ? "s:" . &spelllang : winwidth(0) > 50 ? "s..." : "") : ""}',
 \	},
 \	'component_function': {
-\		'filename': 'LL_Filename',
-\		'location': 'LL_Location',
-\		'rostate': 'LL_ROState',
-\		'filetype': 'LL_Filetype',
-\		'fileinfo': 'LL_Fileinfo',
-\		'bufinfo': 'LL_BufInfo',
+\		'filename': 'll#filename',
+\		'location': 'll#location',
+\		'rostate': 'll#rostate',
+\		'filetype': 'll#filetype',
+\		'fileinfo': 'll#fileinfo',
+\		'bufinfo': 'll#bufinfo',
 \	},
 \	'component_visible_condition': {
 \		'filetype': '(winwidth(0) > 40)',
@@ -176,77 +176,6 @@ let g:lightline = {
 \	'tabline_separator': { 'left': '░', 'right': '░' },
 \	'tabline_subseparator': { 'left': '', 'right': '' },
 \ }
-
-function! LL_BufInfo() " {{{3
-	let cur_buf = bufnr('%')
-	let end_buf = bufnr('$')
-
-	let cur_tab = tabpagenr()
-	let end_tab = tabpagenr('$')
-
-	let lvl_str = 'level ' . $vim_depth
-	let buf_str = 'b' . cur_buf . '/' . end_buf
-	let tab_str = 't' . cur_tab . '/' . end_tab
-
-	return ($vim_depth ? lvl_str . ' : ' : '') . buf_str . (end_tab != 1 ? ' : ' . tab_str : '')
-endfunction
-
-function! LL_Filename() " {{{3
-	if expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
-		return ''
-	endif
-
-	let bufnum = bufnr('%') . '#'
-	let name = expand('%:t') == '' ? '*' : expand('%:t')
-	if winwidth(0) > 75
-		let fsegs = (['', '', ''] + split(expand('%:p:h'), '/'))[-3:]
-		let minisegs = map(fsegs, 'matchstr(v:val, "...")')
-		let name = join(minisegs, '/') . ' / ' . name
-	endif
-	return name
-endfunction
-
-function! LL_Filetype() " {{{3
-	let ft = &ft == '' ? 'no ft' : &ft
-	return ft
-endfunction
-
-function! LocPercent() " {{{3
-	let cur = line('.')
-	let top = 1
-	let bot = line('$')
-
-	if line('w$') == bot
-		return "bot"
-	elseif line('w0') == top
-		return "top"
-	else
-		let prog = cur * 100 / bot
-		return printf('%02d%%', prog)
-	endif
-endfunction
-
-function! LL_Location() " {{{3
-	if winwidth(0) > 60
-		return printf('%s %3d:%-2d', LocPercent(), line('.'), col('.'))
-	else
-		return printf("%3d", line("."))
-	endif
-endfunction
-
-function! LL_ROState() " {{{3
-	if &ft =~? 'help' || expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
-		return ''
-	endif
-
-	let modified_char = g:gui ? '±' : '∓'
-	return (&modified ? modified_char : &modifiable ? 'w' : 'r') . (&readonly ? '!' : '')
-endfunction
-
-function! LL_Fileinfo() " {{{3
-	let eol = &ff == 'dos' ? '' : &ff == 'unix' ? '\\n' : '\\r'
-	return LL_Filetype() . ' '. eol . ' '. &fenc
-endfunction
 
 " Startify {{{2
 
