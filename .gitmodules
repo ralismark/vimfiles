@@ -46,9 +46,6 @@
 [submodule "bundle/accelerated-smooth-scroll"]
 	path = bundle/accelerated-smooth-scroll
 	url = https://github.com/yonchu/accelerated-smooth-scroll.git
-[submodule "bundle/gundo.vim"]
-	path = bundle/gundo.vim
-	url = https://github.com/sjl/gundo.vim.git
 [submodule "bundle/vim-mucomplete"]
 	path = bundle/vim-mucomplete
 	url = https://github.com/lifepillar/vim-mucomplete.git

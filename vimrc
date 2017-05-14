@@ -756,7 +756,7 @@ nnoremap <silent> <leader>rr :call ReloadAll()<cr>
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
 nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
-nnoremap <silent> <leader>ou :GundoToggle<cr>
+nnoremap <silent> <leader>ou :UndotreeToggle<cr>
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? ":diffoff" : ":diffthis") . "<cr>"
 
