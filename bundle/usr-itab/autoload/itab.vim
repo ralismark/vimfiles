@@ -161,10 +161,8 @@ endfun
 fun! itab#redo_indent(type, ...)
 	let ln   = line("'[")
 	let lnto = line("']")
-	
-	if !exists('a:1')
-		" blank
-	elseif a:1 ==# 1 " visual
+
+	if exists('a:1') && a:1 ==# 1
 		let ln   = line("'<")
 		let lnto = line("'>")
 	endif
