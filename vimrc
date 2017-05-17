@@ -203,7 +203,8 @@ let g:startify_custom_indices = map(add(range(1,9), 0), 'string(v:val)')
 " MuComplete {{{2
 
 let g:mucomplete#chains = {
-	\ 'default': [ 'user', 'omni', 'file', 'keyn' ],
+	\ 'default': [ 'user', 'keyn', 'omni' ],
+	\ 'markdown': [ 'dict', 'uspl' ],
 	\ }
 let g:mucomplete#can_complete = {
 	\ 'default' : {
@@ -376,7 +377,8 @@ set copyindent
 set preserveindent
 
 " c indent
-set cino+=(0  " Contents of unclosed parentheses
+set cino=
+set cino+=(s  " Contents of unclosed parentheses
 set cino+=:0  " Case labels
 set cino+=Ls  " Jump labels
 set cino+=u0
@@ -619,11 +621,16 @@ augroup vimrc
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	au BufNewFile,BufFilePre,BufRead *.h set filetype=c
 
+	au Filetype *.*
+		\ for t in split(&ft, '\.')
+			\ | silent exe "doautocmd vimrc FileType" t
+		\ | endfor
+
 	au Filetype c,cpp
-		\ compiler gcc | compiler envcc
-		\ | setl commentstring=//%s
+		\ setl commentstring=//%s
 		\ | setl completefunc=Completion
 		\ | setl iskeyword=a-z,A-Z,48-57,_
+        	\ | runtime! syntax/doxygen.vim
 
 	au Filetype vim
 		\ setl iskeyword=a-z,A-Z,48-57,_,:,$
