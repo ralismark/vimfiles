@@ -256,7 +256,7 @@ set novisualbell
 set belloff=all
 
 " Conceal
-set conceallevel=2
+set conceallevel=0
 set concealcursor=
 
 " Hidden chars
@@ -320,9 +320,9 @@ set swapfile
 set undofile
 
 if windows
-	set directory=$VIM/tempfiles/swap//,$TEMP
-	set backupdir=$VIM/tempfiles/backup//,$TEMP
-	set undodir=$VIM/tempfiles/undo//,$TEMP
+	set directory=$VIM/tempfiles/swap//,$TEMP//
+	set backupdir=$VIM/tempfiles/backup//,$TEMP//
+	set undodir=$VIM/tempfiles/undo//,$TEMP//
 else
 	set directory=$HOME/.vim/swap//,/var/tmp//,/tmp//
 	set backupdir=$HOME/.vim/backup//,/var/tmp//,/tmp//
@@ -720,6 +720,8 @@ nnoremap <expr> <silent> <leader>od (&diff ? ":diffoff" : ":diffthis") . "<cr>"
 " file ctl
 nnoremap <leader>w :w<cr>
 nnoremap <leader>q :q<cr>
+nnoremap <leader>W :w!<cr>
+nnoremap <leader>Q :q!<cr>
 nnoremap <leader>aw :wa<cr>
 nnoremap <leader>az :wqa<cr>
 nnoremap <leader>aq :qa<cr>
