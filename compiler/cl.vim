@@ -12,5 +12,3 @@ let &errorformat = ''
 let &errorformat .= '%f(%l) %\?: %trror C%n: %#%m' . ','
 let &errorformat .= '%f(%l) %\?: %tarning C%n: %#%m' . ','
 let &errorformat .= '%f(%l) %\?: %tote: %m' . ','
-
-CompilerSet makeprg=cl\ %\ /nologo\ /EHsc\ /W4\ $*
