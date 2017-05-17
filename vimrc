@@ -388,7 +388,7 @@ set cino+=t0  " Function return type declarations
 
 " Functions {{{1
 
-function! Sort(type, ...) " {{{
+function! Sort(type, ...) " {{{2
 	let sel_save = &selection
 	let &selection = "inclusive"
 	let reg_save = @@
@@ -420,22 +420,15 @@ function! Sort(type, ...) " {{{
 
 	let &selection = sel_save
 	let @@ = reg_save
-endfunction " }}}
+endfunction
 
-function! ShellLine() " {{{
+function! ShellLine() " {{{2
 	let cmd = input(getcwd() . '> ', '', 'file')
 	if cmd =~ '^\s*$'
 		return
 	endif
 	exe 'AsyncRun! ' . cmd
 	copen
-endfunction " }}}
-function! InsertSingleChar(before) " {{{
-	let char = getchar()
-	return type(char) == 0 ? (a:before ? 'a' : 'i') . nr2char(char) . "\<esc>" : ""
-endfunction " }}}
-function! PadStr(str, len) " {{{2
-	return a:str . repeat(' ', a:len - len(a:str))
 endfunction
 
 function! GetLocalIncludes(base) " {{{2
@@ -469,57 +462,55 @@ function! GetLocalIncludes(base) " {{{2
 endfunction
 
 function! Completion(findstart, base) " {{{2
+	" line up to the cursor
+	let line = getline('.')[:-len(getline('.')) + col('.') - 2]
+	let visible = a:findstart ? line : a:base
+
+	" offset of last character
+	let lastchar = match(line[len(line) - 1], '.*$')
+
+	let include_loc = match(line, '^\s*#\s*include\s*["<]\s*\zs')
+	if include_loc > -1
+		if a:findstart == 1
+			return include_loc
+		else
+			return CompleteInclude(line, a:base)
+		endif
+	endif
+
 	if a:findstart == 1
-		let line = getline('.')[ : -len(getline('.')) + col('.') - 2]
-		let lastchar = match(line[len(line) - 1], '\S\s*$')
-
-		let loc = match(line, '^\s*#\s*include\s*["<]\s*\zs')
-		if loc > -1
-			return loc
-		endif
-
-		if match(line[lastchar], '[{}[]()|&<>;]') > -1
-			" no match, is symbol
-			" return lastchar
-		endif
-
 		return -3
-	else
-		let line = getline('.')[ : -len(getline('.')) + col('.') - 2]
-
-		" include matching
-		if match(line, '^\s*#\s*include') > -1
-			let out = []
-			if match(line, '^\s*#\s*include\s*"') > -1
-
-				let out = GetLocalIncludes(a:base)
-
-			elseif match(line, '^\s*#\s*include\s*<') > -1
-				let words = Find(a:base . '*', $include)
-
-				for i in range(len(words))
-					if words[i][-1:-1] == '/'
-						let out += [ {
-						\ 'word': words[i][:-2],
-						\ 'abbr': words[i],
-						\ 'menu': 'd'
-						\ } ]
-					else
-						let out += [ {
-						\ 'word': words[i],
-						\ 'abbr': words[i],
-						\ 'menu': 'f'
-						\ } ]
-					endif
-				endfor
-			endif
-
-			return { 'words': out, 'refresh': 'always' }
-		endif
 	endif
 endfunction
 
-function! Find(file, path) " {{{2
+function! CompleteInclude(line, base) " {{{2
+	let out = []
+	if match(a:line, '^\s*#\s*include\s*"') > -1
+		let out = GetLocalIncludes(a:base)
+	elseif match(a:line, '^\s*#\s*include\s*<') > -1
+		let words = FindInPathList(a:base . '*', $include)
+
+		for i in range(len(words))
+			if words[i][-1:-1] == '/'
+				let out += [ {
+				\ 'word': words[i][:-2],
+				\ 'abbr': words[i],
+				\ 'menu': 'd'
+				\ } ]
+			else
+				let out += [ {
+				\ 'word': words[i],
+				\ 'abbr': words[i],
+				\ 'menu': 'f'
+				\ } ]
+			endif
+		endfor
+	endif
+
+	return { 'words': out, 'refresh': 'always' }
+endfunction
+
+function! FindInPathList(file, path) " {{{2
 	let path = substitute(substitute(a:path, ';', ',','g'), '\', '/', 'g')
 	let pathlist = split(path, ',')
 
@@ -551,14 +542,6 @@ function! ReloadAll() " {{{2
 	redraw!
 endfunction
 
-function! LineHome() " {{{2
-	let x = col('.')
-	normal! ^
-	if x <= col('.')
-		normal! 0
-	endif
-endfunction
-
 function! BufCleanup() " {{{2
 	"From tabpagebuflist() help, get a list of all buffers in all tabs
 	let tablist = []
@@ -585,7 +568,7 @@ function! DumpOpts() " {{{2
 	let len = max(map(copy(vars), 'len(v:val)'))
 
 	for var in vars
-		let msg .= "\n  " . PadStr(var, len + 2)
+		let msg .= "\n  " . var . repeat(' ', len + 2 - len(var))
 		if exists(var)
 			let msg .= eval(var)
 		else
@@ -627,39 +610,6 @@ function! ToggleWrap() " {{{2
 	endif
 endfunction
 
-function! SudoRepeat() " {{{2
-	let cmdline = split(@:)
-	exec cmdline[0] . '! ' . join(cmdline[1:])
-endfunction
-
-function! TmpTags() " {{{2
-	if !exists("b:tagfile")
-		let b:tagfile = tempname()
-		let &l:tags = b:tagfile
-		au BufWritePost,FileWritePost <buffer> call TmpTags()
-	endif
-
-	let cmd = 'ctags -f ' . vimproc#shellescape(b:tagfile) . ' ' . vimproc#shellescape(expand('%:p'))
-	call vimproc#system_bg(cmd)
-endfunction
-
-if !exists('*ExecFile') " {{{2
-
-function! ExecFile()
-	let ft = &ft
-	if ft == "vim"
-		so %
-	elseif ft == "c" || ft == "cpp"
-		!cls & "%:r.exe"
-	elseif ft == "html" || ft == "registry" || ft == "dosbatch"
-		!"%"
-	else
-		echoe "Exec not defined for ft=" . ft
-	endif
-endfunction
-
-endif
-
 " Autocommands {{{1
 
 augroup vimrc
@@ -700,7 +650,7 @@ noremap ; :
 noremap zz za
 noremap s <c-w>
 noremap , ;
-noremap <silent> 0 :call LineHome()<cr>
+noremap <silent> <expr> 0 match(getline('.'), '\S') < col('.') - 1 ? '^' : '0'
 noremap U <c-r>
 noremap <return> @q
 noremap <s-return> @w
@@ -770,9 +720,7 @@ nnoremap <leader>aq :qa<cr>
 nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $myvimrc<cr>
 nnoremap <leader>et :e $temp/test.cpp<cr>
-nnoremap <leader>x :call ExecFile()<cr>
 nnoremap <leader>m :call rc#make()<cr>
-nnoremap <leader>M :exec 'AsyncMake -fsyntax-only ' . (exists('g:make_args') ? g:make_args : '')<cr>:copen<cr><c-w>p
 
 " Splits
 nnoremap <leader>s <nop>
