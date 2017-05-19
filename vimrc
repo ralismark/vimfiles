@@ -221,6 +221,11 @@ let g:mucomplete#no_mappings = true
 imap <s-return> <plug>(MUcompleteFwd)
 imap <c-s-return> <plug>(MUcompleteBwd)
 
+" CMake {{{
+
+let g:cmake_generator = 'Ninja'
+let g:cmake_compiler = 'clang-cl'
+
 " }}}
 
 endif
