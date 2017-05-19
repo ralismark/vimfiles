@@ -595,12 +595,42 @@ endfunction
 
 command! -narg=1 -complete=var ISet call ModVar('<args>')
 
-function! Rename(newname) " {{{2
-	exec 'saveas! ' . a:newname
-	call vimproc#system('del /f ' . expand('#'))
+function! RenameThis(force, newname) " {{{2
+	if fnamemodify(a:newname, ':p') == expand('%:p')
+		return
+	endif
+	exe (a:force ? 'saveas!' : 'saveas')  a:newname
+	let oldname = expand('#')
+	if delete(oldname) == -1
+		" revert to old file
+		echoe 'Rename failed! Reverting...'
+		exe 'saveas!' . oldname
+		if delete(a:newname) == -1
+			echoe 'Revert failed! "' . a:newnae . '"may exist'
+		endif
+	endif
 endfunction
 
-command! -nargs=1 Rename call Rename('<args>')
+command! -nargs=1 -bang -bar RenameThis call RenameThis(<bang>0, "<args>")
+
+function! DeleteThis(force) " {{{2
+	if !a:force
+		if &readonly
+			echoe 'E45: ''readonly'' option is set (add ! to override)'
+			return
+		endif
+		if !&modifiable
+			echoe 'E21: cannot make change, ''modifiable'' is off (add ! to override)'
+			return
+		endif
+	endif
+	if delete(expand('%')) == -1
+		" delete failed, not much to do
+		echoe 'Delete failed!'
+	endif
+endfunction
+
+command! -nargs=0 -bang -bar DeleteThis call DeleteThis(<bang>0)
 
 function! ToggleWrap() " {{{2
 	setl wrap!
