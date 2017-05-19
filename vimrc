@@ -73,8 +73,8 @@ let g:unite_source_rec_async_command =
 
 call unite#custom#profile('def', 'context', {
 \	'no_split': true,
-\	'prompt': "> ",
-\	'prompt_direction': "top",
+\	'prompt': '> ',
+\	'prompt_direction': 'top',
 \	'start_insert': true,
 \	'here': true,
 \ })
@@ -605,12 +605,12 @@ command! -nargs=1 Rename call Rename('<args>')
 function! ToggleWrap() " {{{2
 	setl wrap!
 	if &wrap
-		echo "\w -> wrap"
+		echo '\w -> wrap'
 		silent! noremap <buffer> <silent> 0 g0
 		silent! noremap <buffer> <silent> ^ g^
 		silent! noremap <buffer> <silent> $ g$
 	else
-		echo "\w -> nowrap"
+		echo '\w -> nowrap'
 		silent! unmap <buffer> 0
 		silent! unmap <buffer> ^
 		silent! unmap <buffer> $
@@ -628,7 +628,7 @@ augroup vimrc
 
 	au Filetype *.*
 		\ for t in split(&ft, '\.')
-			\ | silent exe "doautocmd vimrc FileType" t
+			\ | silent exe 'doautocmd vimrc FileType' t
 		\ | endfor
 
 	au Filetype c,cpp
@@ -720,7 +720,7 @@ nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr>
 nnoremap <silent> <leader>os :set scrollbind!<cr>
-nnoremap <expr> <silent> <leader>od (&diff ? ":diffoff" : ":diffthis") . "<cr>"
+nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
 
 " file ctl
 nnoremap <leader>w :w<cr>
