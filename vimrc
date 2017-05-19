@@ -395,40 +395,6 @@ set cino+=t0  " Function return type declarations
 
 " Functions {{{1
 
-function! Sort(type, ...) " {{{2
-	let sel_save = &selection
-	let &selection = "inclusive"
-	let reg_save = @@
-
-	let type = a:type
-
-	if a:0
-		if a:type ==# 'v'
-			let type = 'char'
-		elseif a:type ==# 'V'
-			let type = 'line'
-		else
-			let type = 'block'
-		endif
-	endif
-
-	let range = a:0 ? '<>' : '[]'
-
-	if type == 'char'
-		silent exe 'normal! `' . range[0] . 'v`' . range[1] . 'y'
-
-		let chars = filter(split(@@, '.\zs'), { key, val -> match(val, '[[:cntrl:]]') })
-		let @@ = join(sort(chars), '')
-
-		silent exe 'normal! `' . range[0] . 'v`' . range[1] . 'c' . @@
-	else
-		silent exe "'" . range[0] . ",'" . range[1] . 'sort /\ze\%V/'
-	endif
-
-	let &selection = sel_save
-	let @@ = reg_save
-endfunction
-
 function! ShellLine() " {{{2
 	let cmd = input(getcwd() . '> ', '', 'file')
 	if cmd =~ '^\s*$'
@@ -698,11 +664,6 @@ noremap <return> @q
 noremap <s-return> @w
 noremap Y y$
 noremap ! :call ShellLine()<cr>
-
-" sort operator
-nnoremap <silent> gs :set opfunc=Sort<cr>g@
-nnoremap <silent> gss <nop>
-vnoremap <silent> gs :<c-u>call Sort(visualmode(), 1)<cr>
 
 " gui variant
 noremap! <c-bs> <c-w>

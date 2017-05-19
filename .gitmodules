@@ -64,3 +64,6 @@
 [submodule "bundle/vim-cmake"]
 	path = bundle/vim-cmake
 	url = https://github.com/ralismark/vim-cmake.git
+[submodule "bundle/vim-sort-motion"]
+	path = bundle/vim-sort-motion
+	url = https://github.com/christoomey/vim-sort-motion.git
