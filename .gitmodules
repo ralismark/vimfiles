@@ -67,3 +67,6 @@
 [submodule "bundle/vim-sort-motion"]
 	path = bundle/vim-sort-motion
 	url = https://github.com/christoomey/vim-sort-motion.git
+[submodule "bundle/ultisnips"]
+	path = bundle/ultisnips
+	url = https://github.com/SirVer/ultisnips.git

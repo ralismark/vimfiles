@@ -200,10 +200,18 @@ let g:startify_change_to_dir = true
 let g:startify_change_to_vcs_root = true
 let g:startify_custom_indices = map(add(range(1,9), 0), 'string(v:val)')
 
+" UltiSnips {{{2
+
+let g:UltiSnipsSnippetsDir = $VIM . "/snips"
+let g:UltiSnipsSnippetDirectories = [ g:UltiSnipsSnippetsDir, 'UltiSnips' ]
+let g:UltiSnipsNoMap = 1
+
+inoremap <s-bs> <c-r>=(UltiSnips#ExpandSnippetOrJump()) ? "" : ""<cr>
+
 " MuComplete {{{2
 
 let g:mucomplete#chains = {
-	\ 'default': [ 'user', 'keyn', 'omni' ],
+	\ 'default': [ 'ulti', 'user', 'omni', 'c-n' ],
 	\ 'markdown': [ 'dict', 'uspl' ],
 	\ }
 let g:mucomplete#can_complete = {
