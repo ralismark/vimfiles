@@ -70,3 +70,6 @@
 [submodule "bundle/ultisnips"]
 	path = bundle/ultisnips
 	url = https://github.com/SirVer/ultisnips.git
+[submodule "bundle/vim-skeletons"]
+	path = bundle/vim-skeletons
+	url = https://github.com/pgilad/vim-skeletons
