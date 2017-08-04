@@ -111,57 +111,91 @@ endfun
 
 " completion {{{1
 
-fun! rc#complete(findstart, base) " {{{2
-	if a:findstart == 1
-		return rc#compl_match()
-	else
-		let line = getline('.')[ : -len(getline('.')) + col('.') - 2]
+fun! rc#get_local_includes(base) " {{{2
+	let out = []
 
-		" include matching
-		if match(line, '^\s*#\s*include') > -1
-			let out = []
-			if match(line, '^\s*#\s*include\s*"') > -1
+	let words = glob(a:base . '*', 0, 1)
+	let files = filter(copy(words), { key, val -> !isdirectory(val) })
+	let dirs = filter(copy(words), { key, val -> isdirectory(val) })
 
-				let out = GetLocalIncludes(a:base)
-
-			elseif match(line, '^\s*#\s*include\s*<') > -1
-				let words = Find(a:base . '*', $include)
-
-				for i in range(len(words))
-					if words[i][-1:-1] == '/'
-						let out += [ {
-						\ 'word': words[i][:-2],
-						\ 'abbr': words[i],
-						\ 'menu': 'd'
-						\ } ]
-					else
-						let out += [ {
-						\ 'word': words[i],
-						\ 'abbr': words[i],
-						\ 'menu': 'f'
-						\ } ]
-					endif
-				endfor
-			endif
-
-			return { 'words': out, 'refresh': 'always' }
-		endif
+	if a:base =~ '^\(\.\.[\\/]\)*$'
+		call insert(dirs, a:base . '..')
 	endif
+
+	for i in range(len(files))
+		let out += [ {
+		\ 'word': files[i],
+		\ 'abbr': files[i],
+		\ 'menu': 'f'
+		\ } ]
+	endfor
+
+	for i in range(len(dirs))
+		let out += [ {
+		\ 'word': dirs[i],
+		\ 'abbr': dirs[i] . '/',
+		\ 'menu': 'd'
+		\ } ]
+	endfor
+
+	return out
 endfun
 
-fun! rc#compl_match() " {{{2
-	let line = getline('.')[ : -len(getline('.')) + col('.') - 2]
-	let lastchar = match(line[len(line) - 1], '\S\s*$')
+fun! rc#complete_include(line, base) " {{{2
+	let out = []
+	if match(a:line, '^\s*#\s*include\s*"') > -1
+		let out = rc#get_local_includes(a:base)
+	elseif match(a:line, '^\s*#\s*include\s*<') > -1
+		let words = rc#find_in_path_list(a:base . '*', $include)
 
-	let loc = match(line, '^\s*#\s*include\s*["<]\s*\zs')
-	if loc > -1
-		return loc
+		for i in range(len(words))
+			if words[i][-1:-1] == '/'
+				let out += [ {
+				\ 'word': words[i][:-2],
+				\ 'abbr': words[i],
+				\ 'menu': 'd'
+				\ } ]
+			else
+				let out += [ {
+				\ 'word': words[i],
+				\ 'abbr': words[i],
+				\ 'menu': 'f'
+				\ } ]
+			endif
+		endfor
 	endif
 
-	if match(line[lastchar], '[{}[]()|&<>;]') > -1
-		" no match, is symbol
-		" return lastchar
+	return { 'words': out, 'refresh': 'always' }
+endfun
+
+fun! rc#find_in_path_list(file, path) " {{{2
+	let path = substitute(substitute(a:path, ';', ',','g'), '\', '/', 'g')
+	let pathlist = split(path, ',')
+
+	let pathexpr = '\V\^\(\(' . join(pathlist, '\)\|\(') . '\)\)/\?'
+	let results = map(map(globpath(path, a:file, 0, 1), 'v:val . (isdirectory(v:val) ? "/" : "")'), 'substitute(v:val, "\\", "/", "g")')
+
+	return map(results, 'substitute(v:val, pathexpr, "", "")')
+endfun
+
+fun! rc#complete(findstart, base) " {{{2
+	" line up to the cursor
+	let line = getline('.')[:-len(getline('.')) + col('.') - 2]
+	let visible = a:findstart ? line : a:base
+
+	" offset of last character
+	let lastchar = match(line[len(line) - 1], '.*$')
+
+	let include_loc = match(line, '^\s*#\s*include\s*["<]\s*\zs')
+	if include_loc > -1
+		if a:findstart == 1
+			return include_loc
+		else
+			return rc#complete_include(line, a:base)
+		endif
 	endif
 
-	return -3
+	if a:findstart == 1
+		return -3
+	endif
 endfun
