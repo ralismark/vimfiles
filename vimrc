@@ -1,5 +1,4 @@
 set nocompatible
-abclear
 
 " Utility {{{1
 
@@ -20,6 +19,8 @@ else
 endif
 
 " Plugins {{{1
+
+filetype plugin indent on
 
 " vim depth, when running vim inside vim
 
@@ -52,8 +53,8 @@ let g:cpp_class_scope_highlight = true
 " Pathogen {{{2
 
 runtime bundle/vim-pathogen/autoload/pathogen.vim
-execute pathogen#infect()
-Helptags
+call pathogen#infect()
+call pathogen#helptags()
 
 " VimFiler {{{2
 
@@ -169,7 +170,7 @@ let g:lightline = {
 \
 \	'colorscheme': gui ? 'powerline' : 'll_theme',
 \
-\	'separator': gui ? { 'left': '', 'right': '' } : { 'left': '▓▒░', 'right': '░▒▓' },
+\	'separator': gui ? { 'left': '', 'right': '' } : { 'left': '░', 'right': '░' },
 \	'subseparator': gui ? {'left': '|', 'right': '|' } : { 'left': '░', 'right': '░' },
 \
 \	'tabline_separator': { 'left': '░', 'right': '░' },
@@ -198,6 +199,8 @@ let g:startify_session_autoload = true
 let g:startify_change_to_dir = true
 let g:startify_change_to_vcs_root = true
 let g:startify_custom_indices = map(add(range(1,9), 0), 'string(v:val)')
+
+au User Startified nnoremap <buffer> q :q<cr>
 
 " UltiSnips {{{2
 
@@ -228,7 +231,7 @@ let g:mucomplete#no_mappings = true
 imap <s-return> <plug>(MUcompleteFwd)
 imap <c-s-return> <plug>(MUcompleteBwd)
 
-" CMake {{{
+" CMake {{{2
 
 let g:cmake_generator = 'Ninja'
 let g:cmake_compiler = 'clang-cl'
@@ -243,9 +246,6 @@ let skeletons#autoRegister = 1
 endif
 
 " Options {{{1
-
-filetype plugin indent on
-let $vim = $home . "/vimfiles"
 
 " User Interface {{{2
 
@@ -354,7 +354,7 @@ set shellslash
 " Completion
 set completeopt=menu,menuone
 set infercase
-set complete=.,w,b,t,i,d
+set complete=.,w,b,t
 
 " Modeline
 set nomodeline
@@ -408,7 +408,7 @@ set cino+=t0  " Function return type declarations
 " Functions {{{1
 
 function! ShellLine() " {{{2
-	let cmd = input(getcwd() . '> ', '', 'file')
+	let cmd = input(getcwd() . '> ', '', 'shellcmd')
 	if cmd =~ '^\s*$'
 		return
 	endif
@@ -571,7 +571,7 @@ function! ModVar(varname) " {{{2
 	exec 'let  ' . a:varname . ' = input(''' . a:varname . '? '',' . a:varname . ')'
 endfunction
 
-command! -narg=1 -complete=var ISet call ModVar('<args>')
+command! -nargs=1 -complete=var ISet call ModVar('<args>')
 
 function! RenameThis(force, newname) " {{{2
 	if fnamemodify(a:newname, ':p') == expand('%:p')
@@ -589,7 +589,7 @@ function! RenameThis(force, newname) " {{{2
 	endif
 endfunction
 
-command! -nargs=1 -bang -bar RenameThis call RenameThis(<bang>0, "<args>")
+command! -nargs=1 -bang -bar RenameThis call RenameThis(<bang>0, <f-args>)
 
 function! DeleteThis(force) " {{{2
 	if !a:force
@@ -606,6 +606,7 @@ function! DeleteThis(force) " {{{2
 		" delete failed, not much to do
 		echoe 'Delete failed!'
 	endif
+	q
 endfunction
 
 command! -nargs=0 -bang -bar DeleteThis call DeleteThis(<bang>0)
@@ -639,6 +640,8 @@ augroup vimrc
 			\ | silent exe 'doautocmd vimrc FileType' t
 		\ | endfor
 
+	au Filetype python setlocal omnifunc=python3complete#Complete
+
 	au Filetype c,cpp
 		\ setl commentstring=//%s
 		\ | setl completefunc=Completion
@@ -651,10 +654,21 @@ augroup vimrc
 	au Filetype nofile,scratch
 		\ set buftype=nofile
 
+	au Filetype help
+		\ if !&modifiable && &readonly
+		\ | noremap <buffer> <nowait> <return> <c-]>
+		\ | endif
+
+	au Filetype plaintex
+		\ let &l:makeprg='tex %'
+
+	au Filetype tex
+		\ let &l:makeprg='latex %'
+
 	" Non-breaking autochdir
 	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
 
-	au FocusLost,VimLeavePre * if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite' | silent! w | endif
+	au FocusLost,VimLeavePre * if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite' | silent! update | endif
 	au VimResized * exec "normal! \<c-w>="
 augroup END
 
@@ -721,14 +735,14 @@ nnoremap <silent> <leader>rr :call ReloadAll()<cr>
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
 nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
-nnoremap <silent> <leader>ou :UndotreeToggle<cr>
+nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
 
 " file ctl
-nnoremap <leader>w :w<cr>
+nnoremap <leader>w :up<cr>
 nnoremap <leader>q :q<cr>
-nnoremap <leader>W :w!<cr>
+nnoremap <leader>W :up!<cr>
 nnoremap <leader>Q :q!<cr>
 nnoremap <leader>aw :wa<cr>
 nnoremap <leader>az :wqa<cr>
@@ -751,12 +765,12 @@ nnoremap <leader>t :tab new<cr>
 " unite binds
 nnoremap <silent> <leader>fv :exe 'VimFiler' expand('%:p:h')<cr>
 nnoremap <silent> <leader>ff :UniteWithCurrentDir -profile-name=def file<cr>
-nnoremap <silent> <leader>fb :UniteWithCurrentDir -profile-name=def buffer<cr>
+nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
 " Other Features {{{1
 
 " Async Make
-command! -nargs=* AsyncMake exec 'AsyncRun ' . rc#make_command('<args>')
+command! -nargs=* AsyncMake exec 'AsyncRun ' . rc#make_command(<f-args>)
 
 " Return to last edit position when opening files (You want this!)
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
