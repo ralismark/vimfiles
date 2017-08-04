@@ -94,7 +94,7 @@ fun! itab#align(line)
 	let big_ident_sz = 80
 
 	let pos = getpos('.')
-	let vcol = virtcol('.')
+	let textoff = len(matchstr(getline(a:line), '\s*\zs.*\%' . col('.') . 'c'))
 
 	let pos[1] = a:line
 
@@ -145,9 +145,9 @@ fun! itab#align(line)
 	" indent + text: move to original cursor position
 	let mov_seq = "\<esc>^a"
 	if getline(a:line) !~ '^\s*$'
-		let num = vcol - (shiftwidth() - 1) * indatabs - 1
-		let mov_seq = "\<home>" . repeat("\<right>", num)
+		let mov_seq = repeat("\<right>", textoff)
 	endif
+
 
 	return "\<home>^\<c-d>" . repeat("\<tab>", indatabs) . repeat(' ', indaspace) . mov_seq
 endfun
