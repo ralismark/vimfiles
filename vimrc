@@ -132,6 +132,7 @@ let g:lightline = {
 \		'filetype': 'll#filetype',
 \		'fileinfo': 'll#fileinfo',
 \		'bufinfo': 'll#bufinfo',
+\		'depth': 'll#depth',
 \	},
 \	'component_visible_condition': {
 \		'filetype': '(winwidth(0) > 40)',
@@ -159,7 +160,7 @@ let g:lightline = {
 \	},
 \	'tabline': {
 \		'left': [
-\				[ 'tabs' ],
+\				[ 'depth', 'tabs' ],
 \		],
 \		'right': [
 \				[ 'close' ],

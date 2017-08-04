@@ -1,5 +1,9 @@
 " vimrc supplementing file for lightline
 
+fun! ll#depth() " {{{
+	return ($vim_depth ? 'depth ' . $vim_depth : '')
+endfun " }}}
+
 fun! ll#bufinfo() " {{{
 	let cur_buf = bufnr('%')
 	let end_buf = bufnr('$')
@@ -7,9 +11,10 @@ fun! ll#bufinfo() " {{{
 	let cur_tab = tabpagenr()
 	let end_tab = tabpagenr('$')
 
-	let lvl_str = 'level ' . $vim_depth
 	let buf_str = 'b' . cur_buf . '/' . end_buf
 	let tab_str = 't' . cur_tab . '/' . end_tab
+
+	return buf_str . (end_tab != 1 ? ' : ' . tab_str : '')
 endfun " }}}
 
 fun! ll#filename() " {{{
