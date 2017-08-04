@@ -215,18 +215,13 @@ inoremap <s-bs> <c-r>=(UltiSnips#ExpandSnippetOrJump()) ? "" : ""<cr>
 let g:mucomplete#chains = {
 	\ 'default': [ 'ulti', 'user', 'omni', 'c-n' ],
 	\ 'markdown': [ 'dict', 'uspl' ],
+	\ 'cmake': [ 'path', 'c-n' ],
 	\ }
-let g:mucomplete#can_complete = {
-	\ 'default' : {
-	\ 	'dict':  { t -> strlen(&l:dictionary) > 0 },
-	\ 	'file':  { t -> t =~# '/' },
-	\ 	'omni':  { t -> strlen(&l:omnifunc) > 0 },
-	\ 	'spel':  { t -> &l:spell },
-	\ 	'tags':  { t -> !empty(tagfiles()) },
-	\ 	'thes':  { t -> strlen(&l:thesaurus) > 0 },
-	\ 	'user':  { t -> strlen(&l:completefunc) > 0 },
-	\ 	},
+let g:mucomplete#can_complete = {}
+let g:mucomplete#can_complete.default = {
+	\ 'c-n': { t -> t !~# '[:punct:]$' }
 	\ }
+
 let g:mucomplete#no_mappings = true
 imap <s-return> <plug>(MUcompleteFwd)
 imap <c-s-return> <plug>(MUcompleteBwd)
