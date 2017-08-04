@@ -51,8 +51,6 @@ let g:cpp_class_scope_highlight = true
 
 " Pathogen {{{2
 
-let pathogen_blacklist = ['Recover.vim']
-
 runtime bundle/vim-pathogen/autoload/pathogen.vim
 execute pathogen#infect()
 Helptags
