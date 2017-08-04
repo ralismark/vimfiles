@@ -232,6 +232,11 @@ imap <c-s-return> <plug>(MUcompleteBwd)
 let g:cmake_generator = 'Ninja'
 let g:cmake_compiler = 'clang-cl'
 
+" Skeletons {{{2
+
+let skeletons#skeletonsDir += [ $vim . '/skeletons' ]
+let skeletons#autoRegister = 1
+
 " }}}
 
 endif
