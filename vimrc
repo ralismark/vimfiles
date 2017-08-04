@@ -441,6 +441,24 @@ function! GetExecCurrent() " {{{2
 	return Com
 endfunction
 
+function! ReTemplate(reg) " {{{2
+	let default = &cb =~ 'unnamed' ? '*' : &cb =~ 'unnamedplus' ? '+' : '"'
+	let reg = len(a:reg) == 0 ? default : a:reg
+
+	let rep = input('Replacement (empty to stop)? ')
+	while rep != ''
+		exe 'put' reg
+		exe '''[,'']s/@/\=rep/g'
+		exe "norm! \<esc>`]"
+
+		redraw
+
+		let rep = input('Replacement (empty to stop)? ')
+	endwhile
+endfunction
+
+command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
+
 function! ShellLine() " {{{2
 	let cmd = input(getcwd() . '> ', '', 'shellcmd')
 	if cmd =~ '^\s*$'
