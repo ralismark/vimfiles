@@ -402,6 +402,45 @@ set cino+=t0  " Function return type declarations
 
 " Functions {{{1
 
+if !exists('*ExecCurrent') " {{{2
+
+function! ExecCurrent()
+	let Fn=GetExecCurrent()
+	if type(Fn) == v:t_func
+		call Fn()
+	endif
+endfunction
+
+endif
+
+function! GetExecCurrent() " {{{2
+	let Com = v:none
+	if exists('b:exec_com')
+		if type(b:exec_com) == v:t_dict
+			if has_key(b:exec_com, &ft)
+				let Com = b:exec_com[&ft]
+			endif
+		else
+			let Com = b:exec_com
+		endif
+	endif
+	if exists('g:exec_com') && type(Com) == v:t_none
+		if type(g:exec_com) == v:t_dict
+			if has_key(g:exec_com, &ft)
+				let Com = g:exec_com[&ft]
+			endif
+		else
+			let Com = g:exec_com
+		endif
+	endif
+	if type(Com) != v:t_func
+		echoe 'ExecCurrent: no viable com found for filetype "' . &ft . '"'
+		return
+	endif
+
+	return Com
+endfunction
+
 function! ShellLine() " {{{2
 	let cmd = input(getcwd() . '> ', '', 'shellcmd')
 	if cmd =~ '^\s*$'
@@ -698,6 +737,7 @@ noremap - "_
 " more leaders
 noremap <leader> <nop>
 noremap <silent> <leader><space> :nohl<cr>
+noremap <leader>x :call ExecCurrent()<cr>
 
 " Buffer/Tab switching
 noremap <silent> [b :bp<cr>
@@ -763,6 +803,10 @@ nnoremap <silent> <leader>ff :UniteWithCurrentDir -profile-name=def file<cr>
 nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
 " Other Features {{{1
+
+let g:exec_com = {
+	\ 'vim': { -> execute('source %') },
+	\ }
 
 " Async Make
 command! -nargs=* AsyncMake exec 'AsyncRun ' . rc#make_command(<f-args>)
