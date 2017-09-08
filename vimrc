@@ -63,7 +63,7 @@ let g:vimfiler_force_overwrite_statusline = 0
 
 " Unite {{{2
 
-call unite#filters#matcher_default#use(['matcher_fuzzy'])
+call unite#filters#matcher_default#use(['matcher_context'])
 
 " Using ag as recursive command.
 let g:unite_source_rec_async_command =
@@ -596,7 +596,7 @@ augroup vimrc
 	au Filetype markdown setl spell tw=80
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
-	au BufNewFile,BufFilePre,BufRead *.h set filetype=c
+	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
 
 	au Filetype *.*
 		\ for t in split(&ft, '\.')
@@ -641,6 +641,10 @@ command! -nargs=0 KillBuffers call BufCleanup()
 command! -nargs=0 KillWhitespace StripWhitespace
 
 let mapleader = "\<Space>"
+
+" command line mappings
+cnoremap <c-a> <home>
+cnoreabbr <expr> %% expand('%:p:h')
 
 " better binds
 noremap ; :
@@ -717,6 +721,11 @@ nnoremap <leader>ev :e $myvimrc<cr>
 nnoremap <leader>et :e $temp/test.cpp<cr>
 nnoremap <leader>m :call rc#make()<cr>
 
+" cleanup
+nnoremap <leader>k <nop>
+nnoremap <leader>kw :StripWhitespace<cr>
+nnoremap <leader>kb :call BufCleanup()<cr>
+
 " Splits
 nnoremap <leader>s <nop>
 nnoremap <silent> <leader>ss <c-w>s
@@ -728,8 +737,16 @@ nnoremap <leader>t :tab new<cr>
 
 " unite binds
 nnoremap <silent> <leader>fv :exe 'VimFiler' expand('%:p:h')<cr>
-nnoremap <silent> <leader>ff :UniteWithCurrentDir -profile-name=def file<cr>
+nnoremap <silent> <leader>ff :Unite -profile-name=def file<cr>
 nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
+
+if gui
+	if windows
+		nnoremap <silent> <c-z> :silent !cmd<cr>
+	else
+		nnoremap <silent> <c-z> :silent !bash<cr>
+	endif
+endif
 
 " Other Features {{{1
 
