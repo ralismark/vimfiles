@@ -175,7 +175,16 @@ fun! rc#find_in_path_list(file, path) " {{{2
 	let pathexpr = '\V\^\(\(' . join(pathlist, '\)\|\(') . '\)\)/\?'
 	let results = map(map(globpath(path, a:file, 0, 1), 'v:val . (isdirectory(v:val) ? "/" : "")'), 'substitute(v:val, "\\", "/", "g")')
 
-	return map(results, 'substitute(v:val, pathexpr, "", "")')
+	for item in range(len(results))
+		for pathitem in pathlist
+			if results[item] =~ ('\V\^' . pathitem)
+				let results[item] = results[item][len(pathitem)+1:]
+				break
+			endif
+		endfor
+	endfor
+
+	return results
 endfun
 
 fun! rc#complete(findstart, base) " {{{2
