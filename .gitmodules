@@ -73,3 +73,6 @@
 [submodule "bundle/vim-skeletons"]
 	path = bundle/vim-skeletons
 	url = https://github.com/pgilad/vim-skeletons
+[submodule "bundle/Colorizer"]
+	path = bundle/Colorizer
+	url = https://github.com/chrisbra/Colorizer.git
