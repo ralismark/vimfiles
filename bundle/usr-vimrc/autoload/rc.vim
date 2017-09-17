@@ -69,7 +69,7 @@ fun! rc#artificial_make(full_cmd, jump_to_first, ...)
 	let makecmd = a:full_cmd . ' ' . &shellpipe . ' ' . errorfile
 
 	let start_time = localtime()
-	let errorcode = vimproc#system(makecmd)
+	let errorcode = system(makecmd)
 	let end_time = localtime()
 
 	let contents = readfile(errorfile)
