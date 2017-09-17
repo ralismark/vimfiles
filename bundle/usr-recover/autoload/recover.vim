@@ -20,6 +20,7 @@ endfunction!
 
 " check recovered and original
 function! recover#swapcheck()
+	recover
 	let recov_buf = bufnr('%')
 	let recov_len = line('$')
 	" Similar to :DiffOrig
@@ -27,7 +28,7 @@ function! recover#swapcheck()
 	set bt=nofile
 	r ++edit #
 	0d_
-	exe 'file' expand('#') '(on-disk original)'
+	exe 'file' expand('#') '(on-disk pre-recovery)'
 	let orig_buf = bufnr('%')
 	let orig_len = line('$')
 	wincmd p " go back to orig
