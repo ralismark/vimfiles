@@ -83,10 +83,6 @@ function! s:unite_settings()
 	imap <buffer> <esc> <Plug>(unite_exit)
 endfunction
 
-" vimproc {{{2
-
-let g:vimproc#download_windows_dll = true
-
 " vim-easy-align {{{2
 
 " Start interactive EasyAlign in visual mode (e.g. vipga)
