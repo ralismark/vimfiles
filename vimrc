@@ -299,7 +299,6 @@ set linebreak
 
 " Fold on triple brace
 set foldmethod=marker
-set foldlevel=999
 
 " Make with tee
 set shellpipe=2>&1\ \|\ tee
@@ -314,8 +313,10 @@ set splitright
 " % for angle brackets
 set matchpairs+=<:>
 
-" Formatting {{{2
+" Show partial keypresses
+set showcmd
 
+" Formatting {{{2
 
 " Different theme for term/gui
 if has('gui_running')
@@ -365,10 +366,12 @@ set infercase
 set complete=.,w,b,t
 
 " Modeline
-set nomodeline
+set modeline
 
-" No timeout
+" Timeout
 set notimeout
+set ttimeout
+set ttimeoutlen=100
 
 " Clipboard
 set clipboard=unnamed
@@ -389,6 +392,9 @@ set spellsuggest=fast,8
 
 " Viminfo
 set viminfo=!,%,'64,/16,s10,c,f1,h,rD:,rE:
+
+" Allow cursor to go anywhere in visual block mode
+set virtualedit+=block
 
 " C Indent {{{2
 
@@ -483,15 +489,14 @@ endfunction
 
 function! ReloadAll() " {{{2
 	" lightline
-	if !exists('g:loaded_lightline')
-		return
+	if exists('g:loaded_lightline')
+		try
+			call lightline#init()
+			call lightline#colorscheme()
+			call lightline#update()
+		catch
+		endtry
 	endif
-	try
-		call lightline#init()
-		call lightline#colorscheme()
-		call lightline#update()
-	catch
-	endtry
 
 	" fix width and height
 	set columns=999 lines=999
@@ -606,7 +611,7 @@ endfunction
 
 augroup vimrc
 	au!
-	au Filetype markdown setl spell tw=80
+	au Filetype markdown,rst setl spell tw=80
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
@@ -718,6 +723,7 @@ nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os :set scrollbind!<cr>
+nnoremap <silent> <leader>op :set paste!<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
 
 " file ctl
