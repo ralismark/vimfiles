@@ -11,12 +11,7 @@ let con = !gui
 let windows = has('win32') || has('win64')
 let unix = has('unix')
 
-if unix
-	let $VIM = $HOME . '/.vim'
-	let $myvimrc = $VIM . '/vimrc'
-else
-	let $VIM = $HOME . '/vimfiles'
-endif
+let $VIM = fnamemodify($MYVIMRC, ':p:h')
 
 " Plugins {{{1
 
@@ -198,7 +193,7 @@ let g:lightline = {
 
 " Startify {{{2
 
-let g:startify_session_dir = '~/vimfiles/session'
+let g:startify_session_dir = $VIM . '/session'
 let g:startify_list_order = ['sessions', 'bookmarks', 'commands', 'files']
 if getcwd() != $home
 	call add(g:startify_list_order, 'dir')
@@ -354,9 +349,9 @@ if windows
 	set backupdir=$VIM/tempfiles/backup//,$TEMP//
 	set undodir=$VIM/tempfiles/undo//,$TEMP//
 else
-	set directory=$HOME/.vim/swap//,/var/tmp//,/tmp//
-	set backupdir=$HOME/.vim/backup//,/var/tmp//,/tmp//
-	set undodir=$HOME/.vim/undo//,/var/tmp//,/tmp//
+	set directory=$VIM/tempfiles/swap//,/var/tmp//,/tmp//
+	set backupdir=$VIM/tempfiles/backup//,/var/tmp//,/tmp//
+	set undodir=$VIM/tempfiles/undo//,/var/tmp//,/tmp//
 endif
 
 " Editing {{{2
@@ -735,7 +730,7 @@ nnoremap <leader>az :wqa<cr>
 nnoremap <leader>aq :qa<cr>
 
 nnoremap <leader>e. :e .<cr>
-nnoremap <leader>ev :e $myvimrc<cr>
+nnoremap <leader>ev :e $MYVIMRC<cr>
 nnoremap <leader>et :e $temp/test.cpp<cr>
 nnoremap <leader>m :call rc#make()<cr>
 
