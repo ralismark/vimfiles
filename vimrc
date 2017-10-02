@@ -20,8 +20,6 @@ endif
 
 " Plugins {{{1
 
-filetype plugin indent on
-
 " vim depth, when running vim inside vim
 
 function! s:vimdepth() " {{{
@@ -50,11 +48,36 @@ if &loadplugins
 
 let g:cpp_class_scope_highlight = true
 
-" Pathogen {{{2
+" Vim-Plug {{{2
 
-runtime bundle/vim-pathogen/autoload/pathogen.vim
-call pathogen#infect()
-call pathogen#helptags()
+call plug#begin($VIM . '/plugged')
+
+Plug 'chrisbra/Colorizer'
+Plug 'christoomey/vim-sort-motion'
+Plug 'itchyny/lightline.vim'
+Plug 'junegunn/vim-easy-align'
+Plug 'kana/vim-textobj-user'
+Plug 'lifepillar/vim-mucomplete'
+Plug 'mbbill/undotree'
+Plug 'mhinz/vim-startify'
+Plug 'ntpeters/vim-better-whitespace'
+Plug 'pgilad/vim-skeletons'
+Plug 'plasticboy/vim-markdown'
+Plug 'ralismark/vim-cmake'
+Plug 'sgur/vim-textobj-parameter'
+Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
+Plug 'shougo/vimfiler.vim'
+Plug 'sirver/ultisnips'
+Plug 'skywind3000/asyncrun.vim'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+
+Plug $VIM . '/bundle/usr-vimrc'
+Plug $VIM . '/bundle/usr-recover'
+Plug $VIM . '/bundle/usr-itab'
+Plug $VIM . '/bundle/usr-etypehead'
+
+call plug#end()
 
 " VimFiler {{{2
 
@@ -298,7 +321,6 @@ set matchpairs+=<:>
 
 " Formatting {{{2
 
-syntax enable
 
 " Different theme for term/gui
 if has('gui_running')
