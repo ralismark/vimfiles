@@ -67,10 +67,10 @@ Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 
-Plug $VIM . '/bundle/usr-vimrc'
-Plug $VIM . '/bundle/usr-recover'
-Plug $VIM . '/bundle/usr-itab'
-Plug $VIM . '/bundle/usr-etypehead'
+Plug $VIM . '/bundle/vimrc'
+Plug $VIM . '/bundle/recover'
+Plug $VIM . '/bundle/itab'
+Plug $VIM . '/bundle/etypehead'
 
 call plug#end()
 
