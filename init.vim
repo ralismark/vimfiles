@@ -41,7 +41,6 @@ endif
 
 if &loadplugins
 
-let g:cpp_class_scope_highlight = true
 
 " Vim-Plug {{{2
 
@@ -71,6 +70,7 @@ Plug $VIM . '/bundle/vimrc'
 Plug $VIM . '/bundle/recover'
 Plug $VIM . '/bundle/itab'
 Plug $VIM . '/bundle/etypehead'
+Plug $VIM . '/bundle/syn'
 
 call plug#end()
 
