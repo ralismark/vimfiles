@@ -41,6 +41,7 @@ endif
 
 if &loadplugins
 
+let g:vimwiki_map_prefix = '\w'
 
 " Vim-Plug {{{2
 
@@ -48,7 +49,9 @@ call plug#begin($VIM . '/plugged')
 
 Plug 'chrisbra/Colorizer'
 Plug 'christoomey/vim-sort-motion'
+Plug 'gabrielelana/vim-markdown'
 Plug 'itchyny/lightline.vim'
+Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'kana/vim-textobj-user'
 Plug 'lifepillar/vim-mucomplete'
@@ -56,7 +59,6 @@ Plug 'mbbill/undotree'
 Plug 'mhinz/vim-startify'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'pgilad/vim-skeletons'
-Plug 'plasticboy/vim-markdown'
 Plug 'ralismark/vim-cmake'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
@@ -65,12 +67,14 @@ Plug 'sirver/ultisnips'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
+Plug 'vimwiki/vimwiki'
 
 Plug $VIM . '/bundle/vimrc'
 Plug $VIM . '/bundle/recover'
 Plug $VIM . '/bundle/itab'
 Plug $VIM . '/bundle/etypehead'
 Plug $VIM . '/bundle/syn'
+" Plug $VIM . '/bundle/wiki'
 
 call plug#end()
 
@@ -201,7 +205,7 @@ endif
 
 let g:startify_bookmarks = [
 	\ {'h': $HOME },
-	\ {'v': $VIM . '/vimrc' },
+	\ {'v': $MYVIMRC },
 	\ {'V': $VIM },
 	\]
 if windows
@@ -433,7 +437,6 @@ endfunction
 endif
 
 function! GetExecCurrent() " {{{2
-	let Com = v:none
 	if exists('b:exec_com')
 		if type(b:exec_com) == v:t_dict
 			if has_key(b:exec_com, &ft)
@@ -443,7 +446,7 @@ function! GetExecCurrent() " {{{2
 			let Com = b:exec_com
 		endif
 	endif
-	if exists('g:exec_com') && type(Com) == v:t_none
+	if exists('g:exec_com') && !exists('l:Com')
 		if type(g:exec_com) == v:t_dict
 			if has_key(g:exec_com, &ft)
 				let Com = g:exec_com[&ft]
@@ -452,7 +455,7 @@ function! GetExecCurrent() " {{{2
 			let Com = g:exec_com
 		endif
 	endif
-	if type(Com) != v:t_func
+	if !exists('l:Com')
 		echoe 'ExecCurrent: no viable com found for filetype "' . &ft . '"'
 		return
 	endif
@@ -724,6 +727,7 @@ nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <silent> <leader>op :set paste!<cr>
+nnoremap <silent> <leader>og :Goyo<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
 
 " file ctl
