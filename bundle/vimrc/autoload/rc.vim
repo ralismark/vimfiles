@@ -111,6 +111,25 @@ endfun
 
 " completion {{{1
 
+fun! rc#get_include_pathlist() " {{{2
+	if exists('s:ipathlist')
+		return s:ipathlist
+	endif
+
+	let s:ipathlist = ""
+
+	if has('unix') " running linux or similar
+		" TODO: generalise to other compilers - use env CXX? make?
+		let raw_ipath = system('echo | gcc -v -E - 2>&1 | sed -e ''1,/#include </d'' -e ''/^End of search list\./,$d''')
+		let pathlist = map(split(raw_ipath, '\n'), {k,v -> substitute(v, '^[[:space:]]*', '', '')})
+		let s:ipathlist = join(pathlist, ',')
+	elseif has('win32') " windows
+		let path = substitute(substitute($INCLUDE, ';', ',', 'g'), '\', '/', 'g')
+		let s:ipathlist = path
+	endif
+	return s:ipathlist
+endfun
+
 fun! rc#get_local_includes(base) " {{{2
 	let out = []
 
@@ -146,7 +165,7 @@ fun! rc#complete_include(line, base) " {{{2
 	if match(a:line, '^\s*#\s*include\s*"') > -1
 		let out = rc#get_local_includes(a:base)
 	elseif match(a:line, '^\s*#\s*include\s*<') > -1
-		let words = rc#find_in_path_list(a:base . '*', $include)
+		let words = rc#find_in_path_list(a:base . '*', rc#get_include_pathlist())
 
 		for i in range(len(words))
 			if words[i][-1:-1] == '/'
@@ -168,15 +187,12 @@ fun! rc#complete_include(line, base) " {{{2
 	return { 'words': out, 'refresh': 'always' }
 endfun
 
-fun! rc#find_in_path_list(file, path) " {{{2
-	let path = substitute(substitute(a:path, ';', ',','g'), '\', '/', 'g')
-	let pathlist = split(path, ',')
-
-	let pathexpr = '\V\^\(\(' . join(pathlist, '\)\|\(') . '\)\)/\?'
-	let results = map(map(globpath(path, a:file, 0, 1), 'v:val . (isdirectory(v:val) ? "/" : "")'), 'substitute(v:val, "\\", "/", "g")')
+fun! rc#find_in_path_list(file, pathlist) " {{{2
+	let raw_matches = globpath(a:pathlist, a:file, 0, 1)
+	let results = map(raw_matches, {k,v -> substitute(v, '\', '/', 'g') . (isdirectory(v) ? '/' : '')})
 
 	for item in range(len(results))
-		for pathitem in pathlist
+		for pathitem in split(a:pathlist, ',')
 			if results[item] =~ ('\V\^' . pathitem)
 				let results[item] = results[item][len(pathitem)+1:]
 				break
