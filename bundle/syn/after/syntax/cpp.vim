@@ -38,13 +38,11 @@ syn match   cCustomFunc     "\w\+\s*(\@="
 hi def link cCustomFunc  Function
 
 " Class and namespace scope
-if exists('g:cpp_class_scope_highlight') && g:cpp_class_scope_highlight
-    syn match    cCustomScope    "::"
-    syn match    cCustomClass    "\w\+\s*::" 
-                \contains=cCustomScope 
-    hi def link cCustomClass Function
-    syn match   cCustomClass    "\<\u\w*\s*\>" 
-endif
+syn match    cCustomScope    "::"
+syn match    cCustomClass    "\w\+\s*::" 
+        \contains=cCustomScope 
+hi def link cCustomClass Function
+syn match   cCustomClass    "\<\u\w*\s*\>" 
 
 " Template functions
 if exists('g:cpp_experimental_template_highlight') && g:cpp_experimental_template_highlight

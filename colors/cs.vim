@@ -1,10 +1,9 @@
-" hi clear
+hi clear
 
 if exists("syntax_on")
 	syntax reset
 endif
 let g:colors_name="cs"
-
 
 " UI Styles {{{1 -------------------------------------------------------------
 
@@ -97,3 +96,6 @@ hi link Typedef         StorageClass
 hi Error                ctermfg=7       ctermbg=4
 
 hi Todo                 ctermfg=6       ctermbg=bg
+
+" Transparency fix {{{1 ------------------------------------------------------
+hi! Normal ctermbg=none
