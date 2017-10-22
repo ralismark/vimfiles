@@ -668,8 +668,6 @@ augroup END
 command! -nargs=0 KillBuffers call BufCleanup()
 command! -nargs=0 KillWhitespace StripWhitespace
 
-let mapleader = "\<Space>"
-
 " command line mappings
 cnoremap <c-a> <home>
 cnoreabbr <expr> %% expand('%:p:h')
@@ -695,16 +693,8 @@ noremap! <c-> <c-w>
 noremap _ "_
 noremap - "_
 
-" more leaders
-noremap <leader> <nop>
-noremap <silent> <leader><space> :nohl<cr>
-noremap <leader>x :call ExecCurrent()<cr>
-
-" Buffer/Tab switching
-noremap <silent> [b :bp<cr>
-noremap <silent> ]b :bn<cr>
-noremap <silent> [t :tabp<cr>
-noremap <silent> ]t :tabn<cr>
+" Clear highlight
+nnoremap <silent> <Escape> :nohl<cr>
 
 " Complement <tab>
 nnoremap <s-tab> <c-o>
@@ -712,6 +702,14 @@ nnoremap <s-tab> <c-o>
 " Logical lines
 noremap j gj
 noremap k gk
+
+" Buffer/window/tab {{{2
+
+" Buffer/Tab switching
+noremap <silent> [b :bp<cr>
+noremap <silent> ]b :bn<cr>
+noremap <silent> [t :tabp<cr>
+noremap <silent> ]t :tabn<cr>
 
 " Buffer ctl
 nnoremap <c-h> <c-w>h
@@ -723,6 +721,14 @@ nnoremap <s-left> <c-w><
 nnoremap <s-down> <c-w>+
 nnoremap <s-up> <c-w>-
 nnoremap <s-right> <c-w>>
+
+" Leaders " {{{2
+
+let mapleader = "\<Space>"
+
+" more leaders
+noremap <leader> <nop>
+noremap <leader>x :call ExecCurrent()<cr>
 
 " misc
 nnoremap <silent> <leader>rr :call ReloadAll()<cr>
@@ -770,13 +776,13 @@ nnoremap <silent> <leader>fv :exe 'VimFiler' expand('%:p:h')<cr>
 nnoremap <silent> <leader>ff :Unite -profile-name=def file<cr>
 nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
-if gui
-	if windows
-		nnoremap <silent> <c-z> :silent !cmd<cr>
-	else
-		nnoremap <silent> <c-z> :silent !bash<cr>
-	endif
-endif
+" Misc {{{2
+
+" Add or remove indent
+" inoremap <expr> <tab> "<c-\><c-o>>><end>" . repeat("<left>", col('$') - col('.'))
+" inoremap <expr> <s-tab> "<c-\><c-o><<<end>" . repeat("<left>", col('$') - col('.'))
+inoremap <tab> <c-t>
+inoremap <s-tab> <c-d>
 
 " Other Features {{{1
 
