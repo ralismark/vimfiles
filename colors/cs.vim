@@ -22,8 +22,8 @@ hi TabLineFill          ctermfg=7       ctermbg=bg
 hi TabLineSel           ctermfg=0       ctermbg=1
 
 " Below the statusline / ex command region
-hi WarningMsg           ctermfg=0       ctermbg=6
-hi ErrorMsg             ctermfg=15      ctermbg=4
+hi WarningMsg           ctermfg=0       ctermbg=11
+hi ErrorMsg             ctermfg=15      ctermbg=1
 hi ModeMsg              ctermfg=2       ctermbg=bg
 hi Question             ctermfg=2       ctermbg=bg
 hi WildMenu             ctermfg=0       ctermbg=14
@@ -31,8 +31,8 @@ hi WildMenu             ctermfg=0       ctermbg=14
 " Spell
 hi SpellBad             ctermfg=4       ctermbg=bg
 hi SpellCap             ctermfg=6       ctermbg=bg
-hi link SpellLocal      SpellCap
-hi link SpellRare       SpellCap
+hi SpellLocal           ctermfg=6       ctermbg=bg
+hi SpellRare            ctermfg=6       ctermbg=bg
 
 " Search
 hi Search               ctermfg=0       ctermbg=6
@@ -53,9 +53,9 @@ hi VertSplit            ctermfg=8       ctermbg=8
 
 " Diff
 hi DiffAdd              ctermfg=2       ctermbg=bg
-hi DiffChange           ctermfg=6       ctermbg=bg
-hi DiffDelete           ctermfg=4       ctermbg=bg
-hi DiffText             ctermfg=6       ctermbg=bg
+hi DiffChange           ctermfg=11      ctermbg=bg
+hi DiffDelete           ctermfg=1       ctermbg=bg
+hi DiffText             ctermfg=3       ctermbg=bg
 
 " Popup Menu
 hi Pmenu                ctermfg=15      ctermbg=8
@@ -97,5 +97,3 @@ hi Error                ctermfg=7       ctermbg=4
 
 hi Todo                 ctermfg=6       ctermbg=bg
 
-" Transparency fix {{{1 ------------------------------------------------------
-hi! Normal ctermbg=none
