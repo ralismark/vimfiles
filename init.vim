@@ -78,6 +78,10 @@ Plug $VIM . '/bundle/syn'
 
 call plug#end()
 
+" Goyo {{{2
+
+let g:goyo_width = 90
+
 " VimFiler {{{2
 
 let g:vimfiler_as_default_explorer = 1
@@ -226,6 +230,9 @@ let g:UltiSnipsSnippetsDir = $VIM . "/snips"
 let g:UltiSnipsSnippetDirectories = [ g:UltiSnipsSnippetsDir, 'UltiSnips' ]
 let g:UltiSnipsNoMap = 1
 
+let g:UltiSnipsExpandTrigger = "<f20>"
+let g:UltiSnipsListSnippets = "<f21>"
+
 inoremap <s-bs> <c-r>=(UltiSnips#ExpandSnippetOrJump()) ? "" : ""<cr>
 
 " MuComplete {{{2
@@ -341,7 +348,7 @@ set encoding=utf-8
 
 " Word formatting
 set textwidth=0
-set formatoptions=crqlnt
+set formatoptions=tcrqlnj
 
 " Tempfiles {{{2
 
@@ -614,7 +621,7 @@ endfunction
 
 augroup vimrc
 	au!
-	au Filetype markdown,rst setl spell tw=80
+	au Filetype markdown,rst setl spell tw=80 sw=0 ts=4 noet
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
