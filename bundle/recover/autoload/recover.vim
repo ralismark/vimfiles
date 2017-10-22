@@ -28,7 +28,7 @@ function! recover#swapcheck()
 	set bt=nofile
 	r ++edit #
 	0d_
-	exe 'file' expand('#') '(on-disk pre-recovery)'
+	exe 'file' fnameescape(expand('#') . ' (on-disk pre-recovery)')
 	let orig_buf = bufnr('%')
 	let orig_len = line('$')
 	wincmd p " go back to orig
@@ -61,7 +61,9 @@ endfunction
 function! recover#check_loaded(filename)
 	let fname_esc = substitute(a:filename, "'", "''", "g")
 
-	let servers = split(serverlist(), "\n")
+	" Normal vim returns a newline-separated list, while neovim returns an
+	" actual list
+	let servers = has('nvim') ? serverlist() : split(serverlist(), "\n")
 	for server in servers
 		" Skip ourselves.
 		if server ==? v:servername
