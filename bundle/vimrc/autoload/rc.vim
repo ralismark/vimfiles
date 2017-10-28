@@ -120,7 +120,8 @@ fun! rc#get_include_pathlist() " {{{2
 
 	if has('unix') " running linux or similar
 		" TODO: generalise to other compilers - use env CXX? make?
-		let raw_ipath = system('echo | gcc -v -E - 2>&1 | sed -e ''1,/#include </d'' -e ''/^End of search list\./,$d''')
+		let lang_opt = &ft =~ 'cpp' ? '-xc++' : '-xc'
+		let raw_ipath = system('echo | gcc ' . lang_opt .  ' -v -E - 2>&1 | sed -e ''1,/#include </d'' -e ''/^End of search list\./,$d''')
 		let pathlist = map(split(raw_ipath, '\n'), {k,v -> substitute(v, '^[[:space:]]*', '', '')})
 		let s:ipathlist = join(pathlist, ',')
 	elseif has('win32') " windows
