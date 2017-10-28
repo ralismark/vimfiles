@@ -47,7 +47,6 @@ call plug#begin($VIM . '/plugged')
 
 Plug 'chrisbra/Colorizer'
 Plug 'christoomey/vim-sort-motion'
-Plug 'gabrielelana/vim-markdown'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
@@ -56,8 +55,6 @@ Plug 'lifepillar/vim-mucomplete'
 Plug 'mbbill/undotree'
 Plug 'mhinz/vim-startify'
 Plug 'ntpeters/vim-better-whitespace'
-Plug 'pgilad/vim-skeletons'
-Plug 'ralismark/vim-cmake'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
 Plug 'shougo/vimfiler.vim'
@@ -248,16 +245,6 @@ let g:mucomplete#no_mappings = true
 imap <s-return> <plug>(MUcompleteFwd)
 imap <c-s-return> <plug>(MUcompleteBwd)
 
-" CMake {{{2
-
-let g:cmake_generator = 'Ninja'
-let g:cmake_compiler = 'clang-cl'
-
-" Skeletons {{{2
-
-let skeletons#skeletonsDir += [ $vim . '/skeletons' ]
-let skeletons#autoRegister = 1
-
 " }}}
 
 endif
@@ -269,10 +256,8 @@ endif
 " Line buffer at top/bottom when scrolling
 set scrolloff=10
 
-" Wild menu! Ignore obj, exe, .tup, .git
+" Wild menu!
 set wildmenu
-set wildignore=*.o,*.exe
-set wildignore+=*/.git/*,*/.tup/*
 
 " searching stuff
 set hlsearch
@@ -349,17 +334,14 @@ set formatoptions=tcrqlnj
 
 " Tempfiles {{{2
 
-set backup
 set swapfile
 set undofile
 
 if windows
 	set directory=$VIM/tempfiles/swap//,$TEMP//
-	set backupdir=$VIM/tempfiles/backup//,$TEMP//
 	set undodir=$VIM/tempfiles/undo//,$TEMP//
 else
 	set directory=$VIM/tempfiles/swap//,/var/tmp//,/tmp//
-	set backupdir=$VIM/tempfiles/backup//,/var/tmp//,/tmp//
 	set undodir=$VIM/tempfiles/undo//,/var/tmp//,/tmp//
 endif
 
@@ -370,7 +352,6 @@ set shellslash
 
 " Completion
 set completeopt=menu,menuone
-set infercase
 set complete=.,w,b,t
 
 " Modeline
@@ -386,7 +367,6 @@ set clipboard=unnamed
 
 " Automate
 set autoindent
-" set autochdir
 set autoread
 set autowrite
 
@@ -483,8 +463,6 @@ function! ReTemplate(reg) " {{{2
 	endwhile
 endfunction
 
-command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
-
 function! ShellLine() " {{{2
 	let cmd = input(getcwd() . '> ', '', 'shellcmd')
 	if cmd =~ '^\s*$'
@@ -559,8 +537,6 @@ function! ModVar(varname) " {{{2
 	exec 'let  ' . a:varname . ' = input(''' . a:varname . '? '',' . a:varname . ')'
 endfunction
 
-command! -nargs=1 -complete=var ISet call ModVar('<args>')
-
 function! RenameThis(force, newname) " {{{2
 	if fnamemodify(a:newname, ':p') == expand('%:p')
 		return
@@ -576,8 +552,6 @@ function! RenameThis(force, newname) " {{{2
 		endif
 	endif
 endfunction
-
-command! -nargs=1 -bang -bar RenameThis call RenameThis(<bang>0, <f-args>)
 
 function! DeleteThis(force) " {{{2
 	if !a:force
@@ -596,8 +570,6 @@ function! DeleteThis(force) " {{{2
 	endif
 	q
 endfunction
-
-command! -nargs=0 -bang -bar DeleteThis call DeleteThis(<bang>0)
 
 function! ToggleWrap() " {{{2
 	setl wrap!
@@ -662,9 +634,6 @@ augroup END
 
 " Bindings {{{1
 
-command! -nargs=0 KillBuffers call BufCleanup()
-command! -nargs=0 KillWhitespace StripWhitespace
-
 " command line mappings
 cnoremap <c-a> <home>
 cnoreabbr <expr> %% expand('%:p:h')
@@ -699,6 +668,15 @@ nnoremap <s-tab> <c-o>
 " Logical lines
 noremap j gj
 noremap k gk
+
+" Commands {{{2
+
+command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
+command! -nargs=1 -complete=var ISet call ModVar('<args>')
+command! -nargs=1 -bang -bar RenameThis call RenameThis(<bang>0, <f-args>)
+command! -nargs=0 -bang -bar DeleteThis call DeleteThis(<bang>0)
+command! -nargs=0 KillBuffers call BufCleanup()
+command! -nargs=0 KillWhitespace StripWhitespace
 
 " Buffer/window/tab {{{2
 
@@ -789,7 +767,3 @@ let g:exec_com = {
 
 " Async Make
 command! -nargs=* AsyncMake exec 'AsyncRun ' . rc#make_command(<f-args>)
-
-" Return to last edit position when opening files (You want this!)
-au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-
