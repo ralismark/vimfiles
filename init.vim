@@ -49,6 +49,7 @@ Plug 'chrisbra/Colorizer'
 Plug 'christoomey/vim-sort-motion'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
+Plug 'junegunn/rainbow_parentheses.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'kana/vim-textobj-user'
 Plug 'lifepillar/vim-mucomplete'
@@ -254,7 +255,7 @@ endif
 " User Interface {{{2
 
 " Line buffer at top/bottom when scrolling
-set scrolloff=10
+set scrolloff=15
 
 " Wild menu!
 set wildmenu
@@ -275,7 +276,7 @@ set novisualbell
 set belloff=all
 
 " Conceal
-set conceallevel=0
+set conceallevel=1
 set concealcursor=
 
 " Hidden chars
@@ -346,6 +347,9 @@ else
 endif
 
 " Editing {{{2
+
+" Mouse control
+set mouse+=a
 
 " Shell Options
 set shellslash
@@ -591,6 +595,7 @@ endfunction
 augroup vimrc
 	au!
 	au Filetype markdown,rst setl spell tw=80 sw=0 ts=4 noet
+	au Filetype haskell setl sw=0 ts=8 et
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
@@ -650,6 +655,10 @@ noremap <s-return> @w
 noremap Y y$
 noremap ! :call ShellLine()<cr>
 
+" Capital movement
+map H 0
+noremap L $
+
 " gui variant
 noremap! <c-bs> <c-w>
 " console variant
@@ -660,7 +669,7 @@ noremap _ "_
 noremap - "_
 
 " Clear highlight
-nnoremap <silent> <Escape> :nohl<cr>
+nnoremap <silent> <esc> :nohl<cr>
 
 " Complement <tab>
 nnoremap <s-tab> <c-o>
@@ -715,7 +724,7 @@ nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <silent> <leader>op :set paste!<cr>
-nnoremap <silent> <leader>og :Goyo<cr>
+nnoremap <silent> <leader>og :Goyo<cr>ze
 nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
 
 " file ctl
