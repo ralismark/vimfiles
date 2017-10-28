@@ -41,8 +41,6 @@ endif
 
 if &loadplugins
 
-let g:vimwiki_map_prefix = '\w'
-
 " Vim-Plug {{{2
 
 call plug#begin($VIM . '/plugged')
@@ -67,14 +65,13 @@ Plug 'sirver/ultisnips'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
-Plug 'vimwiki/vimwiki'
 
 Plug $VIM . '/bundle/vimrc'
 Plug $VIM . '/bundle/recover'
 Plug $VIM . '/bundle/itab'
 Plug $VIM . '/bundle/etypehead'
 Plug $VIM . '/bundle/syn'
-" Plug $VIM . '/bundle/wiki'
+Plug $VIM . '/bundle/uwiki'
 
 call plug#end()
 
