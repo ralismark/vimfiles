@@ -58,9 +58,7 @@ Plug 'mhinz/vim-startify'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
-Plug 'shougo/vimfiler.vim'
 Plug 'sirver/ultisnips'
-Plug 'skywind3000/asyncrun.vim'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-fugitive'
 
@@ -77,10 +75,7 @@ call plug#end()
 
 let g:goyo_width = 90
 
-" VimFiler {{{2
 
-let g:vimfiler_as_default_explorer = 1
-let g:vimfiler_force_overwrite_statusline = 0
 
 " Unite {{{2
 
@@ -467,15 +462,6 @@ function! ReTemplate(reg) " {{{2
 	endwhile
 endfunction
 
-function! ShellLine() " {{{2
-	let cmd = input(getcwd() . '> ', '', 'shellcmd')
-	if cmd =~ '^\s*$'
-		return
-	endif
-	exe 'AsyncRun! ' . cmd
-	copen
-endfunction
-
 function! ReloadAll() " {{{2
 	" lightline
 	if exists('g:loaded_lightline')
@@ -664,7 +650,6 @@ noremap U <c-r>
 noremap <return> @q
 noremap <s-return> @w
 noremap Y y$
-noremap ! :call ShellLine()<cr>
 
 " Capital movement
 map H 0
@@ -765,7 +750,6 @@ nnoremap <silent> <leader>sl :belowright vertical new<cr>
 nnoremap <leader>t :tab new<cr>
 
 " unite binds
-nnoremap <silent> <leader>fv :exe 'VimFiler' expand('%:p:h')<cr>
 nnoremap <silent> <leader>ff :Unite -profile-name=def file<cr>
 nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
@@ -783,5 +767,3 @@ let g:exec_com = {
 	\ 'vim': { -> execute('source %') },
 	\ }
 
-" Async Make
-command! -nargs=* AsyncMake exec 'AsyncRun ' . rc#make_command(<f-args>)
