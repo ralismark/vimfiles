@@ -247,6 +247,36 @@ endif
 
 " Options {{{1
 
+" Filetype local config {{{2
+
+let ftconf = {}
+let ftconf['rst'] = {
+	\ '&et': false,
+	\ '&foldexpr': "len(matchstr(getline(v:lnum), '\\s*\\zs#*'))?'>'.len(matchstr(getline(v:lnum), '\\s*\\zs#*')):'='",
+	\ '&foldmethod': 'expr',
+	\ '&spell': true,
+	\ '&sw': 0,
+	\ '&ts': 4,
+	\ '&tw': 80,
+	\ }
+let ftconf['markdown'] = 'rst'
+let ftconf['haskell'] = {
+	\ '&et': true,
+	\ '&sw': 0,
+	\ '&ts': 8,
+	\ }
+let ftconf['python'] = {
+	\ '&omnifunc': 'python3complete#Complete',
+	\ }
+" C++ omni breaks things
+let ftconf['cpp'] = {
+	\ '&omnifunc': '',
+	\ '&commentstring': '//%s',
+	\ '&completefunc': 'rc#complete',
+	\ '&iskeyword': 'a-z,A-Z,48-57,_',
+	\ }
+let ftconf['c'] = 'cpp'
+
 " User Interface {{{2
 
 " Line buffer at top/bottom when scrolling
@@ -576,12 +606,45 @@ function! ToggleWrap() " {{{2
 	endif
 endfunction
 
+function! SetFtConf(ft) " {{{2
+	let chain = []
+	let found = a:ft
+
+	while type(found) == v:t_string
+		if index(chain, found) >= 0
+			found = -1
+		endif
+
+		let val = get(g:ftconf, found)
+		if type(val) == v:t_string
+			let chain += [found]
+			let found = val
+		elseif type(val) == v:t_dict
+			let found = val
+		else
+			let found = {}
+		endif
+	endwhile
+
+	if type(found) == v:t_number
+		throw 'Cyclic dependency found parsing ' . a:ft
+	endif
+
+	for key in keys(found)
+		if key[0] == '&'
+			exec 'let &l:' . key[1:] . ' = found[key]'
+		else
+			exec 'let ' . key . ' = found[key]'
+		endif
+	endfor
+endfunction
+
 " Autocommands {{{1
 
 augroup vimrc
 	au!
-	au Filetype markdown,rst setl spell tw=80 sw=0 ts=4 noet
-	au Filetype haskell setl sw=0 ts=8 et
+
+	au Filetype * call SetFtConf(expand('<amatch>'))
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
@@ -591,13 +654,7 @@ augroup vimrc
 			\ | silent exe 'doautocmd vimrc FileType' t
 		\ | endfor
 
-	au Filetype python setlocal omnifunc=python3complete#Complete
-
-	au Filetype c,cpp
-		\ setl commentstring=//%s
-		\ | setl completefunc=rc#complete
-		\ | setl iskeyword=a-z,A-Z,48-57,_
-        	\ | runtime! syntax/doxygen.vim
+	au Filetype c,cpp runtime! syntax/doxygen.vim
 
 	au Filetype vim
 		\ setl iskeyword=a-z,A-Z,48-57,_,:,$
