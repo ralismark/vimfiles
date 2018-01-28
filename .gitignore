@@ -1,0 +1,12 @@
+# vimplug stuff
+plugged/
+
+# saved sessions
+session/
+
+# netrw
+.netrwhist
+
+# spell stuff downloaded by neovim
+spell/*.spl
+spell/en.utf-8.sug
