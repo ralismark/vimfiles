@@ -5,3 +5,17 @@ namespace ${1/::(\w+)/ { namespace $1/g} {
 
 ${1/\w*(:+|$)/} /g}// namespace $1
 endsnippet
+
+snippet "sw|switch" "switch $1 { ... }" r
+switch($1) {
+$0
+default:
+	break;
+}
+endsnippet
+
+snippet "ca|case" "case $1: break" r
+case $1:
+	$0
+	break;
+endsnippet
