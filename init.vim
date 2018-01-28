@@ -519,7 +519,7 @@ endfunction
 
 function! DumpOpts() " {{{2
 	let msg = ''
-	let vars = [ 'g:make_mode', 'g:make_args', '&wrap', '&scrollbind', '&diff' ]
+	let vars = [ '&wrap', '&scrollbind', '&diff' ]
 	let len = max(map(copy(vars), 'len(v:val)'))
 
 	for var in vars
@@ -720,7 +720,6 @@ nnoremap <silent> <leader>rr :call ReloadAll()<cr>
 " toggles
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
 nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
-nnoremap <silent> <leader>om :call rc#make_mode_switch()<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <silent> <leader>op :set paste!<cr>
@@ -739,7 +738,6 @@ nnoremap <leader>aq :qa<cr>
 nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $MYVIMRC<cr>
 nnoremap <leader>et :e $temp/test.cpp<cr>
-nnoremap <leader>m :call rc#make()<cr>
 
 " cleanup
 nnoremap <leader>k <nop>
