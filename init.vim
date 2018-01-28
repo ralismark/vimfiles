@@ -1,4 +1,4 @@
-set nocompatible
+let g:python3_host_prog = '/usr/bin/python3'
 
 " Utility {{{1
 
@@ -12,8 +12,6 @@ let windows = has('win32') || has('win64')
 let unix = has('unix')
 
 let $VIM = fnamemodify($MYVIMRC, ':p:h')
-
-" Plugins {{{1
 
 " vim depth, when running vim inside vim
 
@@ -38,6 +36,7 @@ else
 endif
 
 " }}}
+" Plugins {{{1
 
 if &loadplugins
 
@@ -45,7 +44,10 @@ if &loadplugins
 
 call plug#begin($VIM . '/plugged')
 
-Plug 'chrisbra/Colorizer'
+" Plug 'chrisbra/Colorizer'
+" Plug 'jceb/vim-orgmode'
+Plug 'chrisbra/unicode.vim'
+Plug '907th/vim-auto-save'
 Plug 'christoomey/vim-sort-motion'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
@@ -53,6 +55,7 @@ Plug 'junegunn/rainbow_parentheses.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'kana/vim-textobj-user'
 Plug 'lifepillar/vim-mucomplete'
+Plug 'majutsushi/tagbar'
 Plug 'mbbill/undotree'
 Plug 'mhinz/vim-startify'
 Plug 'ntpeters/vim-better-whitespace'
@@ -60,7 +63,9 @@ Plug 'sgur/vim-textobj-parameter'
 Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
 Plug 'sirver/ultisnips'
 Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-dispatch'
+Plug 'tpope/vim-speeddating'
+Plug 'unblevable/quick-scope'
 
 Plug $VIM . '/bundle/vimrc'
 Plug $VIM . '/bundle/recover'
@@ -71,11 +76,14 @@ Plug $VIM . '/bundle/uwiki'
 
 call plug#end()
 
+" QuickScope {{{2
+
+" Trigger a highlight in the appropriate direction when pressing these keys:
+let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
+
 " Goyo {{{2
 
 let g:goyo_width = 90
-
-
 
 " Unite {{{2
 
@@ -247,6 +255,14 @@ endif
 
 " Options {{{1
 
+" Misc {{{2
+
+" Use Ag if possible
+if executable('ag')
+	set grepprg=ag\ --nogroup\ --nocolor\ --column
+	set grepformat=%f:%l:%c%m
+endif
+
 " Filetype local config {{{2
 
 let ftconf = {}
@@ -292,6 +308,9 @@ set smartcase
 set magic
 set incsearch
 
+" replacing stuff
+set inccommand=nosplit
+
 " Don't redraw during macros
 set lazyredraw
 
@@ -319,6 +338,9 @@ set linebreak
 " Fold on triple brace
 set foldmethod=marker
 
+" Minimal folding initially
+set foldlevelstart=99
+
 " Make with tee
 set shellpipe=2>&1\ \|\ tee
 
@@ -335,8 +357,6 @@ set matchpairs+=<:>
 " Show partial keypresses
 set showcmd
 
-" Formatting {{{2
-
 " Different theme for term/gui
 if has('gui_running')
 	colorscheme molokai
@@ -351,8 +371,6 @@ if has('gui_running')
 	set guifont=Consolas:h9:cANSI
 	set guioptions-=T
 endif
-
-set encoding=utf-8
 
 " Word formatting
 set textwidth=0
@@ -389,7 +407,7 @@ set modeline
 " Timeout
 set notimeout
 set ttimeout
-set ttimeoutlen=100
+set ttimeoutlen=10
 
 " Clipboard
 set clipboard=unnamed
@@ -449,6 +467,26 @@ endfunction
 
 endif
 
+function! PandocLive() " {{{2
+	let g:auto_save = 1
+	let &makeprg='pandoc "%" -o /tmp/preview.pdf $*'
+	let g:auto_save_postsave_hook = 'Make!'
+	Make
+	silent !zathura /tmp/preview.pdf &
+endfunction
+
+function! RMarkLive() " {{{2
+	let g:auto_save = 1
+	let &makeprg='Rscript -e "rmarkdown::render(''%'', output_file=''/tmp/preview.pdf'', output_format=''pdf_document'')"'
+	let g:auto_save_postsave_hook = 'Make!'
+	Make
+	silent !zathura /tmp/preview.pdf &
+endfunction
+
+function! GetSynClass() " {{{2
+	return map(synstack(line('.'), col('.')), {k,v -> synIDattr(v, "name")})
+endfunction
+
 function! GetExecCurrent() " {{{2
 	if exists('b:exec_com')
 		if type(b:exec_com) == v:t_dict
@@ -505,6 +543,9 @@ function! ReloadAll() " {{{2
 
 	" fix width and height
 	set columns=999 lines=999
+
+	" reload syntax file
+	let &ft=&ft
 
 	" fix syntax
 	syntax sync fromstart
@@ -673,11 +714,15 @@ augroup vimrc
 	au Filetype tex
 		\ let &l:makeprg='latex %'
 
+	" Cursorline if not active
+	" au BufEnter,FocusGained,WinEnter * set nocursorline
+	" au BufLeave,FocusLost,WinLeave * set cursorline
+
 	" Non-breaking autochdir
 	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
 
 	au FocusLost,VimLeavePre * if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite' | silent! update | endif
-	au VimResized * exec "normal! \<c-w>="
+	au VimResized * wincmd =
 
 	" Skeleton files
 	au BufNewFile *
@@ -693,23 +738,32 @@ augroup END
 
 " Bindings {{{1
 
+" readline/emacs mappings
+noremap! <c-a> <home>
+noremap! <a-d> <c-o>de
+noremap! <c-e> <end>
+
 " command line mappings
 cnoremap <c-a> <home>
-cnoreabbr <expr> %% expand('%:p:h')
+cnoreabbr <expr> %%p expand('%:p')
+cnoreabbr <expr> %%d expand('%:p:h')
 
 " better binds
 noremap ; :
-noremap zz za
-noremap s <c-w>
 noremap , ;
 noremap <silent> <expr> 0 match(getline('.'), '\S') < col('.') - 1 ? '^' : '0'
-noremap U <c-r>
-noremap <return> @q
+noremap <expr> <return> &buftype == 'help' ? "\<c-]>" : &buftype == 'quickfix' ? "\<CR>" : "@q"
 noremap <s-return> @w
 noremap Y y$
 
+" Folding
+noremap <tab> za
+
+" Since ^I == <tab>, we replace ^I with ^P
+noremap <c-p> <c-i>
+
 " Capital movement
-map H 0
+noremap H 0
 noremap L $
 
 " gui variant
@@ -720,16 +774,18 @@ noremap! <c-> <c-w>
 " Registers, much easier to reach
 noremap _ "_
 noremap - "_
+noremap + "+
 
 " Clear highlight
 nnoremap <silent> <esc> :nohl<cr>
 
-" Complement <tab>
-nnoremap <s-tab> <c-o>
-
 " Logical lines
 noremap j gj
 noremap k gk
+
+" Keep visual
+vnoremap < <gv
+vnoremap > >gv
 
 " Commands {{{2
 
@@ -810,17 +866,10 @@ nnoremap <leader>t :tab new<cr>
 nnoremap <silent> <leader>ff :Unite -profile-name=def file<cr>
 nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
-" Misc {{{2
-
-" Add or remove indent
-" inoremap <expr> <tab> "<c-\><c-o>>><end>" . repeat("<left>", col('$') - col('.'))
-" inoremap <expr> <s-tab> "<c-\><c-o><<<end>" . repeat("<left>", col('$') - col('.'))
-inoremap <tab> <c-t>
-inoremap <s-tab> <c-d>
-
 " Other Features {{{1
 
 let g:exec_com = {
 	\ 'vim': { -> execute('source %') },
 	\ }
 
+command! -nargs=0 W w !sudo tee %
