@@ -635,6 +635,17 @@ augroup vimrc
 
 	au FocusLost,VimLeavePre * if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite' | silent! update | endif
 	au VimResized * exec "normal! \<c-w>="
+
+	" Skeleton files
+	au BufNewFile *
+		\ for [fname, regpat] in map(glob($VIM . '/skeletons/{.,}*', 0, 1),
+		\ 	{ k,v -> [v, glob2regpat('*' . fnamemodify(v, ':t'))] })
+		\ | 	if expand('<afile>') =~# regpat
+		\ | 		silent exec '0read' fname | silent $
+		\ | 		break
+		\ | 	endif
+		\ | endfor
+
 augroup END
 
 " Bindings {{{1
