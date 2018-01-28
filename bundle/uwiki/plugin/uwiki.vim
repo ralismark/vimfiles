@@ -13,6 +13,7 @@ nnoremap <silent> <Plug>UWikiGotoRef :call uwiki#ref#goto_current()<cr>
 nnoremap <silent> <Plug>UWikiMakeRef :call uwiki#ref#create()<cr>
 vnoremap <silent> <Plug>UWikiMakeVRef :<c-u>call uwiki#ref#create_visual()<cr>
 nnoremap <silent> <Plug>UWikiMakeOrGotoRef :call uwiki#ref#create_or_goto()<cr>
+nnoremap <silent> <expr> <Plug>UWikiCycleCheckbox uwiki#tick#expr_cycle_state(line('.'))
 
 augroup uwiki
 	au!
@@ -24,8 +25,7 @@ augroup uwiki
 
 	" Bonus stuff
 	au User UWikiEnter if uwiki#defaults
-		\| 	nmap <buffer> <c-cr> <Plug>UWikiMakeOrGotoRef
-		\| 	vmap <buffer> <c-cr> <Plug>UWikiMakeVRef
+		\| 	call uwiki#mappings()
 		\| 	call uwiki#syntax_highlight()
 		\| endif
 
