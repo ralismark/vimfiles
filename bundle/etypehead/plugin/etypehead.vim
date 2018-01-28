@@ -6,4 +6,7 @@
 " This script intends to match the emacs mode header, which is declared
 " between a pair of '-*-' sequences
 
-au! BufReadPost,FileReadPost * call etypehead#set_ftype()
+augroup etypehead
+	au!
+	au BufReadPost,FileReadPost * call etypehead#set_ftype()
+augroup END

@@ -65,9 +65,17 @@ function! uwiki#syntax_highlight()
 
 	" Links are things between pairs of brackets
 
-	syntax match UWikiRef /\[\[[^]]*\]\]/
-	syntax match UWikiRef /\[\[[^]]*\]\]/ containedin=ALLBUT,error,UWikiRef contained
+	syntax match UWikiRef /\[\[[^]]*\]\]/ containedin=ALLBUT,error,UWikiRef
 
 	hi def link UWikiRef Underlined
+
+endfunction
+
+" Do mappings
+function! uwiki#mappings()
+
+	nmap <buffer> <c-cr> <Plug>UWikiMakeOrGotoRef
+	vmap <buffer> <c-cr> <Plug>UWikiMakeVRef
+	nmap <buffer> <c-space> <Plug>UWikiCycleCheckbox
 
 endfunction

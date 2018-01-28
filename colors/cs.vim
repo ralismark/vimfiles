@@ -29,10 +29,10 @@ hi Question             ctermfg=2       ctermbg=bg
 hi WildMenu             ctermfg=0       ctermbg=14
 
 " Spell
-hi SpellBad             ctermfg=4       ctermbg=bg
-hi SpellCap             ctermfg=6       ctermbg=bg
-hi SpellLocal           ctermfg=6       ctermbg=bg
-hi SpellRare            ctermfg=6       ctermbg=bg
+hi SpellBad             ctermfg=4       ctermbg=bg  cterm=underline
+hi SpellLocal           ctermfg=4       ctermbg=bg  cterm=underline
+hi SpellCap             ctermfg=6       ctermbg=bg  cterm=underline
+hi SpellRare            ctermfg=6       ctermbg=bg  cterm=underline
 
 " Search
 hi Search               ctermfg=0       ctermbg=6
@@ -41,13 +41,13 @@ hi IncSearch            ctermfg=0       ctermbg=2
 " Gutter
 hi LineNr               ctermfg=8       ctermbg=bg
 hi CursorLineNr         ctermfg=6       ctermbg=bg
-hi FoldColumn           ctermfg=1       ctermbg=0
+hi FoldColumn           ctermfg=4       ctermbg=0
 hi SignColumn           ctermfg=7       ctermbg=0
 
 " Lines
 hi ColorColumn          ctermfg=0       ctermbg=8
 hi CursorColumn                         ctermbg=8
-hi CursorLine                           ctermbg=8
+hi CursorLine                           ctermbg=bg
 hi Folded               ctermfg=8       ctermbg=bg
 hi VertSplit            ctermfg=8       ctermbg=8
 

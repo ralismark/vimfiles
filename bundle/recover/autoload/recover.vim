@@ -1,8 +1,24 @@
+" A better response to recover prompts
+" Author: Timmy Yao
+" Version: 0.1.0
+" Last Modified: 29 December 2017
+"
+" This plugin provides an automatic response to swapexists prompts, deleting
+" it or showing a diff.
+
 function! recover#swapexists()
 	" check if it's because the file is open
 	let handled = recover#check_loaded(expand('%'))
 	if !empty(handled)
 		let v:swapchoice = handled
+		return
+	endif
+
+	" Old Swapfile - kill it
+	if getftime(v:swapname) < getftime(expand('%'))
+		call delete(v:swapname)
+		call confirm("Swapfile older than on-disk file - deleting it")
+		let v:swapchoice = 'e'
 		return
 	endif
 
@@ -49,8 +65,7 @@ function! recover#swapcheck()
 	if diff
 		call confirm("Recovered file differs from on-disk original! See open buffers", '', 1, 'E')
 	else
-		echohl WarningMsg | echo "No difference between on-disk and recovered - swap deleted" | echohl None
-		sleep 2
+		call confirm("No difference between on-disk and recovered - swap deleted")
 		" delete extra buffer
 		exec 'bdelete!' orig_buf
 		call delete(b:swapname)

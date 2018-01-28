@@ -1,4 +1,23 @@
+" Work with references to other files
+" Similar stuff can be accomplished with 'gf', though this will eventually
+" support much more complex links
+"
+" In a wiki, you can make links to other pages (as well as any kind of
+" resource, eventually). They are declared surrounded by [[ and ]] before and
+" after correspondingly. The contents can be of many formats:
+"
+"  - Path, either relative (e.g. subdir/foo) or absolute (e.g. /bar/subdir/foo)
+"
+"       These refer to pages inside the wiki. Relative files are relative to
+"       the current file, while absolute have the root of the wiki as their
+"       root. Both of these links do not require the extension to be used. If
+"       the file does not exist, it is created, with the extension (defaults
+"       to .md) added.
+"
+" e.g. [[../foo/todo]] may open (root)/projects/foo/todo.md
+
 " go to a reference in the current wiki, creating it if it doesn't exist
+" in future, also handles external refs
 function! uwiki#ref#go_to(ref)
 
 	" If a link begins with a slash, it is absolute relative to the wiki

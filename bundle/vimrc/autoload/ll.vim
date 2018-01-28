@@ -70,6 +70,17 @@ fun! ll#rostate() " {{{
 endfun
 
 fun! ll#fileinfo() " {{{
-	let eol = &ff == 'dos' ? '' : &ff == 'unix' ? '\\n' : '\\r'
+	let eol = &ff == 'dos' ? '\r\n' : &ff == 'unix' ? '\n' : '\r'
+
+	if &ff == 'dos' && (has('win32') || has('win64'))
+		let eol = ''
+	endif
+	if &ff == 'unix' && (has('unix') || has('macunix'))
+		let eol = ''
+	endif
+	if &ff == 'mac' && has('mac')
+		let eol = ''
+	endif
+
 	return ll#filetype() . ' '. eol . ' '. &fenc
 endfun
