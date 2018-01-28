@@ -72,6 +72,7 @@ Plug $VIM . '/bundle/recover'
 Plug $VIM . '/bundle/itab'
 Plug $VIM . '/bundle/etypehead'
 Plug $VIM . '/bundle/syn'
+Plug $VIM . '/bundle/orgmode'
 Plug $VIM . '/bundle/uwiki'
 
 call plug#end()
