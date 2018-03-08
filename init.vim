@@ -646,11 +646,6 @@ augroup vimrc
 	au Filetype nofile,scratch
 		\ set buftype=nofile
 
-	au Filetype help
-		\ if !&modifiable && &readonly
-		\ | noremap <buffer> <nowait> <return> <c-]>
-		\ | endif
-
 	au Filetype plaintex
 		\ let &l:makeprg='tex %'
 
@@ -681,6 +676,11 @@ augroup END
 
 " Bindings {{{1
 
+" Misc {{{2
+
+" exec
+noremap ! :silent<space>!
+
 " readline/emacs mappings
 noremap! <c-a> <home>
 noremap! <a-d> <c-o>de
@@ -688,16 +688,29 @@ noremap! <c-e> <end>
 
 " command line mappings
 cnoremap <c-a> <home>
-cnoreabbr <expr> %%p expand('%:p')
-cnoreabbr <expr> %%d expand('%:p:h')
+cnoreabbr <expr> %% expand('%')
+cnoreabbr <expr> %p expand('%:p')
+cnoreabbr <expr> %t expand('%:t')
+cnoreabbr <expr> %r expand('%:r')
+cnoreabbr <expr> %d expand('%:p:h')
 
 " better binds
 noremap ; :
 noremap , ;
-noremap <silent> <expr> 0 match(getline('.'), '\S') < col('.') - 1 ? '^' : '0'
-noremap <expr> <return> &buftype == 'help' ? "\<c-]>" : &buftype == 'quickfix' ? "\<CR>" : "@q"
+noremap <silent> <expr> 0 &wrap ? 'g0' : (match(getline('.'), '\S') >= 0 && match(getline('.'), '\S') < col('.') - 1 ? '^' : '0')
+noremap <expr> <return> &buftype == 'help' ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
 noremap <s-return> @w
 noremap Y y$
+
+" Prose
+nnoremap Q gwip
+vnoremap Q gw
+inoremap <c-q> <c-o>gwip
+inoremap <c-s> <c-g>u<c-x>s
+
+" Fixed I/A for visual
+xnoremap <expr> I mode() ==# 'v' ? "\<c-v>I" : mode() ==# 'V' ? "\<c-v>^o^I" : "I"
+xnoremap <expr> A mode() ==# 'v' ? "\<c-v>A" : mode() ==# 'V' ? "\<c-v>Oo$A" : "A"
 
 " Folding
 noremap <tab> za
@@ -705,14 +718,11 @@ noremap <tab> za
 " Since ^I == <tab>, we replace ^I with ^P
 noremap <c-p> <c-i>
 
-" Capital movement
-noremap H 0
-noremap L $
-
-" gui variant
-noremap! <c-bs> <c-w>
-" console variant
-noremap! <c-> <c-w>
+" Capital movement - we want nested mappings
+map H 0
+map L $
+" We don't want K
+map K <nop>
 
 " Registers, much easier to reach
 noremap _ "_
@@ -787,12 +797,13 @@ nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
 " file ctl
 nnoremap <leader>w :up<cr>
 nnoremap <leader>q :q<cr>
-nnoremap <leader>W :up!<cr>
+nnoremap <leader>W :w!<cr>
 nnoremap <leader>Q :q!<cr>
 nnoremap <leader>aw :wa<cr>
 nnoremap <leader>az :wqa<cr>
 nnoremap <leader>aq :qa<cr>
 
+nnoremap <leader>ee :e<cr>
 nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $MYVIMRC<cr>
 nnoremap <leader>et :e $temp/test.cpp<cr>
