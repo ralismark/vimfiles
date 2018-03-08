@@ -53,11 +53,11 @@ Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/vim-easy-align'
 Plug 'kana/vim-textobj-user'
-Plug 'lifepillar/vim-mucomplete'
 Plug 'mbbill/undotree'
 Plug 'mhinz/vim-startify'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'ralismark/itab'
+Plug 'roxma/nvim-completion-manager'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
 Plug 'sirver/ultisnips'
@@ -218,21 +218,12 @@ let g:UltiSnipsListSnippets = "<f21>"
 
 inoremap <s-bs> <c-r>=(UltiSnips#ExpandSnippetOrJump()) ? "" : ""<cr>
 
-" MuComplete {{{2
+" Nvim Completion Manager {{{2
 
-let g:mucomplete#chains = {
-	\ 'default': [ 'ulti', 'user', 'omni', 'c-n' ],
-	\ 'markdown': [ 'dict', 'uspl' ],
-	\ 'cmake': [ 'path', 'c-n' ],
-	\ }
-let g:mucomplete#can_complete = {}
-let g:mucomplete#can_complete.default = {
-	\ 'c-n': { t -> t !~# '[:punct:]$' }
-	\ }
+imap <expr> <tab> pumvisible() ? "\<c-n>" : "\<Plug>ItabTab"
+imap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
+imap <expr> <cr> pumvisible() ? "\<c-y>\<Plug>ItabCr" : "\<Plug>ItabCr"
 
-let g:mucomplete#no_mappings = true
-imap <s-return> <plug>(MUcompleteFwd)
-imap <c-s-return> <plug>(MUcompleteBwd)
 
 " }}}
 
