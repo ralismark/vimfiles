@@ -248,19 +248,21 @@ endif
 " Filetype local config {{{2
 
 let ftconf = {}
-let ftconf['rst'] = {
+let ftconf['pandoc'] = {
 	\ '&et': false,
 	\ '&foldexpr': "len(matchstr(getline(v:lnum), '\\s*\\zs#*'))?'>'.len(matchstr(getline(v:lnum), '\\s*\\zs#*')):'='",
-	\ '&foldmethod': 'expr',
 	\ '&spell': true,
-	\ '&sw': 0,
 	\ '&ts': 4,
 	\ '&tw': 80,
+	\ '&foldcolumn': 0,
 	\ }
-let ftconf['markdown'] = 'rst'
+let ftconf['rst'] = 'pandoc'
+let ftconf['markdown'] = 'pandoc'
+let ftconf['rmd'] = {
+	\ '': 'pandoc',
+	\ }
 let ftconf['haskell'] = {
 	\ '&et': true,
-	\ '&sw': 0,
 	\ '&ts': 8,
 	\ }
 let ftconf['python'] = {
@@ -306,8 +308,9 @@ set conceallevel=1
 set concealcursor=
 
 " Hidden chars
-set listchars=tab:\|\ ,extends:>,precedes:<,nbsp:%,trail:~
+set listchars=tab:│\ ,extends:>,precedes:<,nbsp:%,trail:∙
 set list
+set fillchars=vert:│,fold:─
 
 " Line numbers
 set number
@@ -321,7 +324,7 @@ set linebreak
 set foldmethod=marker
 
 " Minimal folding initially
-set foldlevelstart=99
+" set foldlevelstart=99
 
 " Make with tee
 set shellpipe=2>&1\ \|\ tee
@@ -343,20 +346,14 @@ set showcmd
 if has('gui_running')
 	colorscheme molokai
 else
-	colorscheme cs
+	colorscheme duality
 endif
-
-set background=dark
 
 " gui-specified
 if has('gui_running')
 	set guifont=Consolas:h9:cANSI
 	set guioptions-=T
 endif
-
-" Word formatting
-set textwidth=0
-set formatoptions=tcrqlnj
 
 " Tempfiles {{{2
 
@@ -413,7 +410,11 @@ set viminfo=!,%,'64,/16,s10,c,f1,h,rD:,rE:
 " Allow cursor to go anywhere in visual block mode
 set virtualedit+=block
 
-" C Indent {{{2
+" Word formatting
+set textwidth=0
+set formatoptions=tcrqlnj
+
+" Indent {{{2
 
 " kernel style indents
 set tabstop=8
