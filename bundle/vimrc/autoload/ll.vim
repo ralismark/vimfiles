@@ -84,3 +84,15 @@ fun! ll#fileinfo() " {{{1
 
 	return ll#filetype() . ' '. eol . ' '. &fenc
 endfun
+
+fun! ll#wordcount() " {{{1
+	if !&spell || winwidth(0) < 50
+		return ""
+	endif
+
+	let wc = wordcount()
+
+	let xwords = has_key(wc, 'cursor_words') ? wc.cursor_words : wc.visual_words
+
+	return 'words: ' . xwords . '/' . wc.words
+endfun

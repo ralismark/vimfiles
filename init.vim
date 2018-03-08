@@ -124,25 +124,9 @@ if con == true
 endif
 
 set laststatus=2
-" set noshowmode
+set noshowmode
 
 let g:lightline = {
-\	'mode_map': {
-\		'?': 'unk',
-\
-\		'n': 'nor',
-\		'i': 'ins',
-\		'R': 'rep',
-\		'c': 'cmd',
-\
-\		'v': 'vis',
-\		'V': 'vln',
-\		"\<c-v>": 'vbk',
-\
-\		's': 'sel',
-\		'S': 'sln',
-\		"\<c-s>": 'sbk',
-\	},
 \	'component': {
 \		'paste': '%{&paste ? "cp" : ""}',
 \
@@ -156,16 +140,18 @@ let g:lightline = {
 \		'fileinfo': 'll#fileinfo',
 \		'bufinfo': 'll#bufinfo',
 \		'depth': 'll#depth',
+\		'wordcount': 'll#wordcount'
 \	},
 \	'component_visible_condition': {
 \		'filetype': '(winwidth(0) > 40)',
 \		'spell': '(&spell && winwidth(0) > 50)',
+\		'wordcount': '(&spell && winwidth(0) > 50)',
 \	},
 \	'active': {
 \		'left': [
-\				[ 'bufinfo' ],
+\				[],
 \				[ 'filename', 'rostate' ],
-\				[ 'spell' ],
+\				[ 'wordcount' ],
 \			],
 \		'right': [
 \				[ 'location' ],
@@ -178,7 +164,7 @@ let g:lightline = {
 \				[ 'fileinfo' ],
 \			],
 \		'right': [
-\				[ 'lineinfo' ],
+\				[ 'filetype' ],
 \			],
 \	},
 \	'tabline': {
@@ -186,11 +172,10 @@ let g:lightline = {
 \				[ 'depth', 'tabs' ],
 \		],
 \		'right': [
-\				[ 'close' ],
 \		],
 \	},
 \
-\	'colorscheme': gui ? 'powerline' : 'll_theme',
+\	'colorscheme': 1 ? 'wombat' : (gui ? 'powerline' : 'll_theme'),
 \
 \	'separator': gui ? { 'left': '', 'right': '' } : { 'left': '░', 'right': '░' },
 \	'subseparator': gui ? {'left': '|', 'right': '|' } : { 'left': '░', 'right': '░' },
