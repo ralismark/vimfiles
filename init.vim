@@ -63,7 +63,7 @@ Plug 'ralismark/itab'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
 Plug 'sirver/ultisnips'
-Plug 'tpope/vim-commentary'
+Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-speeddating'
 Plug 'tpope/vim-eunuch'
