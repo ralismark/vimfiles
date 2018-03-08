@@ -46,8 +46,8 @@ call plug#begin($VIM . '/plugged')
 
 " Plug 'chrisbra/Colorizer'
 " Plug 'jceb/vim-orgmode'
-Plug 'chrisbra/unicode.vim'
 Plug '907th/vim-auto-save'
+Plug 'chrisbra/unicode.vim'
 Plug 'christoomey/vim-sort-motion'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
@@ -66,13 +66,12 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
 Plug 'unblevable/quick-scope'
 
-Plug $VIM . '/bundle/vimrc'
-Plug $VIM . '/bundle/recover'
-" Plug $VIM . '/bundle/itab'
 Plug $VIM . '/bundle/etypehead'
-Plug $VIM . '/bundle/syn'
 Plug $VIM . '/bundle/orgmode'
+Plug $VIM . '/bundle/recover'
+Plug $VIM . '/bundle/syn'
 Plug $VIM . '/bundle/uwiki'
+Plug $VIM . '/bundle/vimrc'
 
 call plug#end()
 
