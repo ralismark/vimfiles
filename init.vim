@@ -65,6 +65,7 @@ Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
 Plug 'unblevable/quick-scope'
+Plug 'vim-pandoc/vim-pandoc-syntax'
 
 Plug $VIM . '/bundle/etypehead'
 Plug $VIM . '/bundle/orgmode'
@@ -632,6 +633,7 @@ augroup vimrc
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
+	au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
 
 	au Filetype *.*
 		\ for t in split(&ft, '\.')
