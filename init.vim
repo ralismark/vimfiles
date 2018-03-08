@@ -223,6 +223,13 @@ imap <expr> <tab> pumvisible() ? "\<c-n>" : "\<Plug>ItabTab"
 imap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
 imap <expr> <cr> pumvisible() ? "\<c-y>\<Plug>ItabCr" : "\<Plug>ItabCr"
 
+" netrw {{{2
+
+" My main use case is :Lexplore for a side panel
+
+let g:netrw_banner = 0 " no banner
+let g:netrw_browse_split = 4 " open in previous window
+let g:netrw_winsize = -35 " split is 40 cols wide
 
 " }}}
 
