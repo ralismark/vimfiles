@@ -66,6 +66,7 @@ Plug 'sirver/ultisnips'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-speeddating'
+Plug 'tpope/vim-eunuch'
 Plug 'unblevable/quick-scope'
 
 Plug $VIM . '/bundle/vimrc'
@@ -585,86 +586,46 @@ function! ModVar(varname) " {{{2
 	exec 'let  ' . a:varname . ' = input(''' . a:varname . '? '',' . a:varname . ')'
 endfunction
 
-function! RenameThis(force, newname) " {{{2
-	if fnamemodify(a:newname, ':p') == expand('%:p')
-		return
-	endif
-	exe (a:force ? 'saveas!' : 'saveas')  a:newname
-	let oldname = expand('#')
-	if delete(oldname) == -1
-		" revert to old file
-		echoe 'Rename failed! Reverting...'
-		exe 'saveas!' . oldname
-		if delete(a:newname) == -1
-			echoe 'Revert failed! "' . a:newnae . '"may exist'
+function! FtLayer(ft, ...) " {{{2
+	" Revised FTConf for layers
+	if a:0 > 0
+		if index(a:1, a:ft) >= 0
+			throw "Cyclic dependency with " . a:ft
 		endif
-	endif
-endfunction
-
-function! DeleteThis(force) " {{{2
-	if !a:force
-		if &readonly
-			echoe 'E45: ''readonly'' option is set (add ! to override)'
-			return
-		endif
-		if !&modifiable
-			echoe 'E21: cannot make change, ''modifiable'' is off (add ! to override)'
-			return
-		endif
-	endif
-	if delete(expand('%')) == -1
-		" delete failed, not much to do
-		echoe 'Delete failed!'
-	endif
-	q
-endfunction
-
-function! ToggleWrap() " {{{2
-	setl wrap!
-	if &wrap
-		echo '\w -> wrap'
-		silent! noremap <buffer> <silent> 0 g0
-		silent! noremap <buffer> <silent> ^ g^
-		silent! noremap <buffer> <silent> $ g$
+		let chain = a:1 + [ a:ft ]
 	else
-		echo '\w -> nowrap'
-		silent! unmap <buffer> 0
-		silent! unmap <buffer> ^
-		silent! unmap <buffer> $
-	endif
-endfunction
-
-function! SetFtConf(ft) " {{{2
-	let chain = []
-	let found = a:ft
-
-	while type(found) == v:t_string
-		if index(chain, found) >= 0
-			found = -1
-		endif
-
-		let val = get(g:ftconf, found)
-		if type(val) == v:t_string
-			let chain += [found]
-			let found = val
-		elseif type(val) == v:t_dict
-			let found = val
-		else
-			let found = {}
-		endif
-	endwhile
-
-	if type(found) == v:t_number
-		throw 'Cyclic dependency found parsing ' . a:ft
+		let chain = [ a:ft ]
 	endif
 
-	for key in keys(found)
-		if key[0] == '&'
-			exec 'let &l:' . key[1:] . ' = found[key]'
-		else
-			exec 'let ' . key . ' = found[key]'
+	let val = get(g:ftconf, a:ft)
+
+	if type(val) == v:t_string
+		return FtLayer(val, chain)
+	endif
+
+	if type(val) == v:t_dict
+		" Inherit values
+		if has_key(val, '')
+			let inherit = val['']
+			if type(inherit) == v:t_string
+				call FtLayer(inherit)
+			elseif type(inherit) == v:t_list
+				map(inherit, { k,v -> FtLayer(v) })
+			endif
 		endif
-	endfor
+
+		for key in keys(val)
+			if key == ''
+				continue
+			endif
+
+			if key[0] == '&'
+				exec 'let &l:' . key[1:] . ' = val[key]'
+			else
+				exec 'let ' . key . ' = val[key]'
+			endif
+		endfor
+	endif
 endfunction
 
 " Autocommands {{{1
@@ -672,7 +633,7 @@ endfunction
 augroup vimrc
 	au!
 
-	au Filetype * call SetFtConf(expand('<amatch>'))
+	au Filetype * call FtLayer(expand('<amatch>'))
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
@@ -769,17 +730,24 @@ nnoremap <silent> <esc> :nohl<cr>
 " Logical lines
 noremap j gj
 noremap k gk
+noremap <expr> $ &wrap ? "g$" : "$"
 
 " Keep visual
 vnoremap < <gv
 vnoremap > >gv
 
+" Terminal {{{2
+
+" escape as normal
+tnoremap <esc> <c-\><c-n>
+
+" c-r as normal
+tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
+
 " Commands {{{2
 
 command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
 command! -nargs=1 -complete=var ISet call ModVar('<args>')
-command! -nargs=1 -bang -bar RenameThis call RenameThis(<bang>0, <f-args>)
-command! -nargs=0 -bang -bar DeleteThis call DeleteThis(<bang>0)
 command! -nargs=0 KillBuffers call BufCleanup()
 command! -nargs=0 KillWhitespace StripWhitespace
 
@@ -815,7 +783,6 @@ nnoremap <silent> <leader>rr :call ReloadAll()<cr>
 
 " toggles
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
-nnoremap <silent> <leader>ow :call ToggleWrap()<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <silent> <leader>op :set paste!<cr>
