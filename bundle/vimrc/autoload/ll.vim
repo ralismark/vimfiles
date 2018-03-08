@@ -1,10 +1,10 @@
 " vimrc supplementing file for lightline
 
-fun! ll#depth() " {{{
+fun! ll#depth() " {{{1
 	return ($vim_depth ? 'depth ' . $vim_depth : '')
-endfun " }}}
+endfun
 
-fun! ll#bufinfo() " {{{
+fun! ll#bufinfo() " {{{1
 	let cur_buf = bufnr('%')
 	let end_buf = bufnr('$')
 
@@ -15,9 +15,9 @@ fun! ll#bufinfo() " {{{
 	let tab_str = 't' . cur_tab . '/' . end_tab
 
 	return buf_str . (end_tab != 1 ? ' : ' . tab_str : '')
-endfun " }}}
+endfun
 
-fun! ll#filename() " {{{
+fun! ll#filename() " {{{1
 	if expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
 		return ''
 	endif
@@ -30,14 +30,14 @@ fun! ll#filename() " {{{
 		let name = join(minisegs, '/') . ' / ' . name
 	endif
 	return name
-endfun " }}}
+endfun
 
-fun! ll#filetype() " {{{
+fun! ll#filetype() " {{{1
 	let ft = &ft == '' ? 'no ft' : &ft
 	return ft
 endfun
 
-fun! ll#locpercent() " {{{
+fun! ll#locpercent() " {{{1
 	let cur = line('.')
 	let top = 1
 	let bot = line('$')
@@ -52,15 +52,15 @@ fun! ll#locpercent() " {{{
 	endif
 endfun
 
-fun! ll#location() " {{{
+fun! ll#location() " {{{1
 	if winwidth(0) > 60
 		return printf('%s %3d:%-2d', ll#locpercent(), line('.'), col('.'))
 	else
 		return printf("%3d", line("."))
 	endif
-endfun " }}}
+endfun
 
-fun! ll#rostate() " {{{
+fun! ll#rostate() " {{{1
 	if &ft =~? 'help' || expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
 		return ''
 	endif
@@ -69,7 +69,7 @@ fun! ll#rostate() " {{{
 	return (&modified ? modified_char : &modifiable ? 'w' : 'r') . (&readonly ? '!' : '')
 endfun
 
-fun! ll#fileinfo() " {{{
+fun! ll#fileinfo() " {{{1
 	let eol = &ff == 'dos' ? '\r\n' : &ff == 'unix' ? '\n' : '\r'
 
 	if &ff == 'dos' && (has('win32') || has('win64'))
