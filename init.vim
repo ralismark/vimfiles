@@ -66,6 +66,7 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
 Plug 'unblevable/quick-scope'
 Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'w0rp/ale'
 
 Plug $VIM . '/bundle/etypehead'
 Plug $VIM . '/bundle/orgmode'
@@ -232,6 +233,24 @@ let g:netrw_banner = 0 " no banner
 let g:netrw_browse_split = 4 " open in previous window
 let g:netrw_winsize = -35 " split is 40 cols wide
 
+" ALE {{{2
+
+" dont lint while typing
+let g:ale_lint_on_text_changed = "normal"
+
+" lint on inser exit
+let g:ale_lint_on_insert_leave = 1
+
+" Show linter
+let g:ale_echo_msg_format = "[%linter%] %(code): %%s [%severity%]"
+
+let g:ale_linters = {
+\	'html': [ 'HTMLHint', 'tidy' ],
+\ }
+
+let g:ale_sign_error = 'x'
+let g:ale_sign_warning = '-'
+
 " }}}
 
 endif
@@ -256,6 +275,7 @@ let ftconf['pandoc'] = {
 	\ '&ts': 4,
 	\ '&tw': 80,
 	\ '&foldcolumn': 0,
+	\ 'b:ale_enabled': 0,
 	\ }
 let ftconf['rst'] = 'pandoc'
 let ftconf['markdown'] = 'pandoc'
