@@ -471,20 +471,118 @@ endfunction
 
 endif
 
-function! PandocLive() " {{{2
-	let g:auto_save = 1
-	let &makeprg='pandoc "%" -o /tmp/preview.pdf $*'
-	let g:auto_save_postsave_hook = 'Make!'
-	Make
-	silent !zathura /tmp/preview.pdf &
+function! GetScriptlets() " {{{2
+	let l:lines = getline(1, '$')
+	let l:scriptletStart = match(l:lines, '^@@@@$')
+
+	" No scriptlet defs
+	if l:scriptletStart == 0
+		return
+	endif
+
+	let l:slLines = l:lines[l:scriptletStart + 1 : ]
+	let l:slSnips = []
+
+	let l:lines = 0 " GC it - it may have been quite big
+
+	" Join lines that don't begin with `@`
+	for l:line in l:slLines
+		if l:line[0] == '@'
+			call add(l:slSnips, l:line)
+		else
+			if len(l:slSnips) > 0
+				let l:slSnips[-1] .= l:line
+			endif
+		endif
+	endfor
+
+	" name -> lambda
+	let l:slMapped = {}
+
+	for l:snip in l:slSnips
+		let l:end = matchend(l:snip, '^@.\{-\}:')
+		let l:name = substitute(l:snip[1 : l:end - 2], '^\s*\(.\{-}\)\s*$', '\1', '')
+		let l:expr = l:snip[l:end : ]
+
+		let l:slMapped[l:name] = l:expr
+	endfor
+
+	return l:slMapped
 endfunction
 
-function! RMarkLive() " {{{2
-	let g:auto_save = 1
-	let &makeprg='Rscript -e "rmarkdown::render(''%'', output_file=''/tmp/preview.pdf'', output_format=''pdf_document'')"'
-	let g:auto_save_postsave_hook = 'Make!'
-	Make
-	silent !zathura /tmp/preview.pdf &
+function! UpdateScriptlets() " {{{2
+	" no scriptlet marker
+	if !search('^@@@@$', 'cnw')
+		return
+	endif
+
+	let l:scriptlets = GetScriptlets()
+	let l:lines = map(getline(1, '$'), {k,v -> [k,v]})
+
+	" only 3 @'s, not more
+	let l:goodlines = filter(l:lines, {k,v -> v[1] =~ '^@@@@\@!'})
+
+	let l:i = 0
+	while l:i < len(l:goodlines)
+		let l:line = l:goodlines[l:i]
+		let l:i += 1
+
+		if l:line[1] !~ '^@@@$' && l:i < len(l:goodlines)
+			let l:endline = l:goodlines[l:i]
+			let l:name = substitute(l:line[1], '^@@@\s*\(.\{-}\)\s*$', '\1', '')
+
+			if l:line[0] + 1 <= l:endline[0] - 1
+				silent exec (l:line[0] + 2) ',' (l:endline[0]) 'foldopen!'
+				silent exec (l:line[0] + 2) ',' (l:endline[0]) 'd _'
+			endif
+
+			if !has_key(l:scriptlets, l:name)
+				call append(l:line[0] + 1, '???')
+			else
+				try
+					let l:Expr = eval(l:scriptlets[l:name])
+					if type(l:Expr) == v:t_func
+						let l:Expr = l:Expr()
+					endif
+				catch
+					let l:Expr = '?!? ' . v:exception
+				endtry
+
+				call append(l:line[0] + 1, l:Expr)
+			endif
+
+			let l:i += 1
+		endif
+	endwhile
+endfunction
+
+function! ClearScriptlets() " {{{2
+	" no scriptlet marker
+	if !search('^@@@@$', 'cnw')
+		return
+	endif
+
+	let l:lines = map(getline(1, '$'), {k,v -> [k,v]})
+
+	" only 3 @'s, not more
+	let l:goodlines = filter(l:lines, {k,v -> v[1] =~ '^@@@@\@!'})
+
+	let l:i = 0
+	while l:i < len(l:goodlines)
+		let l:line = l:goodlines[l:i]
+		let l:i += 1
+
+		if l:line[1] !~ '^@@@$' && l:i < len(l:goodlines)
+			let l:endline = l:goodlines[l:i]
+
+			if l:line[0] + 1 <= l:endline[0] - 1
+				silent exec (l:line[0] + 2) ',' (l:endline[0]) 'foldopen!'
+				silent exec (l:line[0] + 2) ',' (l:endline[0]) 'd _'
+			endif
+
+			let l:i += 1
+		endif
+	endwhile
 endfunction
 
 function! GetSynClass() " {{{2
@@ -668,6 +766,7 @@ augroup vimrc
 			\ | silent exe 'doautocmd vimrc FileType' t
 		\ | endfor
 
+	au Filetype markdown Knit
 	au Filetype markdown,pandoc map <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
 	au Filetype markdown,pandoc map <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
 
@@ -716,6 +815,9 @@ command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
 command! -nargs=1 -complete=var ISet call ModVar('<args>')
 command! -nargs=0 KillBuffers call BufCleanup()
 command! -nargs=0 KillWhitespace StripWhitespace
+
+command! -nargs=0 Knit call UpdateScriptlets()
+command! -nargs=0 UnKnit call ClearScriptlets()
 
 " Misc {{{2
 
@@ -822,6 +924,10 @@ noremap <leader>M :Make!<cr>
 
 " misc
 nnoremap <silent> <leader>rr :call ReloadAll()<cr>
+
+" knit and unknit
+nnoremap <silent> <leader>n :Knit<cr>
+nnoremap <silent> <leader>N :UnKnit<cr>
 
 " toggles
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
