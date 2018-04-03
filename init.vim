@@ -383,6 +383,9 @@ else
 	set undodir=$VIM/tempfiles/undo//,/var/tmp//,/tmp//
 endif
 
+call mkdir($VIM . '/tempfiles/swap', 'p')
+call mkdir($VIM . '/tempfiles/undo', 'p')
+
 " Editing {{{2
 
 " Mouse control
