@@ -1,5 +1,3 @@
-let g:python3_host_prog = '/usr/bin/python3'
-
 " Utility {{{1
 
 let false = 0
@@ -35,7 +33,6 @@ else
 	au! VimEnter * call s:vimdepth()
 endif
 
-" }}}
 " Plugins {{{1
 
 if &loadplugins
@@ -117,10 +114,6 @@ xmap ga <Plug>(EasyAlign)
 nmap ga <Plug>(EasyAlign)
 
 " Lightline {{{2
-
-if con == true
-	set showtabline=2
-endif
 
 set laststatus=2
 set noshowmode
@@ -212,12 +205,11 @@ au User Startified nnoremap <buffer> q :q<cr>
 
 let g:UltiSnipsSnippetsDir = $VIM . "/snips"
 let g:UltiSnipsSnippetDirectories = [ g:UltiSnipsSnippetsDir, 'UltiSnips' ]
-let g:UltiSnipsNoMap = 1
 
 let g:UltiSnipsExpandTrigger = "<f20>"
 let g:UltiSnipsListSnippets = "<f21>"
 
-inoremap <s-bs> <c-r>=(UltiSnips#ExpandSnippetOrJump()) ? "" : ""<cr>
+inoremap <silent> <s-bs> <c-r>=(UltiSnips#ExpandSnippetOrJump()) ? "" : ""<cr>
 
 " Nvim Completion Manager {{{2
 
@@ -412,7 +404,7 @@ set ttimeout
 set ttimeoutlen=10
 
 " Clipboard
-set clipboard=unnamed
+set clipboard=unnamed,unnamedplus
 
 " Automate
 set autoindent
@@ -433,11 +425,11 @@ set viminfo=!,%,'64,/16,s10,c,f1,h,rD:,rE:
 " Allow cursor to go anywhere in visual block mode
 set virtualedit+=block
 
+" Formatting {{{2
+
 " Word formatting
 set textwidth=0
 set formatoptions=tcrqlnj
-
-" Indent {{{2
 
 " kernel style indents
 set tabstop=8
@@ -722,7 +714,7 @@ cnoreabbr <expr> %d expand('%:p:h')
 noremap ; :
 noremap , ;
 noremap <silent> <expr> 0 &wrap ? 'g0' : (match(getline('.'), '\S') >= 0 && match(getline('.'), '\S') < col('.') - 1 ? '^' : '0')
-noremap <expr> <return> &buftype == 'help' ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
+map <expr> <return> (&buftype == 'help' <bar><bar> expand("%:p") =~ '^man://') ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
 noremap <s-return> @w
 noremap Y y$
 
@@ -757,8 +749,8 @@ noremap + "+
 nnoremap <silent> <esc> :nohl<cr>
 
 " Logical lines
-noremap j gj
-noremap k gk
+noremap <expr> j (v:count == 0 ? 'gj' : 'j')
+noremap <expr> k (v:count == 0 ? 'gk' : 'k')
 noremap <expr> $ &wrap ? "g$" : "$"
 
 " Keep visual
@@ -857,3 +849,5 @@ let g:exec_com = {
 	\ }
 
 command! -nargs=0 W w !sudo tee %
+" Stop plugins from pollution leader
+let mapleader = "\\"
