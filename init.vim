@@ -662,6 +662,9 @@ augroup vimrc
 			\ | silent exe 'doautocmd vimrc FileType' t
 		\ | endfor
 
+	au Filetype markdown,pandoc map <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
+	au Filetype markdown,pandoc map <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
+
 	au Filetype c,cpp runtime! syntax/doxygen.vim
 
 	au Filetype vim
@@ -717,6 +720,8 @@ noremap ! :silent<space>!
 noremap! <c-a> <home>
 noremap! <a-d> <c-o>de
 noremap! <c-e> <end>
+noremap! <c-left> <c-d>
+noremap! <c-right> <c-t>
 
 " command line mappings
 cnoremap <c-a> <home>
@@ -753,8 +758,8 @@ noremap <c-p> <c-i>
 " Capital movement - we want nested mappings
 map H 0
 map L $
-" We don't want K
-map K <nop>
+" Make K symmetric to J
+nnoremap K m"i<cr><esc>`"
 
 " Registers, much easier to reach
 noremap _ "_
@@ -789,16 +794,15 @@ noremap <silent> ]b :bn<cr>
 noremap <silent> [t :tabp<cr>
 noremap <silent> ]t :tabn<cr>
 
+" quickfix browse
+noremap <silent> [c :cprev<cr>
+noremap <silent> ]c :cnext<cr>
+
 " Buffer ctl
 nnoremap <c-h> <c-w>h
 nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-l> <c-w>l
-
-nnoremap <s-left> <c-w><
-nnoremap <s-down> <c-w>+
-nnoremap <s-up> <c-w>-
-nnoremap <s-right> <c-w>>
 
 " Leaders " {{{2
 
@@ -807,16 +811,20 @@ let mapleader = "\<Space>"
 " more leaders
 noremap <leader> <nop>
 noremap <leader>x :call ExecCurrent()<cr>
+noremap <leader>m :Make<cr>
+noremap <leader>M :Make!<cr>
 
 " misc
 nnoremap <silent> <leader>rr :call ReloadAll()<cr>
 
 " toggles
 nnoremap <silent> <leader>oo :call DumpOpts()<cr>
+nnoremap <silent> <leader>ow :set wrap!<cr>
 nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os :set scrollbind!<cr>
 nnoremap <silent> <leader>op :set paste!<cr>
 nnoremap <silent> <leader>og :Goyo<cr>ze
+nnoremap <silent> <leader>on :set number! relativenumber!<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
 
 " file ctl
@@ -841,6 +849,7 @@ nnoremap <leader>kb :call BufCleanup()<cr>
 " Splits
 nnoremap <leader>s <nop>
 nnoremap <silent> <leader>ss <c-w>s
+nnoremap <silent> <leader>sv <c-w>v
 nnoremap <silent> <leader>sh :aboveleft vertical new<cr>
 nnoremap <silent> <leader>sk :aboveleft new<cr>
 nnoremap <silent> <leader>sj :belowright new<cr>
