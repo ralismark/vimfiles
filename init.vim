@@ -269,12 +269,15 @@ let ftconf['pandoc'] = {
 	\ '&ts': 4,
 	\ '&tw': 80,
 	\ '&foldcolumn': 0,
+	\ '&makeprg': 'pandoc "%" -o /tmp/preview.pdf $*',
+	\ 'g:auto_save_postsave_hook': 'silent Make!',
 	\ 'b:ale_enabled': 0,
 	\ }
 let ftconf['rst'] = 'pandoc'
 let ftconf['markdown'] = 'pandoc'
 let ftconf['rmd'] = {
 	\ '': 'pandoc',
+	\ '&makeprg': 'Rscript -e "rmarkdown::render(''%'', output_file=''/tmp/preview.pdf'', output_format=''pdf_document'')"',
 	\ }
 let ftconf['haskell'] = {
 	\ '&et': true,
@@ -867,6 +870,9 @@ nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
 let g:exec_com = {
 	\ 'vim': { -> execute('source %') },
+	\ 'html': { -> jobstart(['xdg-open', expand('%:p')]) },
+	\ 'rmd': { -> jobstart(['xdg-open', '/tmp/preview.pdf']) },
+	\ 'pandoc': { -> jobstart(['xdg-open', '/tmp/preview.pdf']) },
 	\ }
 
 " Stop plugins from pollution leader
