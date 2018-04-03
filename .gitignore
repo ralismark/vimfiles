@@ -10,3 +10,6 @@ session/
 # spell stuff downloaded by neovim
 spell/*.spl
 spell/en.utf-8.sug
+
+# temporary files (swap, undo)
+tempfiles/
