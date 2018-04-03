@@ -120,7 +120,7 @@ set noshowmode
 
 let g:lightline = {
 \	'component': {
-\		'paste': '%{&paste ? "cp" : ""}',
+\		'paste': '%{&paste ? "paste" : ""}',
 \
 \		'spell': '%{&spell ? (winwidth(0) > 80 ? "s:" . &spelllang : winwidth(0) > 50 ? "s..." : "") : ""}',
 \	},
@@ -141,7 +141,7 @@ let g:lightline = {
 \	},
 \	'active': {
 \		'left': [
-\				[],
+\				[ 'paste' ],
 \				[ 'filename', 'rostate' ],
 \				[ 'wordcount' ],
 \			],
