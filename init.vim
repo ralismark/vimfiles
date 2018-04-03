@@ -486,24 +486,32 @@ function! GetSynClass() " {{{2
 endfunction
 
 function! GetExecCurrent() " {{{2
-	if exists('b:exec_com')
-		if type(b:exec_com) == v:t_dict
-			if has_key(b:exec_com, &ft)
-				let Com = b:exec_com[&ft]
-			endif
-		else
-			let Com = b:exec_com
+	" Work for multiple filetypes
+	for ft in split(&ft, '\.')
+		if exists('l:Com')
+			break
 		endif
-	endif
-	if exists('g:exec_com') && !exists('l:Com')
-		if type(g:exec_com) == v:t_dict
-			if has_key(g:exec_com, &ft)
-				let Com = g:exec_com[&ft]
+
+		if exists('b:exec_com')
+			if type(b:exec_com) == v:t_dict
+				if has_key(b:exec_com, ft)
+					let Com = b:exec_com[ft]
+				endif
+			else
+				let Com = b:exec_com
 			endif
-		else
-			let Com = g:exec_com
 		endif
-	endif
+		if exists('g:exec_com') && !exists('l:Com')
+			if type(g:exec_com) == v:t_dict
+				if has_key(g:exec_com, ft)
+					let Com = g:exec_com[ft]
+				endif
+			else
+				let Com = g:exec_com
+			endif
+		endif
+	endfor
+
 	if !exists('l:Com')
 		echoe 'ExecCurrent: no viable com found for filetype "' . &ft . '"'
 		return
