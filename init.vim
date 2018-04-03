@@ -700,6 +700,14 @@ augroup END
 
 " Bindings {{{1
 
+" Commands {{{2
+
+command! -nargs=0 W w !sudo tee %
+command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
+command! -nargs=1 -complete=var ISet call ModVar('<args>')
+command! -nargs=0 KillBuffers call BufCleanup()
+command! -nargs=0 KillWhitespace StripWhitespace
+
 " Misc {{{2
 
 " exec
@@ -772,13 +780,6 @@ tnoremap <esc> <c-\><c-n>
 
 " c-r as normal
 tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
-
-" Commands {{{2
-
-command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
-command! -nargs=1 -complete=var ISet call ModVar('<args>')
-command! -nargs=0 KillBuffers call BufCleanup()
-command! -nargs=0 KillWhitespace StripWhitespace
 
 " Buffer/window/tab {{{2
 
@@ -856,6 +857,5 @@ let g:exec_com = {
 	\ 'vim': { -> execute('source %') },
 	\ }
 
-command! -nargs=0 W w !sudo tee %
 " Stop plugins from pollution leader
 let mapleader = "\\"
