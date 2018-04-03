@@ -265,12 +265,14 @@ if executable('ag')
 	set grepformat=%f:%l:%c%m
 endif
 
+" use in-built markdown folding
+let g:markdown_folding = 1
+
 " Filetype local config {{{2
 
 let ftconf = {}
 let ftconf['pandoc'] = {
 	\ '&et': false,
-	\ '&foldexpr': "len(matchstr(getline(v:lnum), '\\s*\\zs#*'))?'>'.len(matchstr(getline(v:lnum), '\\s*\\zs#*')):'='",
 	\ '&spell': true,
 	\ '&ts': 4,
 	\ '&tw': 80,
