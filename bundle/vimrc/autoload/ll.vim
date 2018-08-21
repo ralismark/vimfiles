@@ -26,21 +26,42 @@ fun! ll#bufinfo() " {{{1
 endfun
 
 fun! ll#filename() " {{{1
-	if expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
+	if ll#nonfile()
 		return ''
 	endif
-
-	let bufnum = bufnr('%') . '#'
-	let name = expand('%:t') == '' ? '*' : expand('%:t')
-	if winwidth(0) > 75
-		let fsegs = (['', '', ''] + split(expand('%:p:h'), '/'))[-3:]
-		let minisegs = map(fsegs, 'matchstr(v:val, ".\\{,3\\}")')
-		let name = join(minisegs, '/') . ' / ' . name
-	endif
+	let name = bufname('') == '' ? '*' : bufname('')
 	return name
 endfun
 
+fun! ll#special(winid) " {{{1
+	let wi = get(getwininfo(a:winid), 0, {})
+	let bn = bufname('#' . get(wi, 'bufnr', -1))
+
+	return (!&modifiable && !&buflisted)
+	\ || bn =~ '^man://'
+	\ || get(wi, 'quickfix')
+endfun
+
+fun! ll#filename2() " {{{1
+	let bn = bufname('')
+	let wi = get(getwininfo(win_getid()), 0, {})
+	if !&modifiable && !&buflisted
+		" Plugins
+		return fnamemodify(bn, ':t')
+	elseif bn =~ '^man://'
+		return expand('%:t')
+	elseif get(wi, 'loclist')
+		return 'Location List'
+	elseif get(wi, 'quickfix')
+		return 'Quickfix List'
+	endif
+	return ''
+endfun
+
 fun! ll#filetype() " {{{1
+	if ll#nonfile()
+		return ''
+	endif
 	let ft = &ft == '' ? 'no ft' : &ft
 	return ft
 endfun
@@ -50,7 +71,9 @@ fun! ll#locpercent() " {{{1
 	let top = 1
 	let bot = line('$')
 
-	if line('w$') == bot
+	if line('w0') == top && line('w$') == bot
+		return 'all'
+	elseif line('w$') == bot
 		return "bot"
 	elseif line('w0') == top
 		return "top"
@@ -69,7 +92,7 @@ fun! ll#location() " {{{1
 endfun
 
 fun! ll#rostate() " {{{1
-	if &ft =~? 'help' || expand('%:t') =~? '__Gundo__\|__Gundo_Preview__'
+	if ll#nonfile()
 		return ''
 	endif
 
@@ -77,7 +100,7 @@ fun! ll#rostate() " {{{1
 	return (&modified ? modified_char : &modifiable ? 'w' : 'r') . (&readonly ? '!' : '')
 endfun
 
-fun! ll#fileinfo() " {{{1
+fun! ll#eol() " {{{1
 	let eol = &ff == 'dos' ? '\r\n' : &ff == 'unix' ? '\n' : '\r'
 
 	if &ff == 'dos' && (has('win32') || has('win64'))
@@ -90,7 +113,11 @@ fun! ll#fileinfo() " {{{1
 		let eol = ''
 	endif
 
-	return ll#filetype() . ' '. eol . ' '. &fenc
+	return eol
+endfun
+
+fun! ll#fileinfo() " {{{1
+	return ll#filetype() . ' '. ll#eol() . ' '. &fenc
 endfun
 
 fun! ll#wordcount() " {{{1
@@ -103,4 +130,21 @@ fun! ll#wordcount() " {{{1
 	let xwords = has_key(wc, 'cursor_words') ? wc.cursor_words : wc.visual_words
 
 	return 'words: ' . xwords . '/' . wc.words
+endfun
+
+fun! ll#ale() " {{{1
+	if !get(b:, 'ale_enabled', get(g:, 'ale_enabled', 0))
+		return ''
+	endif
+
+	let counts = ale#statusline#Count(bufnr(''))
+
+	let errs = counts.error + counts.style_error
+	let warns = counts.warning + counts.style_warning
+	
+	if errs + warns == 0
+		return ''
+	endif
+
+	return (errs > 0 ? errs . ' ✖' : '') . (errs * warns > 0 ? ' | ' : '') . (warns > 0 ? warns . ' △' : '')
 endfun
