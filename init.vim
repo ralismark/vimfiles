@@ -1,14 +1,5 @@
 " Utility {{{1
 
-let false = 0
-let true = !false
-
-let gui = has('gui_running') ? true : false
-let con = !gui
-
-let windows = has('win32') || has('win64')
-let unix = has('unix')
-
 let $VIM = fnamemodify($MYVIMRC, ':p:h')
 
 " Plugins {{{1
@@ -71,11 +62,11 @@ let g:unite_source_rec_async_command =
 \	  '--hidden', '-g', '' ]
 
 call unite#custom#profile('def', 'context', {
-\	'no_split': true,
-\	'prompt': '> ',
+\	'no_split': 1,
+\	'prompt': '⇒ ',
 \	'prompt_direction': 'top',
-\	'start_insert': true,
-\	'here': true,
+\	'start_insert': 1,
+\	'here': 1,
 \ })
 
 au Filetype unite call s:unite_settings()
@@ -144,13 +135,13 @@ let g:lightline = {
 \		],
 \	},
 \
-\	'colorscheme': 1 ? 'wombat' : (gui ? 'powerline' : 'll_theme'),
+\	'colorscheme': 'wombat',
 \
-\	'separator': gui ? { 'left': '', 'right': '' } : { 'left': '░', 'right': '░' },
-\	'subseparator': gui ? {'left': '|', 'right': '|' } : { 'left': '░', 'right': '░' },
+\	'separator': { 'left': '', 'right': '' },
+\	'subseparator': { 'left': '', 'right': '' },
 \
-\	'tabline_separator': { 'left': '░', 'right': '░' },
-\	'tabline_subseparator': { 'left': '', 'right': '' },
+\	'tabline_separator': { 'left': '', 'right': '' },
+\	'tabline_subseparator': { 'left': '', 'right': '' },
 \ }
 
 " Startify {{{2
@@ -166,14 +157,11 @@ let g:startify_bookmarks = [
 	\ {'v': $MYVIMRC },
 	\ {'V': $VIM },
 	\]
-if windows
-	call add(g:startify_bookmarks, {'s': '~/Onedrive/local/source' })
-endif
 
 let g:startify_files_number = 10
-let g:startify_session_autoload = true
-let g:startify_change_to_dir = true
-let g:startify_change_to_vcs_root = true
+let g:startify_session_autoload = 1
+let g:startify_change_to_dir = 1
+let g:startify_change_to_vcs_root = 1
 let g:startify_custom_indices = map(add(range(1,9), 0), 'string(v:val)')
 
 au User Startified nnoremap <buffer> q :q<cr>
@@ -234,15 +222,12 @@ if executable('ag')
 	set grepformat=%f:%l:%c%m
 endif
 
-" use in-built markdown folding
-let g:markdown_folding = 1
-
 " Filetype local config {{{2
 
 let ftconf = {}
 let ftconf['pandoc'] = {
-	\ '&et': false,
-	\ '&spell': true,
+	\ '&et': 0,
+	\ '&spell': 1,
 	\ '&ts': 4,
 	\ '&tw': 80,
 	\ '&foldcolumn': 0,
@@ -257,7 +242,7 @@ let ftconf['rmd'] = {
 	\ '&makeprg': 'Rscript -e "rmarkdown::render(''%'', output_file=''/tmp/preview.pdf'', output_format=''pdf_document'')"',
 	\ }
 let ftconf['haskell'] = {
-	\ '&et': true,
+	\ '&et': 1,
 	\ '&ts': 8,
 	\ }
 let ftconf['python'] = {
@@ -337,25 +322,15 @@ set matchpairs+=<:>
 " Show partial keypresses
 set showcmd
 
-" Different theme for term/gui
-if has('gui_running')
-	colorscheme molokai
-else
-	colorscheme duality
-endif
-
-" gui-specified
-if has('gui_running')
-	set guifont=Consolas:h9:cANSI
-	set guioptions-=T
-endif
+" Colorscheme
+colorscheme duality
 
 " Tempfiles {{{2
 
 set swapfile
 set undofile
 
-if windows
+if has('win32')
 	set directory=$VIM/tempfiles/swap//,$TEMP//
 	set undodir=$VIM/tempfiles/undo//,$TEMP//
 else
