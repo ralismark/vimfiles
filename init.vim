@@ -11,28 +11,6 @@ let unix = has('unix')
 
 let $VIM = fnamemodify($MYVIMRC, ':p:h')
 
-" vim depth, when running vim inside vim
-
-function! s:vimdepth() " {{{
-	if !exists('g:vim_did_depth')
-		let g:vim_did_depth = 1
-	else
-		return
-	endif
-
-	if !exists('$vim_depth')
-		let $vim_depth = 0 " original root vim
-	else
-		let $vim_depth = $vim_depth + 1
-	endif
-endfunction
-
-if exists('v:vim_did_enter')
-	call s:vimdepth()
-else
-	au! VimEnter * call s:vimdepth()
-endif
-
 " Plugins {{{1
 
 if &loadplugins
@@ -131,7 +109,6 @@ let g:lightline = {
 \		'filetype': 'll#filetype',
 \		'fileinfo': 'll#fileinfo',
 \		'bufinfo': 'll#bufinfo',
-\		'depth': 'll#depth',
 \		'wordcount': 'll#wordcount'
 \	},
 \	'component_visible_condition': {
@@ -161,7 +138,7 @@ let g:lightline = {
 \	},
 \	'tabline': {
 \		'left': [
-\				[ 'depth', 'tabs' ],
+\				[ 'tabs' ],
 \		],
 \		'right': [
 \		],
@@ -755,6 +732,12 @@ endfunction
 augroup vimrc
 	au!
 
+	" for proper nesting
+	au TermOpen * let $NVIM_LISTEN_ADDRESS=v:servername
+
+	au TermOpen * setl nonumber norelativenumber
+
+	" Apply ftlayer options
 	au Filetype * call FtLayer(expand('<amatch>'))
 
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp

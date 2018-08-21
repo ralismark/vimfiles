@@ -76,9 +76,14 @@ endfunction
 function! recover#check_loaded(filename)
 	let fname_esc = substitute(a:filename, "'", "''", "g")
 
-	" Normal vim returns a newline-separated list, while neovim returns an
-	" actual list
-	let servers = has('nvim') ? serverlist() : split(serverlist(), "\n")
+	let servers = has('nvim') ? systemlist(['nvr', '--serverlist']) : split(serverlist(), "\n")
+	if type(servers) != v:t_list
+		return '' " nvr failed
+	endif
+
+	" required for nvr to deduplicate things
+	call uniq(servers)
+
 	for server in servers
 		" Skip ourselves.
 		if server ==? v:servername
@@ -86,7 +91,13 @@ function! recover#check_loaded(filename)
 		endif
 
 		" Check if this server is editing our file.
-		if remote_expr(server, "bufloaded('" . fname_esc . "')")
+		let opened = 0
+		if has('nvim')
+			let opened = +system(['nvr', '--servername', server, '--remote-expr', "bufloaded('" . fname_esc . "')"])
+		else
+			let opened = remote_expr(server, "bufloaded('" . fname_esc . "')")
+		endif
+		if opened
 			" Tell the user what is happening.
 			call confirm("File is being edited by " . server, '', 1, 'E')
 			return 'q'

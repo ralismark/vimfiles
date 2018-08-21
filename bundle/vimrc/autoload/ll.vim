@@ -1,7 +1,15 @@
 " vimrc supplementing file for lightline
 
-fun! ll#depth() " {{{1
-	return ($vim_depth ? 'depth ' . $vim_depth : '')
+fun! ll#nonfile() " {{{1
+	let name = bufname('')
+	if (&buftype == 'nofile' && (name =~ '^__' || name =~ '^man://'))
+	\ || &buftype == 'help'
+	\ || &buftype == 'quickfix'
+	\ || &buftype == 'terminal'
+		return 1
+	endif
+
+	return 0
 endfun
 
 fun! ll#bufinfo() " {{{1
