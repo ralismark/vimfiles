@@ -231,12 +231,14 @@ endif
 let ftconf = {}
 let ftconf['pandoc'] = {
 	\ '&et': 0,
+	\ '&formatoptions': 'roqnlj',
+	\ '&comments': 'b:-',
 	\ '&spell': 1,
 	\ '&ts': 4,
-	\ '&tw': 80,
-	\ '&foldcolumn': 0,
+	\ '&wrap': 1,
 	\ '&makeprg': 'pandoc "%" -o /tmp/preview.pdf $*',
-	\ 'g:auto_save_postsave_hook': 'silent Make!',
+	\ '&foldmethod': 'expr',
+	\ '&foldexpr': 'PandocFold()',
 	\ 'b:ale_enabled': 0,
 	\ }
 let ftconf['rst'] = 'pandoc'
@@ -252,16 +254,36 @@ let ftconf['haskell'] = {
 let ftconf['python'] = {
 	\ '&omnifunc': 'python3complete#Complete',
 	\ }
+let ftconf['json'] = {
+	\ '&conceallevel': 0,
+	\ }
 " C++ omni breaks things
 let ftconf['cpp'] = {
 	\ '&omnifunc': '',
 	\ '&commentstring': '//%s',
 	\ '&completefunc': 'rc#complete',
-	\ '&iskeyword': 'a-z,A-Z,48-57,_',
+	\ '&iskeyword': 'a-z,A-Z,48-57,:,_',
+	\ '&keywordprg': ':vertical Man 3std',
 	\ }
 let ftconf['c'] = 'cpp'
+let ftconf['vim'] = {
+	\ '&iskeyword': 'a-z,A-Z,48-57,_,:,$',
+	\ '&keywordprg': ':vertical help'
+	\ }
+let ftconf['nofile'] = {
+	\ '&buftype': 'nofile',
+	\ }
+let ftconf['plaintex'] = {
+	\ '&makeprg': 'tex %',
+	\ }
+let ftconf['tex'] = {
+	\ '&makeprg': 'tectonic %',
+	\ }
 
 " User Interface {{{2
+
+" Man pages
+set keywordprg=:Man
 
 " Line buffer at top/bottom when scrolling
 set scrolloff=15
@@ -273,7 +295,6 @@ set wildmenu
 set hlsearch
 set ignorecase
 set smartcase
-set magic
 set incsearch
 
 " replacing stuff
@@ -294,21 +315,23 @@ set concealcursor=
 " Hidden chars
 set listchars=tab:│\ ,extends:>,precedes:<,nbsp:%,trail:∙
 set list
-set fillchars=vert:│,fold:─
+set fillchars=vert:│,fold:─,stl:─,stlnc:─
 
 " Line numbers
 set number
 set relativenumber
 
-" Line wrapping, toggle bound to <space>tw
+" Line wrapping, toggle bound to <space>ow
 set nowrap
 set linebreak
+set breakindent
+set showbreak=↳\
 
 " Fold on triple brace
 set foldmethod=marker
 
 " Minimal folding initially
-" set foldlevelstart=99
+set foldlevelstart=99
 
 " Make with tee
 set shellpipe=2>&1\ \|\ tee
@@ -354,7 +377,7 @@ set mouse+=a
 set shellslash
 
 " Completion
-set completeopt=menu,menuone
+set completeopt=menu,menuone,noinsert,noselect
 set complete=.,w,b,t
 
 " Modeline
@@ -369,7 +392,6 @@ set ttimeoutlen=10
 set clipboard=unnamed,unnamedplus
 
 " Automate
-set autoindent
 set autoread
 set autowrite
 
@@ -392,13 +414,15 @@ set virtualedit+=block
 " Word formatting
 set textwidth=0
 set formatoptions=tcrqlnj
+set nojoinspaces
 
 " kernel style indents
-set tabstop=8
+set tabstop=4
 set shiftwidth=0
 set noexpandtab
 set smarttab
 
+set autoindent
 set copyindent
 set preserveindent
 
@@ -729,22 +753,11 @@ augroup vimrc
 		\ | endfor
 
 	au Filetype markdown Knit
-	au Filetype markdown,pandoc map <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
-	au Filetype markdown,pandoc map <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
+	au Filetype pandoc,rmd
+		\ map <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
+		\ | map <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
 
 	au Filetype c,cpp runtime! syntax/doxygen.vim
-
-	au Filetype vim
-		\ setl iskeyword=a-z,A-Z,48-57,_,:,$
-
-	au Filetype nofile,scratch
-		\ set buftype=nofile
-
-	au Filetype plaintex
-		\ let &l:makeprg='tex %'
-
-	au Filetype tex
-		\ let &l:makeprg='latex %'
 
 	" Cursorline if not active
 	" au BufEnter,FocusGained,WinEnter * set nocursorline
