@@ -10,29 +10,54 @@ if &loadplugins
 
 call plug#begin($VIM . '/plugged')
 
-" Plug 'chrisbra/Colorizer'
-" Plug 'jceb/vim-orgmode'
-Plug '907th/vim-auto-save'
-Plug 'chrisbra/unicode.vim'
-Plug 'christoomey/vim-sort-motion'
+" Frameworks
+Plug 'roxma/nvim-yarp'
+Plug 'tpope/vim-repeat'
+
+" UI
+Plug 'chrisbra/Colorizer'
+Plug 'equalsraf/neovim-gui-shim'
 Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
-Plug 'junegunn/vim-easy-align'
-Plug 'kana/vim-textobj-user'
+Plug 'majutsushi/tagbar'
 Plug 'mbbill/undotree'
 Plug 'mhinz/vim-startify'
-Plug 'ntpeters/vim-better-whitespace'
-Plug 'ralismark/itab'
-Plug 'roxma/nvim-completion-manager'
-Plug 'sgur/vim-textobj-parameter'
+
+" Workflow/Misc
 Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
-Plug 'sirver/ultisnips'
-Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
-Plug 'unblevable/quick-scope'
+Plug 'chrisbra/unicode.vim'
+
+" Syntax/Language
+"Plug 'jceb/vim-orgmode'
+Plug 'lvht/tagbar-markdown'
+Plug 'tmhedberg/SimpylFold'
 Plug 'vim-pandoc/vim-pandoc-syntax'
+
+" Editing
+Plug 'christoomey/vim-sort-motion'
+Plug 'junegunn/vim-easy-align'
+Plug 'kana/vim-textobj-user'
+Plug 'ralismark/itab'
+Plug 'sgur/vim-textobj-parameter'
+Plug 'tomtom/tcomment_vim'
+Plug 'tpope/vim-abolish'
+
+" Completion/Snips/Lint
+Plug 'ncm2/ncm2'
+" some completion sources
+Plug 'Shougo/neco-syntax' | Plug 'jsfaint/ncm2-syntax'
+Plug 'ncm2/ncm2-bufword'
+Plug 'ncm2/ncm2-tmux'
+Plug 'ncm2/ncm2-path'
+Plug 'ncm2/ncm2-jedi'
+Plug 'ncm2/ncm2-pyclang'
+"Plug 'sirver/ultisnips'
 Plug 'w0rp/ale'
+
+" System
+Plug '/usr/share/vim/vimfiles'
 
 Plug $VIM . '/bundle/etypehead'
 Plug $VIM . '/bundle/orgmode'
@@ -42,11 +67,6 @@ Plug $VIM . '/bundle/uwiki'
 Plug $VIM . '/bundle/vimrc'
 
 call plug#end()
-
-" QuickScope {{{2
-
-" Trigger a highlight in the appropriate direction when pressing these keys:
-let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
 
 " Goyo {{{2
 
@@ -69,10 +89,20 @@ call unite#custom#profile('def', 'context', {
 \	'here': 1,
 \ })
 
-au Filetype unite call s:unite_settings()
-function! s:unite_settings()
-	imap <buffer> <esc> <Plug>(unite_exit)
-endfunction
+call unite#custom#profile('preview', 'context', {
+\	'prompt': '⇒ ',
+\	'prompt_direction': 'top',
+\	'start_insert': 1,
+\	'auto_preview': 1,
+\	'vertical': 1,
+\	'hide_source_names': 1,
+\ })
+
+augroup vimrc_Unite
+	au!
+
+	au Filetype unite imap <buffer> <esc> <Plug>(unite_exit)
+augroup END
 
 " vim-easy-align {{{2
 
@@ -186,6 +216,21 @@ imap <expr> <tab> pumvisible() ? "\<c-n>" : "\<Plug>ItabTab"
 imap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
 imap <expr> <cr> pumvisible() ? "\<c-y>\<Plug>ItabCr" : "\<Plug>ItabCr"
 
+let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
+let g:UltiSnipsJumpForwardTrigger = "<c-j>"
+let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+let g:UltiSnipsRemoveSelectModeMappings = 0
+
+augroup vimrc_Ncm
+	au!
+
+	" Enable for everything right now
+	autocmd BufEnter * call ncm2#enable_for_buffer()
+
+	au User Ncm2PopupOpen set completeopt=noinsert,menuone,noselect
+	au User Ncm2PopupClose set completeopt=menuone
+augroup END
+
 " netrw {{{2
 
 " My main use case is :Lexplore for a side panel
@@ -196,21 +241,48 @@ let g:netrw_winsize = -35 " split is 40 cols wide
 
 " ALE {{{2
 
+" Default to off
+let g:ale_enabled = 1
+
 " dont lint while typing
 let g:ale_lint_on_text_changed = "normal"
 
-" lint on inser exit
+" lint on insert exit
 let g:ale_lint_on_insert_leave = 1
 
 " Show linter
 let g:ale_echo_msg_format = "[%linter%] %(code): %%s [%severity%]"
 
-let g:ale_linters = {
-\	'html': [ 'HTMLHint', 'tidy' ],
+" Linters to use.
+let g:ale_linters = {}
+let g:ale_linters.html = [ 'HTMLHint', 'tidy' ]
+let g:ale_linters.cpp = [ 'clangtidy', 'clangcheck' ] " clang, for live feedback, and others, for depth
+let g:ale_linters.c = g:ale_linters.cpp
+
+" Mostly for competition stuff, so we don't get unnecessary issues
+" -llvm-include-order: not important
+" -google-build-using-namespace: mostly use of use namespace std, which is faster
+" -cppcoreguidelines-owning-memory: no gtl::owner<>
+" -cppcoreguidelines-pro-type-vararg and -hicpp-vararg: for cstdio
+" -fuchsia-*: they're all weird
+let g:ale_cpp_clangtidy_checks = [ '*',
+\ '-llvm-include-order',
+\ '-google-build-using-namespace',
+\ '-cppcoreguidelines-owning-memory',
+\ '-cppcoreguidelines-pro-type-vararg', '-hicpp-vararg',
+\ '-fuchsia-*'
+\ ]
+
+let g:ale_linter_aliases = {
+\	'pandoc': 'markdown',
 \ }
 
-let g:ale_sign_error = 'x'
-let g:ale_sign_warning = '-'
+let g:ale_sign_error = '><'
+let g:ale_sign_warning = '◀▶'
+
+" Tagbar {{{2
+
+let g:tagbar_sort = 0
 
 " }}}
 
@@ -760,8 +832,11 @@ augroup vimrc
 	au Filetype c,cpp runtime! syntax/doxygen.vim
 
 	" Cursorline if not active
-	" au BufEnter,FocusGained,WinEnter * set nocursorline
-	" au BufLeave,FocusLost,WinLeave * set cursorline
+	setg cursorline
+	au BufEnter,FocusGained,WinEnter * set nocursorline
+	au User GoyoEnter setg nocursorline
+	au User GoyoLeave setg cursorline
+	au BufLeave,FocusLost,WinLeave * set cursorline<
 
 	" Non-breaking autochdir
 	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
@@ -821,6 +896,9 @@ noremap <silent> <expr> 0 &wrap ? 'g0' : (match(getline('.'), '\S') >= 0 && matc
 map <expr> <return> (&buftype == 'help' <bar><bar> expand("%:p") =~ '^man://') ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
 noremap <s-return> @w
 noremap Y y$
+
+" overview
+nnoremap <silent> gO :Tagbar<cr>
 
 " Prose
 nnoremap Q gwip
@@ -894,8 +972,8 @@ let mapleader = "\<Space>"
 " more leaders
 noremap <leader> <nop>
 noremap <leader>x :call ExecCurrent()<cr>
-noremap <leader>m :Make<cr>
-noremap <leader>M :Make!<cr>
+noremap <leader>M :Dispatch<cr>
+noremap <leader>m :Dispatch!<cr>
 
 " misc
 nnoremap <silent> <leader>rr :call ReloadAll()<cr>
@@ -944,7 +1022,10 @@ nnoremap <silent> <leader>sl :belowright vertical new<cr>
 nnoremap <leader>t :tab new<cr>
 
 " unite binds
-nnoremap <silent> <leader>ff :Unite -profile-name=def file<cr>
+nnoremap <silent> <leader>ff :Unite -profile-name=def file file/new<cr>
+nnoremap <silent> <leader>fr :Unite -profile-name=def file_rec/neovim<cr>
+nnoremap <silent> <leader>fo :cd ~/org <bar> Unite -profile-name=preview -no-auto-preview file_rec/neovim file/new<cr>
+nnoremap <silent> <leader>fl :Unite -profile-name=preview line<cr>
 nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
 " Other Features {{{1
