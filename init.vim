@@ -788,13 +788,22 @@ augroup END
 
 " Commands {{{2
 
-command! -nargs=0 W w !sudo tee %
-command! -nargs=? -register ReTemplate call ReTemplate('<reg>')
-command! -nargs=1 -complete=var ISet call ModVar('<args>')
-command! -nargs=0 KillBuffers call BufCleanup()
-command! -nargs=0 KillWhitespace StripWhitespace
+command! -nargs=0 W w !pkexec tee %:p >/dev/null
+command! -nargs=? -register ReTemplate call ReTemplate(<q-reg>)
+command! -nargs=1 -complete=var ISet call ModVar(<q-args>)
+command! -nargs=0 -bang KillBuffers call BufCleanup(<bang>0)
+command! -nargs=0 -range=% KillWhitespace <line1>,<line2>s/\s\+$//e
+" This, for some reason, doesn't work if you put it in a function
+command! -nargs=+ Keepview let s:view_save = winsaveview() | exec <q-args> | call winrestview(s:view_save)
+command! -nargs=* M vertical Man <args>
+command! -nargs=* H vertical help <args>
 
 " Misc {{{2
+
+noremap <left> zh
+noremap <right> zl
+noremap <up> <c-y>
+noremap <down> <c-e>
 
 " exec
 noremap ! :silent<space>!
@@ -803,11 +812,11 @@ noremap ! :silent<space>!
 noremap! <c-a> <home>
 noremap! <a-d> <c-o>de
 noremap! <c-e> <end>
+
 noremap! <c-left> <c-d>
 noremap! <c-right> <c-t>
 
 " command line mappings
-cnoremap <c-a> <home>
 cnoreabbr <expr> %% expand('%')
 cnoreabbr <expr> %p expand('%:p')
 cnoreabbr <expr> %t expand('%:t')
@@ -817,8 +826,11 @@ cnoreabbr <expr> %d expand('%:p:h')
 " better binds
 noremap ; :
 noremap , ;
-noremap <silent> <expr> 0 &wrap ? 'g0' : (match(getline('.'), '\S') >= 0 && match(getline('.'), '\S') < col('.') - 1 ? '^' : '0')
-map <expr> <return> (&buftype == 'help' <bar><bar> expand("%:p") =~ '^man://') ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
+noremap ' `
+noremap <silent> <expr> 0 &wrap ? 'g0' : (or(match(getline('.'), '\S') >= 0 && match(getline('.'), '\S') < col('.') - 1, col('.') == 1) ? '^' : '0')
+map <expr> <return> (or(&buftype == 'help', expand("%:p") =~ '^man://')) ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
+nnoremap <expr> G &wrap ? "G$g0" : "G"
+xnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
 noremap Y y$
 noremap ? <cmd>call Hilite()<cr>
@@ -829,7 +841,7 @@ nnoremap <silent> gO :Tagbar<cr>
 
 " Prose
 nnoremap Q gwip
-vnoremap Q gw
+xnoremap Q gw
 inoremap <c-q> <c-o>gwip
 inoremap <c-s> <c-g>u<c-x>s
 
@@ -850,6 +862,7 @@ map L $
 nnoremap K m"i<cr><esc>`"
 
 " Registers, much easier to reach
+noremap <bs> "_
 noremap _ "_
 noremap - "_
 noremap + "+
@@ -885,6 +898,8 @@ noremap <silent> ]t :tabn<cr>
 " quickfix browse
 noremap <silent> [c :cprev<cr>
 noremap <silent> ]c :cnext<cr>
+noremap <silent> [l :lprev<cr>
+noremap <silent> ]l :lnext<cr>
 
 " Buffer ctl
 nnoremap <c-h> <c-w>h
@@ -904,16 +919,21 @@ noremap <leader>m :Dispatch!<cr>
 
 " misc
 nnoremap <silent> <leader>rr :call ReloadAll()<cr>
+nnoremap <silent> <leader>rs :syntax sync fromstart<cr>
 
+nnoremap <silent> <leader>P :belowright vertical new<cr><c-w>W80<c-w><bar>:set wfw<cr>
+nnoremap <expr><silent> <leader>p (v:count == 0 ? '80' : '') . "<c-w><bar>"
 
 " toggles
-nnoremap <silent> <leader>ow :set wrap!<cr>
-nnoremap <silent> <leader>ou :UndotreeToggle<cr><c-w>999h
-nnoremap <silent> <leader>os :set scrollbind!<cr>
-nnoremap <silent> <leader>op :set paste!<cr>
-nnoremap <silent> <leader>og :Goyo<cr>ze
-nnoremap <silent> <leader>on :set number! relativenumber!<cr>
-nnoremap <expr> <silent> <leader>od (&diff ? ':diffoff' : ':diffthis') . '<cr>'
+nnoremap <leader>o <nop>
+nnoremap <silent> <leader>ow <Cmd>set wrap! <bar> set wrap?<cr>
+nnoremap <silent> <leader>ou <Cmd>UndotreeToggle<cr><c-w>999h
+nnoremap <silent> <leader>os <Cmd>set scrollbind! <bar> set scrollbind?<cr>
+nnoremap <silent> <leader>op <Cmd>set paste! <bar> set paste?<cr>
+nnoremap <silent> <leader>og <Cmd>Goyo<cr>ze
+nnoremap <expr><silent> <leader>on '<Cmd>set ' . (or(&number, &relativenumber) ? 'nonumber norelativenumber' : 'number relativenumber') . '<cr>'
+nnoremap <expr> <silent> <leader>od (&diff ? '<Cmd>diffoff' : '<Cmd>diffthis') . ' <bar> set diff?<cr>'
+nnoremap <silent> <leader>oa <Cmd>call AutosaveSet('toggle')<cr>
 
 " file ctl
 nnoremap <leader>w :up<cr>
