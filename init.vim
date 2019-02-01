@@ -21,13 +21,10 @@ Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'majutsushi/tagbar'
 Plug 'mbbill/undotree'
-Plug 'mhinz/vim-startify'
 
 " Workflow/Misc
-Plug 'shougo/unite.vim' " TODO replace with shougo/denite once that matures enough
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
-Plug 'chrisbra/unicode.vim'
 
 " Syntax/Language
 "Plug 'jceb/vim-orgmode'
@@ -71,38 +68,6 @@ call plug#end()
 " Goyo {{{2
 
 let g:goyo_width = 90
-
-" Unite {{{2
-
-call unite#filters#matcher_default#use(['matcher_context'])
-
-" Using ag as recursive command.
-let g:unite_source_rec_async_command =
-\	[ 'ag', '--follow', '--nocolor', '--nogroup',
-\	  '--hidden', '-g', '' ]
-
-call unite#custom#profile('def', 'context', {
-\	'no_split': 1,
-\	'prompt': '⇒ ',
-\	'prompt_direction': 'top',
-\	'start_insert': 1,
-\	'here': 1,
-\ })
-
-call unite#custom#profile('preview', 'context', {
-\	'prompt': '⇒ ',
-\	'prompt_direction': 'top',
-\	'start_insert': 1,
-\	'auto_preview': 1,
-\	'vertical': 1,
-\	'hide_source_names': 1,
-\ })
-
-augroup vimrc_Unite
-	au!
-
-	au Filetype unite imap <buffer> <esc> <Plug>(unite_exit)
-augroup END
 
 " vim-easy-align {{{2
 
@@ -177,28 +142,6 @@ let g:lightline = {
 \	'tabline_separator': { 'left': '', 'right': '' },
 \	'tabline_subseparator': { 'left': '', 'right': '' },
 \ }
-
-" Startify {{{2
-
-let g:startify_session_dir = $VIM . '/session'
-let g:startify_list_order = ['sessions', 'bookmarks', 'commands', 'files']
-if getcwd() != $home
-	call add(g:startify_list_order, 'dir')
-endif
-
-let g:startify_bookmarks = [
-	\ {'h': $HOME },
-	\ {'v': $MYVIMRC },
-	\ {'V': $VIM },
-	\]
-
-let g:startify_files_number = 10
-let g:startify_session_autoload = 1
-let g:startify_change_to_dir = 1
-let g:startify_change_to_vcs_root = 1
-let g:startify_custom_indices = map(add(range(1,9), 0), 'string(v:val)')
-
-au User Startified nnoremap <buffer> q :q<cr>
 
 " UltiSnips {{{2
 
@@ -426,19 +369,9 @@ colorscheme duality
 
 " Tempfiles {{{2
 
+" use default dirs
 set swapfile
 set undofile
-
-if has('win32')
-	set directory=$VIM/tempfiles/swap//,$TEMP//
-	set undodir=$VIM/tempfiles/undo//,$TEMP//
-else
-	set directory=$VIM/tempfiles/swap//,/var/tmp//,/tmp//
-	set undodir=$VIM/tempfiles/undo//,/var/tmp//,/tmp//
-endif
-
-call mkdir($VIM . '/tempfiles/swap', 'p')
-call mkdir($VIM . '/tempfiles/undo', 'p')
 
 " Editing {{{2
 
@@ -805,23 +738,10 @@ noremap <right> zl
 noremap <up> <c-y>
 noremap <down> <c-e>
 
-" exec
-noremap ! :silent<space>!
-
 " readline/emacs mappings
 noremap! <c-a> <home>
 noremap! <a-d> <c-o>de
 noremap! <c-e> <end>
-
-noremap! <c-left> <c-d>
-noremap! <c-right> <c-t>
-
-" command line mappings
-cnoreabbr <expr> %% expand('%')
-cnoreabbr <expr> %p expand('%:p')
-cnoreabbr <expr> %t expand('%:t')
-cnoreabbr <expr> %r expand('%:r')
-cnoreabbr <expr> %d expand('%:p:h')
 
 " better binds
 noremap ; :
@@ -839,12 +759,6 @@ noremap # <cmd>let @/ = '\<' . expand('<cword>') . '\>' <bar> set hls<cr>
 " overview
 nnoremap <silent> gO :Tagbar<cr>
 
-" Prose
-nnoremap Q gwip
-xnoremap Q gw
-inoremap <c-q> <c-o>gwip
-inoremap <c-s> <c-g>u<c-x>s
-
 " Fixed I/A for visual
 xnoremap <expr> I mode() ==# 'v' ? "\<c-v>I" : mode() ==# 'V' ? "\<c-v>^o^I" : "I"
 xnoremap <expr> A mode() ==# 'v' ? "\<c-v>A" : mode() ==# 'V' ? "\<c-v>Oo$A" : "A"
@@ -854,12 +768,6 @@ noremap <tab> za
 
 " Since ^I == <tab>, we replace ^I with ^P
 noremap <c-p> <c-i>
-
-" Capital movement - we want nested mappings
-map H 0
-map L $
-" Make K symmetric to J
-nnoremap K m"i<cr><esc>`"
 
 " Registers, much easier to reach
 noremap <bs> "_
@@ -938,11 +846,6 @@ nnoremap <silent> <leader>oa <Cmd>call AutosaveSet('toggle')<cr>
 " file ctl
 nnoremap <leader>w :up<cr>
 nnoremap <leader>q :q<cr>
-nnoremap <leader>W :w!<cr>
-nnoremap <leader>Q :q!<cr>
-nnoremap <leader>aw :wa<cr>
-nnoremap <leader>az :wqa<cr>
-nnoremap <leader>aq :qa<cr>
 
 nnoremap <leader>ee :e<cr>
 nnoremap <leader>e. :e .<cr>
@@ -963,13 +866,6 @@ nnoremap <silent> <leader>sk :aboveleft new<cr>
 nnoremap <silent> <leader>sj :belowright new<cr>
 nnoremap <silent> <leader>sl :belowright vertical new<cr>
 nnoremap <leader>t :tab new<cr>
-
-" unite binds
-nnoremap <silent> <leader>ff :Unite -profile-name=def file file/new<cr>
-nnoremap <silent> <leader>fr :Unite -profile-name=def file_rec/neovim<cr>
-nnoremap <silent> <leader>fo :cd ~/org <bar> Unite -profile-name=preview -no-auto-preview file_rec/neovim file/new<cr>
-nnoremap <silent> <leader>fl :Unite -profile-name=preview line<cr>
-nnoremap <silent> <leader>fb :Unite -profile-name=def buffer<cr>
 
 " Other Features {{{1
 
