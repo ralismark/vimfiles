@@ -1,6 +1,6 @@
 " Utility {{{1
 
-let $VIM = fnamemodify($MYVIMRC, ':p:h')
+let g:configdir = fnamemodify($MYVIMRC, ':p:h')
 
 " Plugins {{{1
 
@@ -8,7 +8,7 @@ if &loadplugins
 
 " Vim-Plug {{{2
 
-call plug#begin($VIM . '/plugged')
+call plug#begin(g:configdir . '/plugged')
 
 " Frameworks
 Plug 'roxma/nvim-yarp'
@@ -55,12 +55,12 @@ Plug 'w0rp/ale'
 " System
 Plug '/usr/share/vim/vimfiles'
 
-Plug $VIM . '/bundle/etypehead'
-Plug $VIM . '/bundle/orgmode'
-Plug $VIM . '/bundle/recover'
-Plug $VIM . '/bundle/syn'
-Plug $VIM . '/bundle/uwiki'
-Plug $VIM . '/bundle/vimrc'
+Plug g:configdir . '/bundle/etypehead'
+Plug g:configdir . '/bundle/orgmode'
+Plug g:configdir . '/bundle/recover'
+Plug g:configdir . '/bundle/syn'
+Plug g:configdir . '/bundle/uwiki'
+Plug g:configdir . '/bundle/vimrc'
 
 call plug#end()
 
@@ -78,7 +78,7 @@ nmap ga <Plug>(EasyAlign)
 
 " UltiSnips {{{2
 
-let g:UltiSnipsSnippetsDir = $VIM . "/snips"
+let g:UltiSnipsSnippetsDir = g:configdir . "/snips"
 let g:UltiSnipsSnippetDirectories = [ g:UltiSnipsSnippetsDir, 'UltiSnips' ]
 
 let g:UltiSnipsExpandTrigger = "<f20>"
@@ -635,7 +635,7 @@ augroup vimrc
 
 	" Skeleton files
 	au BufNewFile *
-		\ for [fname, regpat] in map(glob($VIM . '/skeletons/{.,}*', 0, 1),
+		\ for [fname, regpat] in map(glob(g:configdir . '/skeletons/{.,}*', 0, 1),
 		\ 	{ k,v -> [v, glob2regpat('*' . fnamemodify(v, ':t'))] })
 		\ | 	if expand('<afile>') =~# regpat
 		\ | 		silent exec '0read' fname | silent $
