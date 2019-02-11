@@ -17,7 +17,6 @@ Plug 'tpope/vim-repeat'
 " UI
 Plug 'chrisbra/Colorizer'
 Plug 'equalsraf/neovim-gui-shim'
-Plug 'itchyny/lightline.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'majutsushi/tagbar'
 Plug 'mbbill/undotree'
@@ -76,72 +75,6 @@ xmap ga <Plug>(EasyAlign)
 
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
-
-" Lightline {{{2
-
-set laststatus=2
-set showmode
-set showtabline=2
-
-let g:lightline = {
-\	'enable': {
-\		'statusline': 0,
-\		'tabline': 1,
-\	},
-\	'component': {
-\		'paste': '%{&paste ? "paste" : ""}',
-\		'spell': '%{&spell ? (winwidth(0) > 80 ? "s:" . &spelllang : winwidth(0) > 50 ? "s..." : "") : ""}',
-\	},
-\	'component_function': {
-\		'filename': 'll#filename',
-\		'location': 'll#location',
-\		'rostate': 'll#rostate',
-\		'filetype': 'll#filetype',
-\		'fileinfo': 'll#fileinfo',
-\		'bufinfo': 'll#bufinfo',
-\		'wordcount': 'll#wordcount'
-\	},
-\	'component_visible_condition': {
-\		'filetype': '(winwidth(0) > 40)',
-\		'spell': '(&spell && winwidth(0) > 50)',
-\		'wordcount': '(&spell && winwidth(0) > 50)',
-\	},
-\	'active': {
-\		'left': [
-\				[ 'paste' ],
-\				[ 'filename', 'rostate' ],
-\				[ 'wordcount' ],
-\			],
-\		'right': [
-\				[ 'location' ],
-\				[ 'filetype' ],
-\			],
-\	},
-\	'inactive': {
-\		'left': [
-\				[ 'filename', 'rostate' ],
-\				[ 'fileinfo' ],
-\			],
-\		'right': [
-\				[ 'filetype' ],
-\			],
-\	},
-\	'tabline': {
-\		'left': [
-\				[ 'tabs' ],
-\		],
-\		'right': [
-\		],
-\	},
-\
-\	'colorscheme': 'wombat',
-\
-\	'separator': { 'left': '', 'right': '' },
-\	'subseparator': { 'left': '', 'right': '' },
-\
-\	'tabline_separator': { 'left': '', 'right': '' },
-\	'tabline_subseparator': { 'left': '', 'right': '' },
-\ }
 
 " UltiSnips {{{2
 
@@ -296,6 +229,11 @@ let ftconf['tex'] = {
 	\ }
 
 " User Interface {{{2
+
+" Status line
+set laststatus=2
+set showmode
+set showtabline=2
 
 " Man pages
 set keywordprg=:Man
@@ -568,16 +506,6 @@ function! ReTemplate(reg) " {{{2
 endfunction
 
 function! ReloadAll() " {{{2
-	" lightline
-	if exists('g:loaded_lightline')
-		try
-			call lightline#init()
-			call lightline#colorscheme()
-			call lightline#update()
-		catch
-		endtry
-	endif
-
 	" fix width and height
 	set columns=999 lines=999
 
