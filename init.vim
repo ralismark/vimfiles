@@ -54,7 +54,9 @@ Plug 'ncm2/ncm2-tmux'
 Plug 'ncm2/ncm2-path'
 Plug 'ncm2/ncm2-jedi'
 Plug 'ncm2/ncm2-pyclang'
-"Plug 'sirver/ultisnips'
+Plug 'ncm2/ncm2-ultisnips'
+
+Plug 'sirver/ultisnips'
 Plug 'w0rp/ale'
 
 " System
@@ -86,21 +88,25 @@ nmap ga <Plug>(EasyAlign)
 let g:UltiSnipsSnippetsDir = g:configdir . "/snips"
 let g:UltiSnipsSnippetDirectories = [ g:UltiSnipsSnippetsDir, 'UltiSnips' ]
 
-let g:UltiSnipsExpandTrigger = "<f20>"
-let g:UltiSnipsListSnippets = "<f21>"
+let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
+let g:UltiSnipsListSnippets = "<Plug>(ultisnips_list)"
 
-inoremap <silent> <s-bs> <c-r>=(UltiSnips#ExpandSnippetOrJump()) ? "" : ""<cr>
+let g:UltiSnipsJumpForwardTrigger = "<c-j>"
+let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+
+inoremap <silent> <Plug>(ultisnips_expand_or_jump) <Cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
+snoremap <silent> <Plug>(ultisnips_expand_or_jump) <Esc><Cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
+
+let g:UltiSnipsRemoveSelectModeMappings = 1
+let g:UltiSnipsMappingsToIgnore = [ "UltiSnip#" ]
 
 " Nvim Completion Manager {{{2
 
 imap <expr> <tab> pumvisible() ? "\<c-n>" : "\<Plug>ItabTab"
 imap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
 imap <expr> <cr> pumvisible() ? "\<c-y>\<Plug>ItabCr" : "\<Plug>ItabCr"
-
-let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
-let g:UltiSnipsJumpForwardTrigger = "<c-j>"
-let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
-let g:UltiSnipsRemoveSelectModeMappings = 0
+imap <expr> <c-l> ncm2_ultisnips#expand_or("\<Plug>(ultisnips_expand_or_jump)", "m")
+smap <c-l> <Plug>(ultisnips_expand_or_jump)
 
 augroup vimrc_Ncm
 	au!
