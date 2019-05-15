@@ -664,11 +664,9 @@ command! -nargs=0 W w !pkexec tee %:p >/dev/null
 command! -nargs=? -register ReTemplate call ReTemplate(<q-reg>)
 command! -nargs=1 -complete=var ISet call ModVar(<q-args>)
 command! -nargs=0 -bang KillBuffers call BufCleanup(<bang>0)
-command! -nargs=0 -range=% KillWhitespace <line1>,<line2>s/\s\+$//e
 " This, for some reason, doesn't work if you put it in a function
 command! -nargs=+ Keepview let s:view_save = winsaveview() | exec <q-args> | call winrestview(s:view_save)
-command! -nargs=* M vertical Man <args>
-command! -nargs=* H vertical help <args>
+command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/\s\+$//e | nohl
 
 " Misc {{{2
 
@@ -681,6 +679,8 @@ NXnoremap <down> <c-e>
 noremap! <c-a> <home>
 noremap! <a-d> <c-o>de
 noremap! <c-e> <end>
+" need to get used to this so I stop accidentally closing windows in other programs
+noremap! <c-bs> <c-w>
 
 " better binds
 noremap ; :
@@ -693,7 +693,7 @@ noremap <s-return> @w
 nnoremap Y y$
 
 " find/replace tools
-NXnoremap # <cmd>let @/ = '\C\<' . expand('<cword>') . '\>' <bar> set hls<cr>
+nnoremap # <cmd>let @/ = '\V\C\<' . escape(expand('<cword>'), '\') . '\>' <bar> set hls<cr>
 NXnoremap ? <cmd>call Hilite()<cr>
 
 " overview
@@ -725,6 +725,11 @@ noremap <expr> $ &wrap ? "g$" : "$"
 xnoremap < <gv
 xnoremap > >gv
 
+" Register-preserving delete
+NXmap X "_d
+nmap XX "_dd
+nnoremap x "_x
+
 " Terminal {{{2
 
 " escape as normal
@@ -736,16 +741,20 @@ tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
 " Buffer/window/tab {{{2
 
 " Buffer/Tab switching
-noremap <silent> [b :bp<cr>
-noremap <silent> ]b :bn<cr>
-noremap <silent> [t :tabp<cr>
-noremap <silent> ]t :tabn<cr>
+nnoremap <silent> [b :bp<cr>
+nnoremap <silent> ]b :bn<cr>
+nnoremap <silent> [t :tabp<cr>
+nnoremap <silent> ]t :tabn<cr>
 
 " quickfix browse
-noremap <silent> [c :cprev<cr>
-noremap <silent> ]c :cnext<cr>
-noremap <silent> [l :lprev<cr>
-noremap <silent> ]l :lnext<cr>
+nnoremap <silent> [c :cprev<cr>
+nnoremap <silent> ]c :cnext<cr>
+nnoremap <silent> [l :lprev<cr>
+nnoremap <silent> ]l :lnext<cr>
+
+" ALE
+nnoremap <silent> [a :ALEPreviousWrap<cr>
+nnoremap <silent> ]a :ALENextWrap<cr>
 
 " Buffer ctl
 nnoremap <c-h> <c-w>h
@@ -758,10 +767,10 @@ nnoremap <c-l> <c-w>l
 let mapleader = "\<Space>"
 
 " more leaders
-noremap <leader> <nop>
-noremap <leader>x :call ExecCurrent()<cr>
-noremap <leader>M :Dispatch<cr>
-noremap <leader>m :Dispatch!<cr>
+nnoremap <leader> <nop>
+nnoremap <leader>x :call ExecCurrent()<cr>
+nnoremap <leader>M :Dispatch<cr>
+nnoremap <leader>m :Dispatch!<cr>
 
 " misc
 nnoremap <silent> <leader>rr :call ReloadAll()<cr>
@@ -774,7 +783,7 @@ nnoremap <expr><silent> <leader>p (v:count == 0 ? '80' : '') . "<c-w><bar>"
 nnoremap <leader>o <nop>
 nnoremap <silent> <leader>ow <Cmd>set wrap! <bar> set wrap?<cr>
 nnoremap <silent> <leader>ou <Cmd>UndotreeToggle<cr><c-w>999h
-nnoremap <silent> <leader>os <Cmd>set scrollbind! <bar> set scrollbind?<cr>
+nnoremap <silent> <leader>os <Cmd>set spell! <bar> set spell?<cr>
 nnoremap <silent> <leader>op <Cmd>set paste! <bar> set paste?<cr>
 nnoremap <silent> <leader>og <Cmd>Goyo<cr>ze
 nnoremap <expr><silent> <leader>on '<Cmd>set ' . (or(&number, &relativenumber) ? 'nonumber norelativenumber' : 'number relativenumber') . '<cr>'
@@ -785,8 +794,6 @@ nnoremap <silent> <leader>oa <Cmd>call AutosaveSet('toggle')<cr>
 nnoremap <leader>w :up<cr>
 nnoremap <leader>q :q<cr>
 
-nnoremap <leader>ee :e<cr>
-nnoremap <leader>e. :e .<cr>
 nnoremap <leader>ev :e $MYVIMRC<cr>
 
 " cleanup
