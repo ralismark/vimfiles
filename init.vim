@@ -143,8 +143,14 @@ let g:ale_echo_msg_format = "[%linter%] %(code): %%s [%severity%]"
 " Linters to use.
 let g:ale_linters = {}
 let g:ale_linters.html = [ 'HTMLHint', 'tidy' ]
-let g:ale_linters.cpp = [ 'clangtidy', 'clangcheck' ] " clang, for live feedback, and others, for depth
+let g:ale_linters.cpp = [ 'clang', 'clangcheck' ] " clang, for live feedback, and others, for depth
 let g:ale_linters.c = g:ale_linters.cpp
+
+" parse compile_commands.json and Makefile
+" let g:ale_c_parse_compile_commands = 1
+let g:ale_c_parse_makefile = 1
+
+" let g:ale_cpp_clang_options = '-std=c++17 -Wall -Wextra -Wshadow'
 
 " Mostly for competition stuff, so we don't get unnecessary issues
 " -llvm-include-order: not important
