@@ -4,6 +4,11 @@ let g:configdir = fnamemodify($MYVIMRC, ':p:h')
 
 " Plugins {{{1
 
+command! -nargs=+ NXOnoremap nnoremap <args>|xnoremap <args>|onoremap <args>
+command! -nargs=+ NXOmap     nmap <args>|xmap <args>|omap <args>
+command! -nargs=+ NXnoremap  nnoremap <args>|xnoremap <args>
+command! -nargs=+ NXmap      nmap <args>|xmap <args>
+
 if &loadplugins
 
 " Vim-Plug {{{2
@@ -615,8 +620,8 @@ augroup vimrc
 		\ | endfor
 
 	au Filetype pandoc,rmd
-		\ map <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
-		\ | map <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
+		\ noremap <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
+		\ | noremap <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
 
 	au Filetype c,cpp runtime! syntax/doxygen.vim
 
@@ -661,10 +666,10 @@ command! -nargs=* H vertical help <args>
 
 " Misc {{{2
 
-noremap <left> zh
-noremap <right> zl
-noremap <up> <c-y>
-noremap <down> <c-e>
+NXnoremap <left> zh
+NXnoremap <right> zl
+NXnoremap <up> <c-y>
+NXnoremap <down> <c-e>
 
 " readline/emacs mappings
 noremap! <c-a> <home>
@@ -677,12 +682,13 @@ noremap , ;
 noremap ' `
 noremap <silent> <expr> 0 &wrap ? 'g0' : (or(match(getline('.'), '\S') >= 0 && match(getline('.'), '\S') < col('.') - 1, col('.') == 1) ? '^' : '0')
 map <expr> <return> (or(&buftype == 'help', expand("%:p") =~ '^man://')) ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
-nnoremap <expr> G &wrap ? "G$g0" : "G"
-xnoremap <expr> G &wrap ? "G$g0" : "G"
+NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
-noremap Y y$
-noremap ? <cmd>call Hilite()<cr>
-noremap # <cmd>let @/ = '\<' . expand('<cword>') . '\>' <bar> set hls<cr>
+nnoremap Y y$
+
+" find/replace tools
+NXnoremap # <cmd>let @/ = '\C\<' . expand('<cword>') . '\>' <bar> set hls<cr>
+NXnoremap ? <cmd>call Hilite()<cr>
 
 " overview
 nnoremap <silent> gO :Tagbar<cr>
@@ -692,19 +698,17 @@ xnoremap <expr> I mode() ==# 'v' ? "\<c-v>I" : mode() ==# 'V' ? "\<c-v>^o^I" : "
 xnoremap <expr> A mode() ==# 'v' ? "\<c-v>A" : mode() ==# 'V' ? "\<c-v>Oo$A" : "A"
 
 " Folding
-noremap <tab> za
+nnoremap <tab> za
 
 " Since ^I == <tab>, we replace ^I with ^P
 noremap <c-p> <c-i>
 
 " Registers, much easier to reach
-noremap <bs> "_
-noremap _ "_
-noremap - "_
-noremap + "+
+NXnoremap <bs> "_
+NXnoremap + "+
 
 " Clear highlight
-nnoremap <silent> <esc> :nohl<cr>
+nnoremap <silent> <esc> <Cmd>nohl<cr>
 
 " Logical lines
 noremap <expr> j (v:count == 0 ? 'gj' : 'j')
@@ -712,8 +716,8 @@ noremap <expr> k (v:count == 0 ? 'gk' : 'k')
 noremap <expr> $ &wrap ? "g$" : "$"
 
 " Keep visual
-vnoremap < <gv
-vnoremap > >gv
+xnoremap < <gv
+xnoremap > >gv
 
 " Terminal {{{2
 
