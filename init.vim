@@ -63,10 +63,8 @@ Plug 'w0rp/ale'
 Plug '/usr/share/vim/vimfiles'
 
 Plug g:configdir . '/bundle/etypehead'
-Plug g:configdir . '/bundle/orgmode'
 Plug g:configdir . '/bundle/recover'
 Plug g:configdir . '/bundle/syn'
-Plug g:configdir . '/bundle/uwiki'
 Plug g:configdir . '/bundle/vimrc'
 
 call plug#end()
