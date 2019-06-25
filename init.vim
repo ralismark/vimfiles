@@ -116,14 +116,6 @@ augroup vimrc_Ncm
 	au User Ncm2PopupClose set completeopt=menuone
 augroup END
 
-" netrw {{{2
-
-" My main use case is :Lexplore for a side panel
-
-let g:netrw_banner = 0 " no banner
-let g:netrw_browse_split = 4 " open in previous window
-let g:netrw_winsize = -35 " split is 40 cols wide
-
 " ALE {{{2
 
 " Default to off
@@ -446,23 +438,15 @@ function! Hilite() " {{{2
 	set hls
 
 	let Hi = { in -> setreg('/', in) + execute('redraw') ? [] : [] }
-	let inp = input({ 'prompt': '?', 'highlight': Hi })
-	if inp == ''
+	if input({ 'prompt': '?', 'highlight': Hi }) == ''
 		let &hls=hls_save
 		let @/=search_save
 	endif
 endfunction
 
 function! PandocFold() " {{{2
-	let line = getline(v:lnum)
-
-	let depth = match(line, '\(^#\+\)\@<=\( .*$\)\@=')
-
-	if depth > 0
-		return '>' . depth
-	endif
-
-	return '='
+	let depth = match(getline(v:lnum), '\(^#\+\)\@<=\( .*$\)\@=')
+	return depth > 0 ? '>' . depth : '='
 endfunction
 
 function! GetSynClass() " {{{2
@@ -556,13 +540,6 @@ function! BufCleanup(forced) " {{{2
 		endif
 	endfor
 	echomsg nWipeouts . ' buffer(s) wiped out'
-endfunction
-
-function! ModVar(varname) " {{{2
-	if !exists(a:varname)
-		exec 'let ' . a:varname . ' = ""'
-	endif
-	exec 'let  ' . a:varname . ' = input(''' . a:varname . '? '',' . a:varname . ')'
 endfunction
 
 function! FtLayer(ft, ...) " {{{2
