@@ -35,7 +35,7 @@ hi StatusLineNC ctermfg=darkgrey        ctermbg=black           cterm=NONE
 hi TabLine      ctermfg=yellow          ctermbg=black           cterm=underline
 hi TabLineFill                          ctermbg=black           cterm=NONE
 hi TabLineSel   ctermfg=white           ctermbg=black           cterm=underline,bold
-hi VertSplit    ctermfg=black           ctermbg=black           cterm=NONE
+hi VertSplit    ctermfg=darkgrey        ctermbg=NONE            cterm=NONE
 
 " Ex Messages {{{2
 hi WarningMsg   ctermfg=black           ctermbg=yellow
@@ -65,7 +65,7 @@ hi SignColumn   ctermfg=white           ctermbg=NONE
 hi ColorColumn                          ctermbg=darkgrey
 hi CursorColumn                         ctermbg=darkgrey
 hi CursorLine                           ctermbg=NONE            cterm=underline
-hi Folded       ctermfg=cyan            ctermbg=black
+hi Folded       ctermfg=green           ctermbg=black
 
 " Diff {{{2
 hi DiffAdd      ctermfg=green           ctermbg=NONE
