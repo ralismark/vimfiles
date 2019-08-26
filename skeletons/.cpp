@@ -2,9 +2,9 @@
 using namespace std;
 
 #ifdef L
-#define debug printf
+#define debug(...) fprintf(stderr, __VA_ARGS__)
 #else
-#define debug
+#define debug(...)
 #endif
 
 
