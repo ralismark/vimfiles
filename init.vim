@@ -218,12 +218,12 @@ let ftconf['cpp'] = {
 	\ '&omnifunc': '',
 	\ '&commentstring': '//%s',
 	\ '&completefunc': 'rc#complete',
-	\ '&iskeyword': 'a-z,A-Z,48-57,:,_',
+	\ '&iskeyword': 'a-z,A-Z,48-57,_',
 	\ '&keywordprg': ':vertical Man 3std',
 	\ }
 let ftconf['c'] = 'cpp'
 let ftconf['vim'] = {
-	\ '&iskeyword': 'a-z,A-Z,48-57,_,:,$',
+	\ '&iskeyword': 'a-z,A-Z,48-57,_,#,$',
 	\ '&keywordprg': ':vertical help'
 	\ }
 let ftconf['nofile'] = {
@@ -251,6 +251,7 @@ set scrolloff=15
 
 " Wild menu!
 set wildmenu
+set wildmode=longest:full,full
 
 " searching stuff
 set hlsearch
@@ -274,9 +275,9 @@ set conceallevel=1
 set concealcursor=
 
 " Hidden chars
-set listchars=tab:│\ ,extends:>,precedes:<,nbsp:%,trail:∙
+set listchars=tab:│\ ,extends:>,precedes:<,nbsp:⎵,trail:∙
 set list
-set fillchars=vert:│,fold:─,stl:─,stlnc:─
+let &fillchars = 'vert:│,fold:─,stl:─,stlnc:─,eob: '
 
 " Line numbers
 set number
@@ -286,7 +287,7 @@ set relativenumber
 set nowrap
 set linebreak
 set breakindent
-set showbreak=↳\
+let &showbreak='↳ '
 
 " Fold on triple brace
 set foldmethod=marker
@@ -668,7 +669,7 @@ noremap! <c-bs> <c-w>
 noremap ; :
 noremap , ;
 noremap ' `
-noremap <silent> <expr> 0 &wrap ? 'g0' : (or(match(getline('.'), '\S') >= 0 && match(getline('.'), '\S') < col('.') - 1, col('.') == 1) ? '^' : '0')
+noremap <silent> <expr> 0 &wrap ? 'g0g^' : '0^'
 map <expr> <return> (or(&buftype == 'help', expand("%:p") =~ '^man://')) ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
 NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
@@ -711,6 +712,11 @@ xnoremap > >gv
 NXmap X "_d
 nmap XX "_dd
 nnoremap x "_x
+
+" S misc
+nnoremap s <Nop>
+nnoremap sl xp
+nnoremap sh xhP
 
 " Terminal {{{2
 
