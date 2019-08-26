@@ -140,7 +140,8 @@ let g:ale_linters.c = g:ale_linters.cpp
 " let g:ale_c_parse_compile_commands = 1
 let g:ale_c_parse_makefile = 1
 
-" let g:ale_cpp_clang_options = '-std=c++17 -Wall -Wextra -Wshadow'
+let g:ale_cpp_clang_options = '-std=c++11 -Wall -Wextra -Wshadow'
+let g:ale_cpp_clangcheck_options = '-extra-arg=-std=c++11'
 
 " Mostly for competition stuff, so we don't get unnecessary issues
 " -llvm-include-order: not important
