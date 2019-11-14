@@ -31,10 +31,10 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
 
 " Syntax/Language
-"Plug 'jceb/vim-orgmode'
 Plug 'lvht/tagbar-markdown'
 Plug 'tmhedberg/SimpylFold'
 Plug 'vim-pandoc/vim-pandoc-syntax'
+Plug 'vim-pandoc/vim-rmarkdown'
 
 " Editing
 Plug 'christoomey/vim-sort-motion'
@@ -55,6 +55,7 @@ Plug 'ncm2/ncm2-path'
 Plug 'ncm2/ncm2-jedi'
 Plug 'ncm2/ncm2-pyclang'
 Plug 'ncm2/ncm2-ultisnips'
+Plug 'artur-shaik/vim-javacomplete2' | Plug 'ObserverOfTime/ncm2-jc2'
 
 Plug 'sirver/ultisnips'
 Plug 'w0rp/ale'
