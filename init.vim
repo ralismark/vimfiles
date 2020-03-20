@@ -20,19 +20,15 @@ Plug 'roxma/nvim-yarp'
 Plug 'tpope/vim-repeat'
 
 " UI
-Plug 'chrisbra/Colorizer'
-Plug 'equalsraf/neovim-gui-shim'
 Plug 'junegunn/goyo.vim'
-Plug 'majutsushi/tagbar'
 Plug 'mbbill/undotree'
 
 " Workflow/Misc
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
+Plug 'ralismark/vim-recover'
 
 " Syntax/Language
-Plug 'lvht/tagbar-markdown'
-Plug 'tmhedberg/SimpylFold'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'vim-pandoc/vim-rmarkdown'
 
@@ -43,7 +39,6 @@ Plug 'kana/vim-textobj-user'
 Plug 'ralismark/itab'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'tomtom/tcomment_vim'
-Plug 'tpope/vim-abolish'
 
 " Completion/Snips/Lint
 Plug 'ncm2/ncm2'
@@ -64,7 +59,6 @@ Plug 'w0rp/ale'
 Plug '/usr/share/vim/vimfiles'
 
 Plug g:configdir . '/bundle/etypehead'
-Plug g:configdir . '/bundle/recover'
 Plug g:configdir . '/bundle/syn'
 Plug g:configdir . '/bundle/vimrc'
 
