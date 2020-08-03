@@ -1,0 +1,32 @@
+snippet PD "printf %d" wA
+move $a0, $1
+li $v0, 1
+syscall
+endsnippet
+
+snippet PS "printf %s" wA
+la $a0, $1
+li $v0, 4
+syscall
+endsnippet
+
+snippet NL "print \n" wA
+li $a0, '\n'
+li $v0, 11
+syscall
+endsnippet
+
+snippet PRO "function prologue" wA
+sub $sp, $sp, ${1:8}
+la $fp, 4($fp)
+sw $fp, 0($sp) # save $fp
+sw $ra, -4($fp) # save $ra
+# ==> end prologue <==
+endsnippet
+
+snippet EPI "function epilogue" wA
+# ==> start epilogue <==
+lw $ra, -4($fp) # restore $ra
+lw $fp, 0($fp) # restore $fp
+add $sp, $sp, ${1:8} # restore $sp
+endsnippet
