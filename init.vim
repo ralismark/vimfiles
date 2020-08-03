@@ -1,11 +1,9 @@
-" Utility {{{1
+" vim: set foldmethod=marker:
 
 let g:configdir = fnamemodify($MYVIMRC, ':p:h')
 
 " Plugins {{{1
 
-command! -nargs=+ NXOnoremap nnoremap <args>|xnoremap <args>|onoremap <args>
-command! -nargs=+ NXOmap     nmap <args>|xmap <args>|omap <args>
 command! -nargs=+ NXnoremap  nnoremap <args>|xnoremap <args>
 command! -nargs=+ NXmap      nmap <args>|xmap <args>
 
@@ -18,6 +16,7 @@ call plug#begin(g:configdir . '/plugged')
 " Frameworks
 Plug 'roxma/nvim-yarp'
 Plug 'tpope/vim-repeat'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " UI
 Plug 'junegunn/goyo.vim'
@@ -29,8 +28,13 @@ Plug 'tpope/vim-eunuch'
 Plug 'ralismark/vim-recover'
 
 " Syntax/Language
+Plug 'editorconfig/editorconfig-vim'
 Plug 'vim-pandoc/vim-pandoc-syntax'
 Plug 'vim-pandoc/vim-rmarkdown'
+Plug 'sheerun/vim-polyglot'
+" Plug 'hsanson/vim-android'
+Plug 'mzlogin/vim-smali'
+Plug 'ralismark/nvim-tabletops'
 
 " Editing
 Plug 'christoomey/vim-sort-motion'
@@ -43,14 +47,9 @@ Plug 'tomtom/tcomment_vim'
 " Completion/Snips/Lint
 Plug 'ncm2/ncm2'
 " some completion sources
-Plug 'Shougo/neco-syntax' | Plug 'jsfaint/ncm2-syntax'
 Plug 'ncm2/ncm2-bufword'
-Plug 'ncm2/ncm2-tmux'
 Plug 'ncm2/ncm2-path'
-Plug 'ncm2/ncm2-jedi'
-Plug 'ncm2/ncm2-pyclang'
 Plug 'ncm2/ncm2-ultisnips'
-Plug 'artur-shaik/vim-javacomplete2' | Plug 'ObserverOfTime/ncm2-jc2'
 
 Plug 'sirver/ultisnips'
 Plug 'w0rp/ale'
@@ -58,15 +57,35 @@ Plug 'w0rp/ale'
 " System
 Plug '/usr/share/vim/vimfiles'
 
-Plug g:configdir . '/bundle/etypehead'
+" Plug g:configdir . '/bundle/etypehead'
 Plug g:configdir . '/bundle/syn'
 Plug g:configdir . '/bundle/vimrc'
 
 call plug#end()
 
+" COC {{{2
+
+let g:coc_global_extensions = [ 'coc-clangd', 'coc-rls', 'coc-json' ]
+
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Tab completion
+imap <silent><expr> <tab>
+	\ pumvisible() ? "\<c-n>"
+	\ : (col('.') < 2 || getline('.')[col('.') - 2] =~ '\s') ? "\<Plug>ItabTab"
+	\ : coc#refresh()
+imap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<c-h>"
+
 " Goyo {{{2
 
 let g:goyo_width = 90
+
+" vim-polyglot {{{2
+
+let g:polyglot_disabled = ['latex']
 
 " vim-easy-align {{{2
 
@@ -84,37 +103,19 @@ let g:UltiSnipsSnippetDirectories = [ g:UltiSnipsSnippetsDir, 'UltiSnips' ]
 let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
 let g:UltiSnipsListSnippets = "<Plug>(ultisnips_list)"
 
-let g:UltiSnipsJumpForwardTrigger = "<c-j>"
-let g:UltiSnipsJumpBackwardTrigger = "<c-k>"
+let g:UltiSnipsJumpForwardTrigger = "<c-space>"
+let g:UltiSnipsJumpBackwardTrigger = "<c-s-space>"
 
-inoremap <silent> <Plug>(ultisnips_expand_or_jump) <Cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
-snoremap <silent> <Plug>(ultisnips_expand_or_jump) <Esc><Cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
+inoremap <silent> <Plug>(ultisnips_expand_or_jump) <cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
+snoremap <silent> <Plug>(ultisnips_expand_or_jump) <Esc><cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
 
 let g:UltiSnipsRemoveSelectModeMappings = 1
 let g:UltiSnipsMappingsToIgnore = [ "UltiSnip#" ]
 
-" Nvim Completion Manager {{{2
-
-imap <expr> <tab> pumvisible() ? "\<c-n>" : "\<Plug>ItabTab"
-imap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<s-tab>"
-imap <expr> <cr> pumvisible() ? "\<c-y>\<Plug>ItabCr" : "\<Plug>ItabCr"
-imap <expr> <c-l> ncm2_ultisnips#expand_or("\<Plug>(ultisnips_expand_or_jump)", "m")
-smap <c-l> <Plug>(ultisnips_expand_or_jump)
-
-augroup vimrc_Ncm
-	au!
-
-	" Enable for everything right now
-	autocmd BufEnter * call ncm2#enable_for_buffer()
-
-	au User Ncm2PopupOpen set completeopt=noinsert,menuone,noselect
-	au User Ncm2PopupClose set completeopt=menuone
-augroup END
-
 " ALE {{{2
 
-" Default to off
-let g:ale_enabled = 1
+" Default to on
+let g:ale_enabled = 0
 
 " dont lint while typing
 let g:ale_lint_on_text_changed = "normal"
@@ -130,13 +131,16 @@ let g:ale_linters = {}
 let g:ale_linters.html = [ 'HTMLHint', 'tidy' ]
 let g:ale_linters.cpp = [ 'clang', 'clangcheck' ] " clang, for live feedback, and others, for depth
 let g:ale_linters.c = g:ale_linters.cpp
+let g:ale_linters.python = [ 'pylint' ]
+let g:ale_linters.java = [ 'android' ]
+let g:ale_linters.perl = [ 'perl' ]
 
 " parse compile_commands.json and Makefile
 " let g:ale_c_parse_compile_commands = 1
-let g:ale_c_parse_makefile = 1
+let g:ale_c_parse_makefile = 0
 
-let g:ale_cpp_clang_options = '-std=c++11 -Wall -Wextra -Wshadow'
-let g:ale_cpp_clangcheck_options = '-extra-arg=-std=c++11'
+let g:ale_cpp_clang_options = '-std=c++17 -Wall -Wextra -Wshadow'
+let g:ale_cpp_clangcheck_options = '-extra-arg=-std=c++17'
 
 " Mostly for competition stuff, so we don't get unnecessary issues
 " -llvm-include-order: not important
@@ -156,14 +160,14 @@ let g:ale_linter_aliases = {
 \	'pandoc': 'markdown',
 \ }
 
+let g:ale_python_pylint_options = '-d missing-docstring,wrong-import-position'
+
 let g:ale_sign_error = '><'
 let g:ale_sign_warning = '◀▶'
 
-" Tagbar {{{2
+" Dispatch {{{2
 
-let g:tagbar_sort = 0
-
-" }}}
+let g:dispatch_no_maps = 1
 
 endif
 
@@ -173,9 +177,11 @@ endif
 
 " Use Ag if possible
 if executable('ag')
-	set grepprg=ag\ --nogroup\ --nocolor\ --column
+	let &grepprg = "ag --nogroup --nocolor --column '$*'"
 	set grepformat=%f:%l:%c%m
 endif
+
+set diffopt+=algorithm:patience,indent-heuristic
 
 " Filetype local config {{{2
 
@@ -200,7 +206,7 @@ let ftconf['rmd'] = {
 	\ }
 let ftconf['haskell'] = {
 	\ '&et': 1,
-	\ '&ts': 8,
+	\ '&ts': 4,
 	\ }
 let ftconf['python'] = {
 	\ '&omnifunc': 'python3complete#Complete',
@@ -229,6 +235,11 @@ let ftconf['plaintex'] = {
 	\ }
 let ftconf['tex'] = {
 	\ '&makeprg': 'tectonic %',
+	\ '&iskeyword': '@,48-57,_,*',
+	\ 'b:tex_isk': '@,48-57,_,*',
+	\ }
+let ftconf['dot'] = {
+	\ '&makeprg': 'dot -Tpdf % -o/tmp/preview.pdf'
 	\ }
 
 " User Interface {{{2
@@ -238,11 +249,8 @@ set laststatus=2
 set showmode
 set showtabline=2
 
-" Man pages
-set keywordprg=:Man
-
 " Line buffer at top/bottom when scrolling
-set scrolloff=15
+set scrolloff=5
 
 " Wild menu!
 set wildmenu
@@ -270,13 +278,11 @@ set conceallevel=1
 set concealcursor=
 
 " Hidden chars
-set listchars=tab:│\ ,extends:>,precedes:<,nbsp:⎵,trail:∙
-set list
-let &fillchars = 'vert:│,fold:─,stl:─,stlnc:─,eob: '
+set list listchars=tab:│\ ,extends:›,precedes:‹,nbsp:⎵,trail:∙
+set fillchars=eob:\ ,vert:│,fold:─,stl:─,stlnc:─
 
 " Line numbers
 set number
-set relativenumber
 
 " Line wrapping, toggle bound to <space>ow
 set nowrap
@@ -285,10 +291,14 @@ set breakindent
 let &showbreak='↳ '
 
 " Fold on triple brace
-set foldmethod=marker
+set foldmethod=indent
 
 " Minimal folding initially
 set foldlevelstart=99
+
+" Don't open folds
+set foldopen&
+set foldclose&
 
 " Make with tee
 set shellpipe=2>&1\ \|\ tee
@@ -398,49 +408,6 @@ endfunction
 
 endif
 
-function! AutosaveSet(mode) " {{{2
-	if a:mode ==? 'toggle'
-		let to_set = !exists('#autosave#CursorHold#<buffer>')
-	elseif a:mode ==? 'enable'
-		let to_set = 1
-	elseif a:mode ==? 'disable'
-		let to_set = 0
-	else
-		echoe "(AutoSave) Unknown operation " . a:mode
-	endif
-
-	if to_set
-		" Need to enable
-		augroup autosave
-			au autosave CursorHold <buffer> nested
-				\ silent doautocmd <nomodeline> User AutosavePre
-				\ | update
-				\ | silent doautocmd <nomodeline> User AutosavePost
-				\ | echo "(AutoSave) Saved at " . strftime('%H:%M:%S')
-		augroup END
-		echo "(AutoSave) ON"
-	else
-		" Need to disable
-		augroup autosave
-			au!
-		augroup END
-		echo "(AutoSave) OFF"
-	endif
-endfunction
-
-function! Hilite() " {{{2
-	let search_save=@/
-	let hls_save = &hls
-	let @/=''
-	set hls
-
-	let Hi = { in -> setreg('/', in) + execute('redraw') ? [] : [] }
-	if input({ 'prompt': '?', 'highlight': Hi }) == ''
-		let &hls=hls_save
-		let @/=search_save
-	endif
-endfunction
-
 function! PandocFold() " {{{2
 	let depth = match(getline(v:lnum), '\(^#\+\)\@<=\( .*$\)\@=')
 	return depth > 0 ? '>' . depth : '='
@@ -457,25 +424,30 @@ function! GetExecCurrent() " {{{2
 			break
 		endif
 
-		if exists('b:exec_com')
-			if type(b:exec_com) == v:t_dict
-				if has_key(b:exec_com, ft)
-					let Com = b:exec_com[ft]
+		if exists('b:execprg')
+			if type(b:execprg) == v:t_dict
+				if has_key(b:execprg, ft)
+					let Com = b:execprg[ft]
 				endif
 			else
-				let Com = b:exec_com
+				let Com = b:execprg
 			endif
 		endif
-		if exists('g:exec_com') && !exists('l:Com')
-			if type(g:exec_com) == v:t_dict
-				if has_key(g:exec_com, ft)
-					let Com = g:exec_com[ft]
+		if exists('g:execprg') && !exists('l:Com')
+			if type(g:execprg) == v:t_dict
+				if has_key(g:execprg, ft)
+					let Com = g:execprg[ft]
 				endif
 			else
-				let Com = g:exec_com
+				let Com = g:execprg
 			endif
 		endif
 	endfor
+
+	if type(Com) == v:t_string || type(Com) == v:t_list
+		let args = Com
+		let Com = { -> jobstart(args) }
+	endif
 
 	if !exists('l:Com')
 		echoe 'ExecCurrent: no viable com found for filetype "' . &ft . '"'
@@ -483,60 +455,6 @@ function! GetExecCurrent() " {{{2
 	endif
 
 	return Com
-endfunction
-
-function! ReTemplate(reg) " {{{2
-	let default = &cb =~ 'unnamed' ? '*' : &cb =~ 'unnamedplus' ? '+' : '"'
-	let reg = len(a:reg) == 0 ? default : a:reg
-
-	let rep = input('Replacement (empty to stop)? ')
-	while rep != ''
-		exe 'put' reg
-		exe '''[,'']s/@/\=rep/g'
-		exe "norm! \<esc>`]"
-
-		redraw
-
-		let rep = input('Replacement (empty to stop)? ')
-	endwhile
-endfunction
-
-function! ReloadAll() " {{{2
-	" fix width and height
-	set columns=999 lines=999
-
-	" reload syntax file
-	let &ft=&ft
-
-	" fix syntax
-	syntax sync fromstart
-
-	" redraw
-	redraw!
-endfunction
-
-function! BufCleanup(forced) " {{{2
-	"From tabpagebuflist() help, get a list of all buffers in all tabs
-	let tablist = []
-	for i in range(tabpagenr('$'))
-		call extend(tablist, tabpagebuflist(i + 1))
-	endfor
-
-	"Below originally inspired by Hara Krishna Dara and Keith Roberts
-	"http://tech.groups.yahoo.com/group/vim/message/56425
-	let nWipeouts = 0
-	for i in range(1, bufnr('$'))
-		if bufexists(i) && !getbufvar(i,"&mod") && index(tablist, i) == -1
-			"bufno exists AND isn't modified AND isn't in the list of buffers open in windows and tabs
-			if a:forced
-				silent exec 'bwipeout!' i
-			else
-				silent exec 'bwipeout' i
-			endif
-			let nWipeouts = nWipeouts + 1
-		endif
-	endfor
-	echomsg nWipeouts . ' buffer(s) wiped out'
 endfunction
 
 function! FtLayer(ft, ...) " {{{2
@@ -588,7 +506,6 @@ augroup vimrc
 
 	" for proper nesting
 	au TermOpen * let $NVIM_LISTEN_ADDRESS=v:servername
-
 	au TermOpen * setl nonumber norelativenumber
 
 	" Apply ftlayer options
@@ -597,10 +514,11 @@ augroup vimrc
 	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
 	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
 	au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
+	au BufNewFile,BufFilePre,BufRead *.s set filetype=mips
 
 	au Filetype *.*
 		\ for t in split(&ft, '\.')
-			\ | silent exe 'doautocmd vimrc FileType' t
+		\ | 	silent exe 'doautocmd vimrc FileType' t
 		\ | endfor
 
 	au Filetype pandoc,rmd
@@ -617,17 +535,19 @@ augroup vimrc
 	au BufLeave,FocusLost,WinLeave * set cursorline<
 
 	" Non-breaking autochdir
-	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
+	au BufWinEnter * if empty(&buftype) | silent lcd %:p:h | endif
 
-	au FocusLost,VimLeavePre * if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite' | silent! update | endif
+	au FocusLost,VimLeavePre *
+		\ if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite'
+		\ | 	silent update
+		\ | endif
 	au VimResized * wincmd =
 
 	" Skeleton files
 	au BufNewFile *
-		\ for [fname, regpat] in map(glob(g:configdir . '/skeletons/{.,}*', 0, 1),
-		\ 	{ k,v -> [v, glob2regpat('*' . fnamemodify(v, ':t'))] })
-		\ | 	if expand('<afile>') =~# regpat
-		\ | 		silent exec '0read' fname | silent $
+		\ for fname in glob(g:configdir . '/skeletons/{.,}*', v:false, v:true)
+		\ | 	if expand('<afile>') =~# glob2regpat('*' . fnamemodify(fname, ':t'))
+		\ | 		silent exec '0read' fname | silent $d | silent $
 		\ | 		break
 		\ | 	endif
 		\ | endfor
@@ -638,13 +558,10 @@ augroup END
 
 " Commands {{{2
 
-command! -nargs=0 W w !pkexec tee %:p >/dev/null
-command! -nargs=? -register ReTemplate call ReTemplate(<q-reg>)
-command! -nargs=1 -complete=var ISet call ModVar(<q-args>)
-command! -nargs=0 -bang KillBuffers call BufCleanup(<bang>0)
+command! -bar -nargs=0 W w !pkexec tee %:p >/dev/null | setl nomod
 " This, for some reason, doesn't work if you put it in a function
 command! -nargs=+ Keepview let s:view_save = winsaveview() | exec <q-args> | call winrestview(s:view_save)
-command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/\s\+$//e | nohl
+command! -nargs=+ -complete=file Fork call jobstart(<q-args>)
 
 " Misc {{{2
 
@@ -664,18 +581,21 @@ noremap! <c-bs> <c-w>
 noremap ; :
 noremap , ;
 noremap ' `
-noremap <silent> <expr> 0 &wrap ? 'g0g^' : '0^'
+noremap <silent> <expr> 0 &wrap ? 'g0' : '0'
 map <expr> <return> (or(&buftype == 'help', expand("%:p") =~ '^man://')) ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
+command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/\v(\s|\x0d)+$//e | nohl
 NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
 nnoremap Y y$
+nnoremap g= 1z=
+xnoremap p pgvy
+
+" Fast replace shortcuts
+nnoremap s :%s/\v
+xnoremap s :s/\v
 
 " find/replace tools
 nnoremap # <cmd>let @/ = '\V\C\<' . escape(expand('<cword>'), '\') . '\>' <bar> set hls<cr>
-NXnoremap ? <cmd>call Hilite()<cr>
-
-" overview
-nnoremap <silent> gO :Tagbar<cr>
 
 " Fixed I/A for visual
 xnoremap <expr> I mode() ==# 'v' ? "\<c-v>I" : mode() ==# 'V' ? "\<c-v>^o^I" : "I"
@@ -687,12 +607,8 @@ nnoremap <tab> za
 " Since ^I == <tab>, we replace ^I with ^P
 noremap <c-p> <c-i>
 
-" Registers, much easier to reach
-NXnoremap <bs> "_
-NXnoremap + "+
-
 " Clear highlight
-nnoremap <silent> <esc> <Cmd>nohl<cr>
+nnoremap <silent> <esc> <cmd>nohl<cr>
 
 " Logical lines
 noremap <expr> j (v:count == 0 ? 'gj' : 'j')
@@ -708,18 +624,10 @@ NXmap X "_d
 nmap XX "_dd
 nnoremap x "_x
 
-" S misc
-nnoremap s <Nop>
-nnoremap sl xp
-nnoremap sh xhP
-
 " Terminal {{{2
 
 " escape as normal
 tnoremap <esc> <c-\><c-n>
-
-" c-r as normal
-tnoremap <expr> <c-r> '<c-\><c-n>"'.nr2char(getchar()).'pi'
 
 " Buffer/window/tab {{{2
 
@@ -735,10 +643,6 @@ nnoremap <silent> ]c :cnext<cr>
 nnoremap <silent> [l :lprev<cr>
 nnoremap <silent> ]l :lnext<cr>
 
-" ALE
-nnoremap <silent> [a :ALEPreviousWrap<cr>
-nnoremap <silent> ]a :ALENextWrap<cr>
-
 " Buffer ctl
 nnoremap <c-h> <c-w>h
 nnoremap <c-j> <c-w>j
@@ -752,38 +656,31 @@ let mapleader = "\<Space>"
 " more leaders
 nnoremap <leader> <nop>
 nnoremap <leader>x :call ExecCurrent()<cr>
-nnoremap <leader>M :Dispatch<cr>
-nnoremap <leader>m :Dispatch!<cr>
+nnoremap <leader>m :Dispatch<cr>
 
 " misc
-nnoremap <silent> <leader>rr :call ReloadAll()<cr>
-nnoremap <silent> <leader>rs :syntax sync fromstart<cr>
+nnoremap <silent> <leader>r <cmd>mode <bar> syntax sync fromstart<cr>
 
-nnoremap <silent> <leader>P :belowright vertical new<cr><c-w>W80<c-w><bar>:set wfw<cr>
+nnoremap <silent> <leader>P <cmd>belowright vertical new<cr><c-w>W80<c-w><bar><cmd>set wfw<cr>
 nnoremap <expr><silent> <leader>p (v:count == 0 ? '80' : '') . "<c-w><bar>"
 
 " toggles
 nnoremap <leader>o <nop>
-nnoremap <silent> <leader>ow <Cmd>set wrap! <bar> set wrap?<cr>
-nnoremap <silent> <leader>ou <Cmd>UndotreeToggle<cr><c-w>999h
-nnoremap <silent> <leader>os <Cmd>set spell! <bar> set spell?<cr>
-nnoremap <silent> <leader>op <Cmd>set paste! <bar> set paste?<cr>
-nnoremap <silent> <leader>og <Cmd>Goyo<cr>ze
-nnoremap <expr><silent> <leader>on '<Cmd>set ' . (or(&number, &relativenumber) ? 'nonumber norelativenumber' : 'number relativenumber') . '<cr>'
-nnoremap <expr> <silent> <leader>od (&diff ? '<Cmd>diffoff' : '<Cmd>diffthis') . ' <bar> set diff?<cr>'
-nnoremap <silent> <leader>oa <Cmd>call AutosaveSet('toggle')<cr>
+nnoremap <silent> <leader>ow <cmd>set wrap! <bar> set wrap?<cr>
+nnoremap <silent> <leader>ou <cmd>UndotreeToggle<cr><c-w>999h
+nnoremap <silent> <leader>os <cmd>set spell! <bar> set spell?<cr>
+nnoremap <silent> <leader>og <cmd>Goyo<cr>ze
+nnoremap <expr> <silent> <leader>od (&diff ? '<cmd>diffoff' : '<cmd>diffthis') . ' <bar> set diff?<cr>'
 
 " file ctl
-nnoremap <leader>w :up<cr>
-nnoremap <leader>q :q<cr>
+nnoremap <leader>w <cmd>up<cr>
+nnoremap <leader>q <cmd>q<cr>
 
-nnoremap <leader>ev :e $MYVIMRC<cr>
+nnoremap <leader>ev <cmd>e $MYVIMRC<cr>
 
 " cleanup
 nnoremap <silent> <leader>k <nop>
 nnoremap <silent> <leader>kw :KillWhitespace<cr>
-nnoremap <silent> <leader>kb :call BufCleanup(0)<cr>
-nnoremap <silent> <leader>kB :call BufCleanup(1)<cr>
 
 " Splits
 nnoremap <leader>s <nop>
@@ -797,15 +694,16 @@ nnoremap <leader>t :tab new<cr>
 
 " Other Features {{{1
 
-let g:exec_com = {
+let g:execprg = {
 	\ 'vim': { -> execute('source %') },
-	\ 'html': { -> jobstart(['xdg-open', expand('%:p')]) },
-	\ 'rmd': { -> jobstart(['xdg-open', '/tmp/preview.pdf']) },
-	\ 'pandoc': { -> jobstart(['xdg-open', '/tmp/preview.pdf']) },
+	\ 'html': { -> jobstart(['firefox', '--new-window', 'file://' . expand('%:p')]) },
+	\ 'rmd': 'xdg-open /tmp/preview.pdf',
+	\ 'pandoc': 'xdg-open /tmp/preview.pdf',
+	\ 'tex': { -> jobstart(['xdg-open', expand("%:r") . ".pdf"]) },
+	\ 'dot': 'xdg-open /tmp/preview.pdf',
 	\ }
 
 call sl#enable()
-
 
 " Stop plugins from pollution leader
 let mapleader = "\\"
