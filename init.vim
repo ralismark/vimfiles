@@ -71,12 +71,14 @@ nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
 
+command! -nargs=* CocHover call CocAction('doHover')
+
 " Tab completion
 imap <silent><expr> <tab>
 	\ pumvisible() ? "\<c-n>"
-	\ : (col('.') < 2 || getline('.')[col('.') - 2] =~ '\s') ? "\<Plug>ItabTab"
+	\ : (col('.') < 2 <bar><bar> getline('.')[col('.') - 2] =~ '\s') ? "\<Plug>ItabTab"
 	\ : coc#refresh()
-imap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\<c-h>"
+inoremap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\t"
 
 " Goyo {{{2
 
@@ -176,7 +178,7 @@ endif
 
 " Use Ag if possible
 if executable('ag')
-	let &grepprg = "ag --nogroup --nocolor --column '$*'"
+	let &grepprg = "ag --nogroup --nocolor --column $*"
 	set grepformat=%f:%l:%c%m
 endif
 
@@ -239,6 +241,15 @@ let ftconf['tex'] = {
 	\ }
 let ftconf['dot'] = {
 	\ '&makeprg': 'dot -Tpdf % -o/tmp/preview.pdf'
+	\ }
+let ftconf['html'] = {
+	\ '&et': 1,
+	\ '&ts': 2,
+	\ }
+let ftconf['htmldjango'] = 'html'
+let ftconf['javascript'] = {
+	\ '&et': 1,
+	\ '&ts': 2,
 	\ }
 
 " User Interface {{{2
@@ -599,7 +610,7 @@ noremap , ;
 noremap ' `
 noremap <silent> <expr> 0 &wrap ? 'g0' : '0'
 map <expr> <return> (or(&buftype == 'help', expand("%:p") =~ '^man://')) ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
-command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/\v(\s|\x0d)+$//e | nohl
+command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/[\x0d[:space:]]\+$//e | nohl
 NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
 nnoremap Y y$
