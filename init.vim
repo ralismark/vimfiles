@@ -51,7 +51,6 @@ Plug 'ncm2/ncm2-path'
 Plug 'ncm2/ncm2-ultisnips'
 
 Plug 'sirver/ultisnips'
-Plug 'w0rp/ale'
 
 " System
 Plug '/usr/share/vim/vimfiles'
@@ -113,59 +112,6 @@ snoremap <silent> <Plug>(ultisnips_expand_or_jump) <Esc><cmd>call UltiSnips#Expa
 let g:UltiSnipsRemoveSelectModeMappings = 1
 let g:UltiSnipsMappingsToIgnore = [ "UltiSnip#" ]
 
-" ALE {{{2
-
-" Default to on
-let g:ale_enabled = 0
-
-" dont lint while typing
-let g:ale_lint_on_text_changed = "normal"
-
-" lint on insert exit
-let g:ale_lint_on_insert_leave = 1
-
-" Show linter
-let g:ale_echo_msg_format = "[%linter%] %(code): %%s [%severity%]"
-
-" Linters to use.
-let g:ale_linters = {}
-let g:ale_linters.html = [ 'HTMLHint', 'tidy' ]
-let g:ale_linters.cpp = [ 'clang', 'clangcheck' ] " clang, for live feedback, and others, for depth
-let g:ale_linters.c = g:ale_linters.cpp
-let g:ale_linters.python = [ 'pylint' ]
-let g:ale_linters.java = [ 'android' ]
-let g:ale_linters.perl = [ 'perl' ]
-
-" parse compile_commands.json and Makefile
-" let g:ale_c_parse_compile_commands = 1
-let g:ale_c_parse_makefile = 0
-
-let g:ale_cpp_clang_options = '-std=c++17 -Wall -Wextra -Wshadow'
-let g:ale_cpp_clangcheck_options = '-extra-arg=-std=c++17'
-
-" Mostly for competition stuff, so we don't get unnecessary issues
-" -llvm-include-order: not important
-" -google-build-using-namespace: mostly use of use namespace std, which is faster
-" -cppcoreguidelines-owning-memory: no gtl::owner<>
-" -cppcoreguidelines-pro-type-vararg and -hicpp-vararg: for cstdio
-" -fuchsia-*: they're all weird
-let g:ale_cpp_clangtidy_checks = [ '*',
-\ '-llvm-include-order',
-\ '-google-build-using-namespace',
-\ '-cppcoreguidelines-owning-memory',
-\ '-cppcoreguidelines-pro-type-vararg', '-hicpp-vararg',
-\ '-fuchsia-*'
-\ ]
-
-let g:ale_linter_aliases = {
-\	'pandoc': 'markdown',
-\ }
-
-let g:ale_python_pylint_options = '-d missing-docstring,wrong-import-position'
-
-let g:ale_sign_error = '><'
-let g:ale_sign_warning = '◀▶'
-
 " Dispatch {{{2
 
 let g:dispatch_no_maps = 1
@@ -197,7 +143,6 @@ let ftconf['pandoc'] = {
 	\ '&makeprg': 'pandoc "%" -o /tmp/preview.pdf $*',
 	\ '&foldmethod': 'expr',
 	\ '&foldexpr': 'PandocFold()',
-	\ 'b:ale_enabled': 0,
 	\ }
 let ftconf['rst'] = 'pandoc'
 let ftconf['markdown'] = 'pandoc'
