@@ -37,7 +37,6 @@ Plug 'mzlogin/vim-smali'
 Plug 'ralismark/nvim-tabletops'
 
 " Editing
-Plug 'christoomey/vim-sort-motion'
 Plug 'junegunn/vim-easy-align'
 Plug 'kana/vim-textobj-user'
 Plug 'ralismark/itab'
@@ -413,6 +412,23 @@ function! PandocFold() " {{{2
 	return depth > 0 ? '>' . depth : '='
 endfunction
 
+function! SortMotion(motion) " {{{2
+	if a:motion ==# "line"
+		exec "'[,']sort"
+	elseif a:motion ==# "\<c-v>"
+		let scol = virtcol("v")
+		let ecol = virtcol(".")
+		let regex = '/\%' . scol . 'v.*\%<' . (ecol + 1) . 'v/'
+		let sel = sort([ line("v"), line(".") ])
+		exec sel[0] . "," . sel[1] . "sort" regex
+		exec "normal \<esc>"
+	elseif a:motion ==# "V"
+		let sel = sort([ line("v"), line(".") ])
+		exec sel[0] . "," . sel[1] . "sort"
+		exec "normal \<esc>"
+	endif
+endfunction
+
 function! GetSynClass() " {{{2
 	return map(synstack(line('.'), col('.')), {k,v -> synIDattr(v, "name")})
 endfunction
@@ -589,6 +605,10 @@ noremap <s-return> @w
 nnoremap Y y$
 nnoremap g= 1z=
 xnoremap p pgvy
+
+" sort motion
+nnoremap gs <cmd>set operatorfunc=SortMotion<cr>g@
+xnoremap gs <cmd>call SortMotion(mode())<cr>
 
 " Fast replace shortcuts
 nnoremap s :%s/\v
