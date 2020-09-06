@@ -56,7 +56,6 @@ Plug 'sirver/ultisnips'
 Plug '/usr/share/vim/vimfiles'
 
 " Plug g:configdir . '/bundle/etypehead'
-Plug g:configdir . '/bundle/syn'
 Plug g:configdir . '/bundle/vimrc'
 
 call plug#end()
