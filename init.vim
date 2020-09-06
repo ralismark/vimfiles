@@ -129,73 +129,6 @@ endif
 
 set diffopt+=algorithm:patience,indent-heuristic
 
-" Filetype local config {{{2
-
-let ftconf = {}
-let ftconf['pandoc'] = {
-	\ '&et': 0,
-	\ '&formatoptions': 'roqnlj',
-	\ '&comments': 'b:-',
-	\ '&spell': 1,
-	\ '&ts': 4,
-	\ '&wrap': 1,
-	\ '&makeprg': 'pandoc "%" -o /tmp/preview.pdf $*',
-	\ '&foldmethod': 'expr',
-	\ '&foldexpr': 'PandocFold()',
-	\ }
-let ftconf['rst'] = 'pandoc'
-let ftconf['markdown'] = 'pandoc'
-let ftconf['rmd'] = {
-	\ '': 'pandoc',
-	\ '&makeprg': 'Rscript -e "rmarkdown::render(''%'', output_file=''/tmp/preview.pdf'', output_format=''pdf_document'')"',
-	\ }
-let ftconf['haskell'] = {
-	\ '&et': 1,
-	\ '&ts': 4,
-	\ }
-let ftconf['python'] = {
-	\ '&omnifunc': 'python3complete#Complete',
-	\ }
-let ftconf['json'] = {
-	\ '&conceallevel': 0,
-	\ }
-" C++ omni breaks things
-let ftconf['cpp'] = {
-	\ '&omnifunc': '',
-	\ '&commentstring': '//%s',
-	\ '&completefunc': 'rc#complete',
-	\ '&iskeyword': 'a-z,A-Z,48-57,_',
-	\ '&keywordprg': ':vertical Man 3std',
-	\ }
-let ftconf['c'] = 'cpp'
-let ftconf['vim'] = {
-	\ '&iskeyword': 'a-z,A-Z,48-57,_,#,$',
-	\ '&keywordprg': ':vertical help'
-	\ }
-let ftconf['nofile'] = {
-	\ '&buftype': 'nofile',
-	\ }
-let ftconf['plaintex'] = {
-	\ '&makeprg': 'tex %',
-	\ }
-let ftconf['tex'] = {
-	\ '&makeprg': 'tectonic %',
-	\ '&iskeyword': '@,48-57,_,*',
-	\ 'b:tex_isk': '@,48-57,_,*',
-	\ }
-let ftconf['dot'] = {
-	\ '&makeprg': 'dot -Tpdf % -o/tmp/preview.pdf'
-	\ }
-let ftconf['html'] = {
-	\ '&et': 1,
-	\ '&ts': 2,
-	\ }
-let ftconf['htmldjango'] = 'html'
-let ftconf['javascript'] = {
-	\ '&et': 1,
-	\ '&ts': 2,
-	\ }
-
 " User Interface {{{2
 
 " Status line
@@ -362,11 +295,6 @@ endfunction
 
 endif
 
-function! PandocFold() " {{{2
-	let depth = match(getline(v:lnum), '\(^#\+\)\@<=\( .*$\)\@=')
-	return depth > 0 ? '>' . depth : '='
-endfunction
-
 function! SortMotion(motion) " {{{2
 	if a:motion ==# "line"
 		exec "'[,']sort"
@@ -428,48 +356,6 @@ function! GetExecCurrent() " {{{2
 	return Com
 endfunction
 
-function! FtLayer(ft, ...) " {{{2
-	" Revised FTConf for layers
-	if a:0 > 0
-		if index(a:1, a:ft) >= 0
-			throw "Cyclic dependency with " . a:ft
-		endif
-		let chain = a:1 + [ a:ft ]
-	else
-		let chain = [ a:ft ]
-	endif
-
-	let val = get(g:ftconf, a:ft)
-
-	if type(val) == v:t_string
-		return FtLayer(val, chain)
-	endif
-
-	if type(val) == v:t_dict
-		" Inherit values
-		if has_key(val, '')
-			let inherit = val['']
-			if type(inherit) == v:t_string
-				call FtLayer(inherit)
-			elseif type(inherit) == v:t_list
-				map(inherit, { k,v -> FtLayer(v) })
-			endif
-		endif
-
-		for key in keys(val)
-			if key == ''
-				continue
-			endif
-
-			if key[0] == '&'
-				exec 'let &l:' . key[1:] . ' = val[key]'
-			else
-				exec 'let ' . key . ' = val[key]'
-			endif
-		endfor
-	endif
-endfunction
-
 " Autocommands {{{1
 
 augroup vimrc
@@ -478,25 +364,6 @@ augroup vimrc
 	" for proper nesting
 	au TermOpen * let $NVIM_LISTEN_ADDRESS=v:servername
 	au TermOpen * setl nonumber norelativenumber
-
-	" Apply ftlayer options
-	au Filetype * call FtLayer(expand('<amatch>'))
-
-	au BufNewFile,BufFilePre,BufRead *.tpp set filetype=cpp
-	" au BufNewFile,BufFilePre,BufRead *.h set filetype=c
-	au BufNewFile,BufFilePre,BufRead *.md set filetype=markdown.pandoc
-	au BufNewFile,BufFilePre,BufRead *.s set filetype=mips
-
-	au Filetype *.*
-		\ for t in split(&ft, '\.')
-		\ | 	silent exe 'doautocmd vimrc FileType' t
-		\ | endfor
-
-	au Filetype pandoc,rmd
-		\ noremap <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
-		\ | noremap <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
-
-	au Filetype c,cpp runtime! syntax/doxygen.vim
 
 	" Cursorline if not active
 	setg cursorline
