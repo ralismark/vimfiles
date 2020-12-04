@@ -9,7 +9,7 @@ using namespace std;
 
 
 
-int main()
+signed main()
 {
 #ifndef L
 	freopen("___in.txt", "r", stdin);

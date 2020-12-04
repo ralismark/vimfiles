@@ -20,5 +20,11 @@ setlocal foldmethod=expr foldexpr=s:PandocFold()
 noremap <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
 noremap <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
 
-let b:undo_ftplugin .= '|setl et< ts< comments< formatoptions< spell< wrap< makeprg< foldmethod< foldexpr<'
-let b:undo_ftplugin .= '|unmap [[|unmap ]]'
+let s:undo  = 'setl et< ts< comments< formatoptions< spell< wrap< makeprg< foldmethod< foldexpr<'
+let s:undo .= '|unmap [[|unmap ]]'
+
+if !exists('b:undo_ftplugin')
+	let b:undo_ftplugin = s:undo
+else
+	let b:undo_ftplugin .= '|' . s:undo
+endif
