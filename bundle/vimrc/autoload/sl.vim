@@ -31,7 +31,6 @@ function! sl#generate(w)
 		\	2: '%2*',
 		\	3: '%3*',
 		\	4: '%4*',
-		\	'ale': '%#SLError#',
 		\}
 	else
 		let co = {
@@ -39,7 +38,6 @@ function! sl#generate(w)
 		\	2: '%7*',
 		\	3: '%8*',
 		\	4: '%9*',
-		\	'ale': '%#SLErrorI#',
 		\}
 	endif
 
@@ -59,7 +57,7 @@ function! sl#generate(w)
 	let stl .= co[3] . '%{ sl#make([ ' . (focus ? '&bt, ' : '') . 'll#rostate(), ll#wordcount() ], "  ") }'
 	let stl .= co[4] . ' %<%{ repeat("' . (focus ? '━' : '─') . '", winwidth(0)) }>' " split
 	let stl .= co[3] . '%{ sl#make([ ll#eol(), ' . (focus ? 'll#filetype()' : 'll#nonfile() ? "" : &ft') . ' ], "  ") } '
-	let stl .= co[2] . '' . co[1] . ' ' . co['ale'] . '%{ ll#ale() }' . co[1] . '%{ !empty(ll#ale()) ? "   " : "" }%{ ll#location() } ' . co[2] . ' '
+	let stl .= co[2] . '' . co[1] . ' %{ ll#location() } ' . co[2] . ' '
 
 	return stl
 endfunction
@@ -83,9 +81,6 @@ function! sl#enable()
 	" Middle
 	hi User4    ctermfg=blue
 	hi User9    ctermfg=darkgrey
-	" ALE Error
-	hi SLError  ctermfg=160   ctermbg=white    cterm=bold,underline
-	hi SLErrorI ctermfg=124   ctermbg=darkgrey cterm=bold,underline
 
 	augroup SL
 		au!

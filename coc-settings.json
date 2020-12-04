@@ -1,3 +1,11 @@
 {
-	"rust-client.disableRustup": true
+	"rust-client.disableRustup": true,
+
+	"diagnostic-languageserver.filetypes": {
+		"sh": "shellcheck",
+		"python": "pylint"
+	},
+
+	"diagnostic-languageserver.formatFiletypes": {
+	}
 }

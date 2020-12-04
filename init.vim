@@ -14,11 +14,14 @@ if &loadplugins
 call plug#begin(g:configdir . '/plugged')
 
 " Frameworks
-Plug 'roxma/nvim-yarp'
 Plug 'tpope/vim-repeat'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neovim/nvim-lspconfig'
+" Plug 'nvim-lua/diagnostics-nvim'
+Plug 'nvim-lua/completion-nvim'
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " UI
+Plug 'ayu-theme/ayu-vim'
 Plug 'junegunn/goyo.vim'
 Plug 'mbbill/undotree'
 
@@ -26,6 +29,7 @@ Plug 'mbbill/undotree'
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
 Plug 'ralismark/vim-recover'
+Plug 'chrisbra/Colorizer'
 
 " Syntax/Language
 Plug 'editorconfig/editorconfig-vim'
@@ -44,11 +48,11 @@ Plug 'sgur/vim-textobj-parameter'
 Plug 'tomtom/tcomment_vim'
 
 " Completion/Snips/Lint
-Plug 'ncm2/ncm2'
+" Plug 'ncm2/ncm2'
 " some completion sources
-Plug 'ncm2/ncm2-bufword'
-Plug 'ncm2/ncm2-path'
-Plug 'ncm2/ncm2-ultisnips'
+" Plug 'ncm2/ncm2-bufword'
+" Plug 'ncm2/ncm2-path'
+" Plug 'ncm2/ncm2-ultisnips'
 
 Plug 'sirver/ultisnips'
 
@@ -60,23 +64,77 @@ Plug g:configdir . '/bundle/vimrc'
 
 call plug#end()
 
-" COC {{{2
+" Neovim Native LSP {{{2
 
-let g:coc_global_extensions = [ 'coc-clangd', 'coc-rls', 'coc-json' ]
+lua << EOF
+local nvim_lsp = require 'nvim_lsp'
 
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+nvim_lsp.efm.setup {
+	cmd = { "efm-langserver", "-c", "/home/timmy/.config/nvim/efm.yaml" },
+}
+nvim_lsp.pyls.setup {
+	settings = {
+		pyls = {
+			plugins = {
+				pylint = { enabled = true },
+				yapf = { enabled = false },
+			},
+		},
+	},
+}
+nvim_lsp.rls.setup {
+	settings = { },
+}
+nvim_lsp.clangd.setup {}
+EOF
 
-command! -nargs=* CocHover call CocAction('doHover')
+command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients())
 
-" Tab completion
+nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
+nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
+nnoremap <silent> K  <cmd>lua vim.lsp.buf.hover()<cr>
+
+sign define LspDiagnosticsErrorSign       text=✕  texthl=LspDiagnosticsErrorSign       linehl= numhl=
+sign define LspDiagnosticsWarningSign     text=⚠️  texthl=LspDiagnosticsWarningSign     linehl= numhl=
+sign define LspDiagnosticsInformationSign text=🞶  texthl=LspDiagnosticsInformationSign linehl= numhl=
+sign define LspDiagnosticsHintSign        text=💡 texthl=LspDiagnosticsHintSign        linehl= numhl=
+
+augroup vimrc_lsp
+	au!
+	au ColorScheme *
+		\ hi LspDiagnosticsVirtualText cterm=italic ctermfg=yellow guifg=yellow
+		\ | hi LspDiagnosticsErrorSign ctermfg=white ctermbg=red guifg=white guibg=red
+		\ | hi LspDiagnosticsWarningSign ctermfg=black ctermbg=yellow guifg=black guibg=yellow
+		\ | hi LspDiagnosticsInformationSign ctermfg=yellow guifg=yellow
+		\ | hi link LspDiagnosticsError LspDiagnosticsVirtualText
+		\ | hi link LspDiagnosticsWarning LspDiagnosticsVirtualText
+		\ | hi link LspDiagnosticsInformation LspDiagnosticsVirtualText
+		\ | hi link LspDiagnosticsHint LspDiagnosticsVirtualText
+
+	au CursorHold * silent lua vim.lsp.util.show_line_diagnostics()
+
+	" au BufWritePre * silent! lua vim.lsp.buf.formatting_sync(nil, 1000)
+
+	au BufEnter * lua require'completion'.on_attach()
+
+augroup END
+
+" " Tab completion
 imap <silent><expr> <tab>
 	\ pumvisible() ? "\<c-n>"
 	\ : (col('.') < 2 <bar><bar> getline('.')[col('.') - 2] =~ '\s') ? "\<Plug>ItabTab"
-	\ : coc#refresh()
+	\ : "\<Plug>(completion_trigger)"
 inoremap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\t"
+
+" COC {{{2
+
+" let g:coc_global_extensions = [ 'coc-clangd', 'coc-rls', 'coc-json', 'coc-diagnostic' ]
+"
+" nmap <silent> gd <Plug>(coc-definition)
+" nmap <silent> gy <Plug>(coc-type-definition)
+" nmap <silent> gi <Plug>(coc-implementation)
+" nmap <silent> gr <Plug>(coc-references)
+"
 
 " Goyo {{{2
 
@@ -84,7 +142,9 @@ let g:goyo_width = 90
 
 " vim-polyglot {{{2
 
-let g:polyglot_disabled = ['latex']
+let g:polyglot_disabled = ["latex"]
+let g:did_cpp_syntax_inits = 1
+let g:vim_markdown_fenced_languages = ['jsw=javascript']
 
 " vim-easy-align {{{2
 
@@ -122,12 +182,16 @@ endif
 " Misc {{{2
 
 " Use Ag if possible
-if executable('ag')
+if executable('rg')
+	let &grepprg = "rg --vimgrep"
+	set grepformat=%f:%l:%c:%m
+elseif executable('ag')
 	let &grepprg = "ag --nogroup --nocolor --column $*"
 	set grepformat=%f:%l:%c%m
 endif
 
 set diffopt+=algorithm:patience,indent-heuristic
+set updatetime=1000
 
 " User Interface {{{2
 
@@ -170,6 +234,7 @@ set fillchars=eob:\ ,vert:│,fold:─,stl:─,stlnc:─
 
 " Line numbers
 set number
+set signcolumn=number " signs in number column
 
 " Line wrapping, toggle bound to <space>ow
 set nowrap
@@ -299,16 +364,15 @@ function! SortMotion(motion) " {{{2
 	if a:motion ==# "line"
 		exec "'[,']sort"
 	elseif a:motion ==# "\<c-v>"
-		let scol = virtcol("v")
-		let ecol = virtcol(".")
-		let regex = '/\%' . scol . 'v.*\%<' . (ecol + 1) . 'v/'
+		let cols = sort([ virtcol("v"), virtcol(".") ])
 		let sel = sort([ line("v"), line(".") ])
+		let regex = '/\%' . cols[0] . 'v.*\%<' . (cols[1] + 1) . 'v/'
 		exec sel[0] . "," . sel[1] . "sort" regex
-		exec "normal \<esc>"
+		normal! <esc>
 	elseif a:motion ==# "V"
 		let sel = sort([ line("v"), line(".") ])
 		exec sel[0] . "," . sel[1] . "sort"
-		exec "normal \<esc>"
+		normal! <esc>
 	endif
 endfunction
 
@@ -426,7 +490,7 @@ NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
 nnoremap Y y$
 nnoremap g= 1z=
-xnoremap p pgvy
+xnoremap <expr> p '"' . v:register . 'pgv' . '"' . v:register . 'y'
 
 " sort motion
 nnoremap gs <cmd>set operatorfunc=SortMotion<cr>g@
@@ -497,8 +561,9 @@ let mapleader = "\<Space>"
 
 " more leaders
 nnoremap <leader> <nop>
-nnoremap <leader>x :call ExecCurrent()<cr>
-nnoremap <leader>m :Dispatch<cr>
+nnoremap <leader>x <cmd>call ExecCurrent()<cr>
+nnoremap <leader>m <cmd>Dispatch<cr>
+nnoremap <leader>z <cmd>term<cr><cmd>startinsert<cr>
 
 " misc
 nnoremap <silent> <leader>r <cmd>mode <bar> syntax sync fromstart<cr>

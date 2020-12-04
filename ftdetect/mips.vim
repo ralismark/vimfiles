@@ -1,1 +1,1 @@
-autocmd BufNewFile,BufRead *.s setfiletype mips
+autocmd BufNewFile,BufRead *.s setlocal ft=mips
