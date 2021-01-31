@@ -21,7 +21,7 @@ noremap <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
 noremap <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
 
 let s:undo  = 'setl et< ts< comments< formatoptions< spell< wrap< makeprg< foldmethod< foldexpr<'
-let s:undo .= '|unmap [[|unmap ]]'
+let s:undo .= '|silent! unmap [[|silent! unmap ]]'
 
 if !exists('b:undo_ftplugin')
 	let b:undo_ftplugin = s:undo
