@@ -18,7 +18,6 @@ Plug 'tpope/vim-repeat'
 Plug 'neovim/nvim-lspconfig'
 " Plug 'nvim-lua/diagnostics-nvim'
 Plug 'nvim-lua/completion-nvim'
-" Plug 'neoclide/coc.nvim', {'branch': 'release'}
 
 " UI
 Plug 'ayu-theme/ayu-vim'
@@ -34,11 +33,8 @@ Plug 'chrisbra/Colorizer'
 " Syntax/Language
 Plug 'editorconfig/editorconfig-vim'
 Plug 'vim-pandoc/vim-pandoc-syntax'
-Plug 'vim-pandoc/vim-rmarkdown'
+let g:polyglot_disabled = ["latex"]
 Plug 'sheerun/vim-polyglot'
-" Plug 'hsanson/vim-android'
-Plug 'mzlogin/vim-smali'
-Plug 'ralismark/nvim-tabletops'
 
 " Editing
 Plug 'junegunn/vim-easy-align'
@@ -47,19 +43,11 @@ Plug 'ralismark/itab'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'tomtom/tcomment_vim'
 
-" Completion/Snips/Lint
-" Plug 'ncm2/ncm2'
-" some completion sources
-" Plug 'ncm2/ncm2-bufword'
-" Plug 'ncm2/ncm2-path'
-" Plug 'ncm2/ncm2-ultisnips'
-
 Plug 'sirver/ultisnips'
 
 " System
 Plug '/usr/share/vim/vimfiles'
 
-" Plug g:configdir . '/bundle/etypehead'
 Plug g:configdir . '/bundle/vimrc'
 
 call plug#end()
@@ -67,12 +55,12 @@ call plug#end()
 " Neovim Native LSP {{{2
 
 lua << EOF
-local nvim_lsp = require 'nvim_lsp'
+local lspconfig = require 'lspconfig'
 
-nvim_lsp.efm.setup {
+lspconfig.efm.setup {
 	cmd = { "efm-langserver", "-c", "/home/timmy/.config/nvim/efm.yaml" },
 }
-nvim_lsp.pyls.setup {
+lspconfig.pyls.setup {
 	settings = {
 		pyls = {
 			plugins = {
@@ -82,10 +70,10 @@ nvim_lsp.pyls.setup {
 		},
 	},
 }
-nvim_lsp.rls.setup {
+lspconfig.rls.setup {
 	settings = { },
 }
-nvim_lsp.clangd.setup {}
+lspconfig.clangd.setup {}
 EOF
 
 command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients())
@@ -111,7 +99,7 @@ augroup vimrc_lsp
 		\ | hi link LspDiagnosticsInformation LspDiagnosticsVirtualText
 		\ | hi link LspDiagnosticsHint LspDiagnosticsVirtualText
 
-	au CursorHold * silent lua vim.lsp.util.show_line_diagnostics()
+	au CursorHold * silent lua vim.lsp.diagnostic.show_line_diagnostics()
 
 	" au BufWritePre * silent! lua vim.lsp.buf.formatting_sync(nil, 1000)
 
@@ -126,25 +114,13 @@ imap <silent><expr> <tab>
 	\ : "\<Plug>(completion_trigger)"
 inoremap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\t"
 
-" COC {{{2
-
-" let g:coc_global_extensions = [ 'coc-clangd', 'coc-rls', 'coc-json', 'coc-diagnostic' ]
-"
-" nmap <silent> gd <Plug>(coc-definition)
-" nmap <silent> gy <Plug>(coc-type-definition)
-" nmap <silent> gi <Plug>(coc-implementation)
-" nmap <silent> gr <Plug>(coc-references)
-"
-
 " Goyo {{{2
 
 let g:goyo_width = 90
 
 " vim-polyglot {{{2
 
-let g:polyglot_disabled = ["latex"]
 let g:did_cpp_syntax_inits = 1
-let g:vim_markdown_fenced_languages = ['jsw=javascript']
 
 " vim-easy-align {{{2
 
@@ -192,6 +168,8 @@ endif
 
 set diffopt+=algorithm:patience,indent-heuristic
 set updatetime=1000
+
+let g:python3_host_prog = '/usr/bin/python3'
 
 " User Interface {{{2
 
@@ -444,6 +422,10 @@ augroup vimrc
 		\ | 	silent update
 		\ | endif
 	au VimResized * wincmd =
+
+	au BufReadPost,BufEnter,FocusGained,ColorScheme *
+		\ syntax match ConflictMarker containedin=ALL /^\(<<<<<<<\|=======\||||||||\|>>>>>>>\).*/
+		\ | hi def link ConflictMarker Error
 
 	" Skeleton files
 	au BufNewFile *
