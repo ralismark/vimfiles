@@ -16,8 +16,14 @@ call plug#begin(g:configdir . '/plugged')
 " Frameworks
 Plug 'tpope/vim-repeat'
 Plug 'neovim/nvim-lspconfig'
-" Plug 'nvim-lua/diagnostics-nvim'
-Plug 'nvim-lua/completion-nvim'
+Plug 'ray-x/lsp_signature.nvim'
+
+" Completion
+Plug 'hrsh7th/nvim-cmp'
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
 
 " UI
 Plug 'ayu-theme/ayu-vim'
@@ -29,6 +35,7 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
 Plug 'ralismark/vim-recover'
 Plug 'chrisbra/Colorizer'
+Plug 'rafcamlet/nvim-luapad'
 
 " Syntax/Language
 Plug 'editorconfig/editorconfig-vim'
@@ -37,30 +44,46 @@ let g:polyglot_disabled = ["latex"]
 Plug 'sheerun/vim-polyglot'
 
 " Editing
+let itab#disable_maps = 0 | Plug 'ralismark/itab'
 Plug 'junegunn/vim-easy-align'
+Plug 'kana/vim-textobj-entire'
+Plug 'kana/vim-textobj-indent'
 Plug 'kana/vim-textobj-user'
-Plug 'ralismark/itab'
 Plug 'sgur/vim-textobj-parameter'
+Plug 'thinca/vim-textobj-between'
 Plug 'tomtom/tcomment_vim'
-
-Plug 'sirver/ultisnips'
 
 " System
 Plug '/usr/share/vim/vimfiles'
 
 Plug g:configdir . '/bundle/vimrc'
+" Plug g:configdir . '/bundle/isabelle'
 
 call plug#end()
 
 " Neovim Native LSP {{{2
 
 lua << EOF
-local lspconfig = require 'lspconfig'
+local lspconfig = require "lspconfig"
+local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
+require "lsp_signature".setup({
+	floating_window = true, -- show hint in a floating window, set to false for virtual text only mode
+	doc_lines = 0,
+	handler_opts = {
+		border = "none",
+	},
 
-lspconfig.efm.setup {
-	cmd = { "efm-langserver", "-c", "/home/timmy/.config/nvim/efm.yaml" },
-}
-lspconfig.pyls.setup {
+	hint_enable = false, -- virtual hint enable
+	hint_prefix = "◇ ",
+	hint_scheme = "LspParameterHint",
+})
+
+-- lspconfig.efm.setup {
+-- 	cmd = { "efm-langserver", "-c", "/home/timmy/.config/nvim/efm.yaml" },
+-- }
+lspconfig.pylsp.setup {
+	capabilities = capabilities,
+	cmd = { "pyls" },
 	settings = {
 		pyls = {
 			plugins = {
@@ -70,22 +93,38 @@ lspconfig.pyls.setup {
 		},
 	},
 }
-lspconfig.rls.setup {
-	settings = { },
+lspconfig.rust_analyzer.setup {
+	capabilities = capabilities,
 }
-lspconfig.clangd.setup {}
+lspconfig.clangd.setup {
+	capabilities = capabilities,
+}
+
+-- Isabelle configs
+-- require "isabelle"
+-- lspconfig.isabelle.setup {}
+
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
+	vim.lsp.handlers.hover, {
+		focusable = false
+	}
+)
+
 EOF
 
-command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients())
+command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients()) <bar> let g:lsp_enable = 0
 
 nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
+nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
 nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
 nnoremap <silent> K  <cmd>lua vim.lsp.buf.hover()<cr>
 
-sign define LspDiagnosticsErrorSign       text=✕  texthl=LspDiagnosticsErrorSign       linehl= numhl=
-sign define LspDiagnosticsWarningSign     text=⚠️  texthl=LspDiagnosticsWarningSign     linehl= numhl=
-sign define LspDiagnosticsInformationSign text=🞶  texthl=LspDiagnosticsInformationSign linehl= numhl=
-sign define LspDiagnosticsHintSign        text=💡 texthl=LspDiagnosticsHintSign        linehl= numhl=
+sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
+sign define DiagnosticSignWarn  text=! texthl=DiagnosticSignWarn  linehl= numhl=
+sign define DiagnosticSignInfo  text=🞶 texthl=DiagnosticSignInfo  linehl= numhl=
+sign define DiagnosticSignHint  text=? texthl=DiagnosticSignHint  linehl= numhl=
+
+let g:lsp_enable = 1
 
 augroup vimrc_lsp
 	au!
@@ -98,21 +137,48 @@ augroup vimrc_lsp
 		\ | hi link LspDiagnosticsWarning LspDiagnosticsVirtualText
 		\ | hi link LspDiagnosticsInformation LspDiagnosticsVirtualText
 		\ | hi link LspDiagnosticsHint LspDiagnosticsVirtualText
+		\ | hi LspParameterHint cterm=italic ctermfg=yellow guifg=yellow 
 
-	au CursorHold * silent lua vim.lsp.diagnostic.show_line_diagnostics()
+	au CursorHold * silent lua vim.diagnostic.open_float(nil, { focusable = false })
 
 	" au BufWritePre * silent! lua vim.lsp.buf.formatting_sync(nil, 1000)
 
-	au BufEnter * lua require'completion'.on_attach()
+	"au BufEnter * if g:lsp_enable | call luaeval("require'completion'.on_attach()") | endif
 
 augroup END
 
-" " Tab completion
+" Autocomplete (nvim-cmp) {{{2
+
+lua << EOF
+local cmp = require "cmp"
+
+cmp.setup({
+	mapping = {
+	},
+	sources = cmp.config.sources({
+		{ name = "nvim_lsp" },
+		{ name = "path" },
+	}, {
+		{ name = "buffer" },
+	}),
+	experimetnal = {
+		native_menu = true,
+	},
+	formatting = {
+	},
+	completion = {
+	},
+})
+
+EOF
+
+inoremap <expr> <Plug>(cmp-complete) luaeval("require'cmp'.complete()") ? "" : ""
+
 imap <silent><expr> <tab>
-	\ pumvisible() ? "\<c-n>"
-	\ : (col('.') < 2 <bar><bar> getline('.')[col('.') - 2] =~ '\s') ? "\<Plug>ItabTab"
-	\ : "\<Plug>(completion_trigger)"
-inoremap <expr> <s-tab> pumvisible() ? "\<c-p>" : "\t"
+	\ luaeval("require'cmp'.visible()") ? "\<c-n>"
+	\ : (col('.') > 1 && getline('.')[col('.') - 2] !~ '\s') ? "\<Plug>(cmp-complete)"
+	\ : "\<Plug>ItabTab"
+inoremap <expr> <s-tab> luaeval("require'cmp'.visible()") ? "\<c-p>" : "\t"
 
 " Goyo {{{2
 
@@ -130,22 +196,9 @@ xmap ga <Plug>(EasyAlign)
 " Start interactive EasyAlign for a motion/text object (e.g. gaip)
 nmap ga <Plug>(EasyAlign)
 
-" UltiSnips {{{2
-
-let g:UltiSnipsSnippetsDir = g:configdir . "/snips"
-let g:UltiSnipsSnippetDirectories = [ g:UltiSnipsSnippetsDir, 'UltiSnips' ]
-
-let g:UltiSnipsExpandTrigger = "<Plug>(ultisnips_expand)"
-let g:UltiSnipsListSnippets = "<Plug>(ultisnips_list)"
-
-let g:UltiSnipsJumpForwardTrigger = "<c-space>"
-let g:UltiSnipsJumpBackwardTrigger = "<c-s-space>"
-
-inoremap <silent> <Plug>(ultisnips_expand_or_jump) <cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
-snoremap <silent> <Plug>(ultisnips_expand_or_jump) <Esc><cmd>call UltiSnips#ExpandSnippetOrJump()<cr>
-
-let g:UltiSnipsRemoveSelectModeMappings = 1
-let g:UltiSnipsMappingsToIgnore = [ "UltiSnip#" ]
+let g:easy_align_delimiters = {
+\ 't': { 'pattern': '\t', 'left_margin': 0, 'right_margin': 0, 'stick_to_left': 1 },
+\ }
 
 " Dispatch {{{2
 
@@ -157,11 +210,13 @@ endif
 
 " Misc {{{2
 
+let g:pdf_out = "/tmp/document.pdf"
+
 " Use Ag if possible
-if executable('rg')
+if executable("rg")
 	let &grepprg = "rg --vimgrep"
 	set grepformat=%f:%l:%c:%m
-elseif executable('ag')
+elseif executable("ag")
 	let &grepprg = "ag --nogroup --nocolor --column $*"
 	set grepformat=%f:%l:%c%m
 endif
@@ -170,13 +225,16 @@ set diffopt+=algorithm:patience,indent-heuristic
 set updatetime=1000
 
 let g:python3_host_prog = '/usr/bin/python3'
+let g:man_hardwrap = 0
+
+set nofixeol " Don't want to keep updating eol in random files
 
 " User Interface {{{2
 
 " Status line
 set laststatus=2
 set showmode
-set showtabline=2
+set showtabline=1
 
 " Line buffer at top/bottom when scrolling
 set scrolloff=5
@@ -208,10 +266,10 @@ set concealcursor=
 
 " Hidden chars
 set list listchars=tab:│\ ,extends:›,precedes:‹,nbsp:⎵,trail:∙
-set fillchars=eob:\ ,vert:│,fold:─,stl:─,stlnc:─
+set fillchars=eob:\ ,vert:│,fold:─,stl:─,stlnc:─,foldopen:╒,foldclose:═
 
 " Line numbers
-set number
+set number relativenumber
 set signcolumn=number " signs in number column
 
 " Line wrapping, toggle bound to <space>ow
@@ -327,75 +385,37 @@ set cino+=t0  " Function return type declarations
 
 " Functions {{{1
 
-if !exists('*ExecCurrent') " {{{2
+lua << EOF
+function exec_current() -- {{{2
+	for ft in string.gmatch(vim.bo.ft, "[^.]+") do
+		local com = execprg[ft]
+		if com ~= nil and com ~= vim.NIL then
+			com()
+			return
+		end
+	end
 
-function! ExecCurrent()
-	let Fn=GetExecCurrent()
-	if type(Fn) == v:t_func
-		call Fn()
-	endif
-endfunction
-
-endif
+	vim.api.nvim_echo({
+		{ "No execprg found for ft='" .. vim.bo.ft .. "'", "ErrorMsg" }
+	}, false, {})
+end
+EOF
 
 function! SortMotion(motion) " {{{2
 	if a:motion ==# "line"
-		exec "'[,']sort"
+		'[,']sort
 	elseif a:motion ==# "\<c-v>"
-		let cols = sort([ virtcol("v"), virtcol(".") ])
-		let sel = sort([ line("v"), line(".") ])
-		let regex = '/\%' . cols[0] . 'v.*\%<' . (cols[1] + 1) . 'v/'
-		exec sel[0] . "," . sel[1] . "sort" regex
-		normal! <esc>
-	elseif a:motion ==# "V"
-		let sel = sort([ line("v"), line(".") ])
-		exec sel[0] . "," . sel[1] . "sort"
-		normal! <esc>
+		let regex = '/\%' . virtcol("'<") . 'v.*\%<' . (virtcol("'>") + 1) . 'v/'
+		exec "normal! \<esc>"
+		exec "'<,'>sort" regex
+	elseif a:motion ==# "V" || a:motion ==# "v"
+		exec "normal! \<esc>"
+		'<,'>sort
 	endif
 endfunction
 
 function! GetSynClass() " {{{2
 	return map(synstack(line('.'), col('.')), {k,v -> synIDattr(v, "name")})
-endfunction
-
-function! GetExecCurrent() " {{{2
-	" Work for multiple filetypes
-	for ft in split(&ft, '\.')
-		if exists('l:Com')
-			break
-		endif
-
-		if exists('b:execprg')
-			if type(b:execprg) == v:t_dict
-				if has_key(b:execprg, ft)
-					let Com = b:execprg[ft]
-				endif
-			else
-				let Com = b:execprg
-			endif
-		endif
-		if exists('g:execprg') && !exists('l:Com')
-			if type(g:execprg) == v:t_dict
-				if has_key(g:execprg, ft)
-					let Com = g:execprg[ft]
-				endif
-			else
-				let Com = g:execprg
-			endif
-		endif
-	endfor
-
-	if type(Com) == v:t_string || type(Com) == v:t_list
-		let args = Com
-		let Com = { -> jobstart(args) }
-	endif
-
-	if !exists('l:Com')
-		echoe 'ExecCurrent: no viable com found for filetype "' . &ft . '"'
-		return
-	endif
-
-	return Com
 endfunction
 
 " Autocommands {{{1
@@ -423,7 +443,7 @@ augroup vimrc
 		\ | endif
 	au VimResized * wincmd =
 
-	au BufReadPost,BufEnter,FocusGained,ColorScheme *
+	au Syntax *
 		\ syntax match ConflictMarker containedin=ALL /^\(<<<<<<<\|=======\||||||||\|>>>>>>>\).*/
 		\ | hi def link ConflictMarker Error
 
@@ -436,13 +456,38 @@ augroup vimrc
 		\ | 	endif
 		\ | endfor
 
+	" PEP 350 Codetags (https://www.python.org/dev/peps/pep-0350/)
+	au Syntax * syn keyword Codetags contained containedin=.*Comment.*
+		\ TODO MILESTONE MLSTN DONE YAGNI TDB TOBEDONE
+		\ FIXME XXX DEBUG BROKEN REFACTOR REFACT RFCTR OOPS SMELL NEEDSWORK INSPECT
+		\ BUG BUGFIX
+		\ NOBUG NOFIX WONTFIX DONTFIX NEVERFIX UNFIXABLE CANTFIX
+		\ REQ REQUIREMENT STORY
+		\ RFE FEETCH NYI FR FTRQ FTR
+		\ IDEA
+		\ QUESTION QUEST QSTN WTF
+		\ ALERT
+		\ HACK CLEVER MAGIC
+		\ PORT PORTABILITY WKRD
+		\ CAVEAT CAV CAVT WARNING CAUTION
+		\ NOTE HELP
+		\ FAQ
+		\ GLOSS GLOSSARY
+		\ SEE REF REFERENCE
+		\ TODOC DOCDO DODOC NEEDSDOC EXPLAIN DOCUMENT
+		\ CRED CREDIT THANKS
+		\ STAT STATUS
+		\ RVD REVIEWED REVIEW
+		\ | hi def link Codetags Todo
+
+" FAQ
 augroup END
 
 " Bindings {{{1
 
 " Commands {{{2
 
-command! -bar -nargs=0 W w !pkexec tee %:p >/dev/null | setl nomod
+command! -nargs=0 W exec "w !pkexec tee %:p >/dev/null" | setl nomod
 " This, for some reason, doesn't work if you put it in a function
 command! -nargs=+ Keepview let s:view_save = winsaveview() | exec <q-args> | call winrestview(s:view_save)
 command! -nargs=+ -complete=file Fork call jobstart(<q-args>)
@@ -454,19 +499,23 @@ NXnoremap <right> zl
 NXnoremap <up> <c-y>
 NXnoremap <down> <c-e>
 
-" readline/emacs mappings
-noremap! <c-a> <home>
-noremap! <a-d> <c-o>de
-noremap! <c-e> <end>
-" need to get used to this so I stop accidentally closing windows in other programs
-noremap! <c-bs> <c-w>
+" Insert ISO 8601 date
+noremap! <c-r><c-d> <c-r>=strftime("%Y-%m-%d")<cr>
+" Insert name of tempfile
+noremap! <c-r><c-t> <c-r>=tempname()<cr>
+
+inoremap <c-e> <c-o><c-e>
+inoremap <c-y> <c-o><c-y>
 
 " better binds
 noremap ; :
 noremap , ;
 noremap ' `
 noremap <silent> <expr> 0 &wrap ? 'g0' : '0'
-map <expr> <return> (or(&buftype == 'help', expand("%:p") =~ '^man://')) ? "\<c-]>" : (&buftype == 'quickfix' ? "\<CR>" : "@q")
+map <expr> <return>
+	\ or(&buftype == 'help', expand("%:p") =~ '^man://') ? "\<c-]>"
+	\ : &buftype == 'quickfix' ? "\<CR>"
+	\ : "@q"
 command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/[\x0d[:space:]]\+$//e | nohl
 NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
@@ -476,6 +525,7 @@ xnoremap <expr> p '"' . v:register . 'pgv' . '"' . v:register . 'y'
 
 " sort motion
 nnoremap gs <cmd>set operatorfunc=SortMotion<cr>g@
+nnoremap gss <nop>
 xnoremap gs <cmd>call SortMotion(mode())<cr>
 
 " Fast replace shortcuts
@@ -543,7 +593,7 @@ let mapleader = "\<Space>"
 
 " more leaders
 nnoremap <leader> <nop>
-nnoremap <leader>x <cmd>call ExecCurrent()<cr>
+nnoremap <leader>x <cmd>call v:lua.exec_current()<cr>
 nnoremap <leader>m <cmd>Dispatch<cr>
 nnoremap <leader>z <cmd>term<cr><cmd>startinsert<cr>
 
@@ -583,16 +633,42 @@ nnoremap <leader>t :tab new<cr>
 
 " Other Features {{{1
 
-let g:execprg = {
-	\ 'vim': { -> execute('source %') },
-	\ 'html': { -> jobstart(['firefox', '--new-window', 'file://' . expand('%:p')]) },
-	\ 'rmd': 'xdg-open /tmp/preview.pdf',
-	\ 'pandoc': 'xdg-open /tmp/preview.pdf',
-	\ 'tex': { -> jobstart(['xdg-open', expand("%:r") . ".pdf"]) },
-	\ 'dot': 'xdg-open /tmp/preview.pdf',
-	\ }
+lua << EOF
+local function open_pdf_out()
+	if vim.g.pdf_out == nil then
+		error("g:pdf_out is not defined")
+	end
+	vim.fn.jobstart({ "xdg-open", vim.g.pdf_out })
+end
+
+execprg = {
+	vim = function()
+		vim.cmd("source %")
+	end,
+	lua = function()
+		vim.api.cmd("luafile %")
+	end,
+
+	html = function()
+		local path = vim.fn.expand("%:p")
+		vim.fn.jobstart({ "firefox", "--new-window", "file://" .. path })
+	end,
+	tex = function()
+		local stem = vim.fn.expand("%:r")
+		vim.fn.jobstart({ "xdg-open", stem .. ".pdf" })
+	end,
+
+	rmd = open_pdf_out,
+	pandoc = open_pdf_out,
+	dot = open_pdf_out,
+}
+EOF
 
 call sl#enable()
+
+" HACK for fixing colorscheme
+hi diffAdded ctermfg=green
+hi diffRemoved ctermfg=red
 
 " Stop plugins from pollution leader
 let mapleader = "\\"
