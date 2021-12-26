@@ -20,7 +20,7 @@ let g:colors_name = "duality"
 
 " General Text Styling {{{2
 hi Normal       ctermfg=NONE
-hi Conceal      ctermfg=grey            ctermbg=black
+hi Conceal      ctermfg=NONE            ctermbg=black
 hi NonText      ctermfg=darkgrey
 hi SpecialKey   ctermfg=darkblue
 hi Visual       ctermfg=white           ctermbg=red
@@ -70,8 +70,8 @@ hi Folded       ctermfg=green           ctermbg=black
 " Diff {{{2
 hi DiffAdd      ctermfg=green           ctermbg=NONE
 hi DiffDelete   ctermfg=red             ctermbg=NONE
-hi DiffChange   ctermfg=NONE            ctermbg=NONE
-hi DiffText     ctermfg=yellow          ctermbg=NONE
+hi DiffChange   ctermfg=yellow          ctermbg=NONE
+hi DiffText     ctermfg=lightyellow     ctermbg=NONE
 
 " Popup Menu {{{2
 hi Pmenu        ctermfg=grey            ctermbg=black

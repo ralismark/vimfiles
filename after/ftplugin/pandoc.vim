@@ -8,14 +8,14 @@ setlocal formatoptions=roqnlj
 setlocal spell
 setlocal wrap
 
-let &l:makeprg = 'pandoc "%" -o /tmp/preview.pdf $*'
+let &l:makeprg = 'pandoc "%" -o ' . g:pdf_out . ' $*'
 
-function! s:PandocFold()
+function! PandocFold()
 	let depth = match(getline(v:lnum), '\(^#\+\)\@<=\( .*$\)\@=')
 	return depth > 0 ? '>' . depth : '='
 endfunction
 
-setlocal foldmethod=expr foldexpr=s:PandocFold()
+setlocal foldmethod=expr foldexpr=PandocFold()
 
 noremap <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
 noremap <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
