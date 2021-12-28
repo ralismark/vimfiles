@@ -32,7 +32,7 @@ hi Directory    ctermfg=blue
 " Statusline/tabline {{{2
 hi StatusLine   ctermfg=white           ctermbg=black           cterm=NONE
 hi StatusLineNC ctermfg=darkgrey        ctermbg=black           cterm=NONE
-hi TabLine      ctermfg=grey            ctermbg=black           cterm=underline
+hi TabLine      ctermfg=grey            ctermbg=black           cterm=NONE
 hi TabLineFill                          ctermbg=black           cterm=NONE
 hi TabLineSel   ctermfg=white           ctermbg=black           cterm=underline,bold
 hi VertSplit    ctermfg=darkgrey        ctermbg=NONE            cterm=NONE

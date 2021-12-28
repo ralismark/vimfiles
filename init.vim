@@ -15,8 +15,12 @@ call plug#begin(g:configdir . '/plugged')
 
 " Frameworks
 Plug 'tpope/vim-repeat'
+Plug 'nvim-lua/plenary.nvim'
+
+" Language Server Protocol
 Plug 'neovim/nvim-lspconfig'
 Plug 'ray-x/lsp_signature.nvim'
+Plug 'jose-elias-alvarez/null-ls.nvim'
 
 " Completion
 Plug 'hrsh7th/nvim-cmp'
@@ -44,7 +48,8 @@ let g:polyglot_disabled = ["latex"]
 Plug 'sheerun/vim-polyglot'
 
 " Editing
-let itab#disable_maps = 0 | Plug 'ralismark/itab'
+let itab#disable_maps = 0
+Plug 'ralismark/itab'
 Plug 'junegunn/vim-easy-align'
 Plug 'kana/vim-textobj-entire'
 Plug 'kana/vim-textobj-indent'
@@ -65,24 +70,25 @@ call plug#end()
 
 lua << EOF
 local lspconfig = require "lspconfig"
-local capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities())
-require "lsp_signature".setup({
-	floating_window = true, -- show hint in a floating window, set to false for virtual text only mode
-	doc_lines = 0,
-	handler_opts = {
-		border = "none",
-	},
 
-	hint_enable = false, -- virtual hint enable
-	hint_prefix = "◇ ",
-	hint_scheme = "LspParameterHint",
-})
+lspconfig.util.default_config = vim.tbl_extend(
+	"force",
+	lspconfig.util.default_config,
+	{
+		capabilities = require("cmp_nvim_lsp").update_capabilities(
+			vim.lsp.protocol.make_client_capabilities()
+		),
+		handlers = {
+			["textDocument/hover"] = vim.lsp.with(
+				vim.lsp.handlers.hover, {
+					focusable = false
+				}
+			)
+		},
+	}
+)
 
--- lspconfig.efm.setup {
--- 	cmd = { "efm-langserver", "-c", "/home/timmy/.config/nvim/efm.yaml" },
--- }
 lspconfig.pylsp.setup {
-	capabilities = capabilities,
 	cmd = { "pyls" },
 	settings = {
 		pyls = {
@@ -94,21 +100,33 @@ lspconfig.pylsp.setup {
 	},
 }
 lspconfig.rust_analyzer.setup {
-	capabilities = capabilities,
 }
 lspconfig.clangd.setup {
-	capabilities = capabilities,
 }
+
+local null_ls = require "null-ls"
+null_ls.setup({
+	sources = {
+		null_ls.builtins.formatting.black,
+		null_ls.builtins.diagnostics.shellcheck,
+	},
+})
 
 -- Isabelle configs
 -- require "isabelle"
 -- lspconfig.isabelle.setup {}
 
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(
-	vim.lsp.handlers.hover, {
-		focusable = false
-	}
-)
+require "lsp_signature".setup({
+	floating_window = true, -- show hint in a floating window, set to false for virtual text only mode
+	doc_lines = 0,
+	handler_opts = {
+		border = "none",
+	},
+
+	hint_enable = false, -- virtual hint enable
+	hint_prefix = "◇ ",
+	hint_scheme = "LspParameterHint",
+})
 
 EOF
 
@@ -400,6 +418,40 @@ function exec_current() -- {{{2
 	}, false, {})
 end
 EOF
+
+function! TabLineLabel(n) " {{{2
+	let buflist = tabpagebuflist(a:n)
+	let winnr = tabpagewinnr(a:n)
+	let bufname = expand("#" . buflist[winnr - 1] . ":p")
+	return bufname == "" ? "-" : bufname
+endfunction
+
+function! TabLine() " {{{2
+	let s = ""
+	for i in range(1, tabpagenr("$"))
+		" Prefix
+		let s .= " "
+
+		" Highlighting
+		let s .= i == tabpagenr() ? "%#TabLineSel#" : "%#TabLine#"
+
+		" Actual label
+		let s .= "%{TabLineLabel(" . i . ")}"
+
+		" Reset
+		let s .= '%#TabLineFill#%T'
+
+		" Separator
+		let s .= i < tabpagenr() ? " " : " "
+	endfor
+
+	" after the last tab fill with TabLineFill and reset tab page nr
+	let s .= '%#TabLineFill#%T'
+
+	return s
+endfunction
+
+set tabline=%!TabLine()
 
 function! SortMotion(motion) " {{{2
 	if a:motion ==# "line"
