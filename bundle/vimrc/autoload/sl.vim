@@ -56,7 +56,7 @@ function! sl#generate(w)
 	let stl .= co[2] . '' . co[1] . '%{ sl#make([ bufnr(""), ll#filename() ], "  ") } ' . co[2] . ''
 	let stl .= co[3] . '%{ sl#make([ ' . (focus ? '&bt, ' : '') . 'll#rostate(), ll#wordcount() ], "  ") }'
 	let stl .= co[4] . ' %<%{ repeat("' . (focus ? '━' : '─') . '", winwidth(0)) }>' " split
-	let stl .= co[3] . '%{ sl#make([ ll#eol(), ' . (focus ? 'll#filetype()' : 'll#nonfile() ? "" : &ft') . ' ], "  ") } '
+	let stl .= co[3] . '%{ sl#make([ ll#lsp(), ll#eol(), ' . (focus ? 'll#filetype()' : 'll#nonfile() ? "" : &ft') . ' ], "  ") } '
 	let stl .= co[2] . '' . co[1] . ' %{ ll#location() } ' . co[2] . ' '
 
 	return stl
@@ -104,6 +104,3 @@ function! sl#disable(...)
 		endif
 	augroup END
 endfunction
-
-au vimrc User GoyoEnter nested call sl#disable('goyo')
-au vimrc User GoyoLeave nested call sl#enable()

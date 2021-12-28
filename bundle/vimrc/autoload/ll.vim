@@ -132,19 +132,10 @@ fun! ll#wordcount() " {{{1
 	return 'words: ' . xwords . '/' . wc.words
 endfun
 
-fun! ll#ale() " {{{1
-	if !get(b:, 'ale_enabled', get(g:, 'ale_enabled', 0))
-		return ''
+fun ll#lsp() " {{{1
+	let clients = luaeval("vim.tbl_map(function(x) return x.name end, vim.lsp.buf_get_clients())")
+	if len(clients) > 0
+		return "lsp:" . join(clients, " ")
 	endif
-
-	let counts = ale#statusline#Count(bufnr(''))
-
-	let errs = counts.error + counts.style_error
-	let warns = counts.warning + counts.style_warning
-	
-	if errs + warns == 0
-		return ''
-	endif
-
-	return (errs > 0 ? errs . ' ✖' : '') . (errs * warns > 0 ? ' | ' : '') . (warns > 0 ? warns . ' △' : '')
-endfun
+	return ""
+endfunc
