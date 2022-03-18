@@ -72,67 +72,6 @@ call plug#end()
 
 " Neovim Native LSP {{{2
 
-lua << EOF
-local lspconfig = require "lspconfig"
-
-lspconfig.util.default_config = vim.tbl_extend(
-	"force",
-	lspconfig.util.default_config,
-	{
-		capabilities = require("cmp_nvim_lsp").update_capabilities(
-			vim.lsp.protocol.make_client_capabilities()
-		),
-		handlers = {
-			["textDocument/hover"] = vim.lsp.with(
-				vim.lsp.handlers.hover, {
-					focusable = false
-				}
-			)
-		},
-	}
-)
-
-lspconfig.pylsp.setup {
-	settings = {
-		pyls = {
-			plugins = {
-				pylint = { enabled = true },
-				yapf = { enabled = false },
-			},
-		},
-	},
-}
-lspconfig.rust_analyzer.setup {
-}
-lspconfig.clangd.setup {
-}
-
-local null_ls = require "null-ls"
-null_ls.setup({
-	sources = {
-		null_ls.builtins.formatting.black,
-		null_ls.builtins.diagnostics.shellcheck,
-	},
-})
-
--- Isabelle configs
--- require "isabelle"
--- lspconfig.isabelle.setup {}
-
-require "lsp_signature".setup({
-	floating_window = true, -- show hint in a floating window, set to false for virtual text only mode
-	doc_lines = 0,
-	handler_opts = {
-		border = "none",
-	},
-
-	hint_enable = false, -- virtual hint enable
-	hint_prefix = "◇ ",
-	hint_scheme = "LspParameterHint",
-})
-
-EOF
-
 command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients()) <bar> let g:lsp_enable = 0
 
 nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
