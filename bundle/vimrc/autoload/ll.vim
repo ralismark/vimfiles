@@ -29,7 +29,7 @@ fun! ll#filename() " {{{1
 	if ll#nonfile()
 		return ''
 	endif
-	let name = bufname('') == '' ? '*' : bufname('')
+	let name = bufname('') == '' ? '-' : bufname('')
 	return name
 endfun
 
@@ -133,9 +133,9 @@ fun! ll#wordcount() " {{{1
 endfun
 
 fun ll#lsp() " {{{1
-	let clients = luaeval("vim.tbl_map(function(x) return x.name end, vim.lsp.buf_get_clients())")
+	let clients = luaeval("vim.tbl_values(vim.tbl_map(function(x) return x.name end, vim.lsp.buf_get_clients()))")
 	if len(clients) > 0
-		return "lsp:" . join(clients, " ")
+		return "lsp:" . join(uniq(sort(clients)), " ")
 	endif
 	return ""
 endfunc
