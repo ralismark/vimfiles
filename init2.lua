@@ -1,0 +1,4 @@
+-- Primary neovim initialisation
+--
+-- This can be renamed to init.lua if/when everything from
+-- init.vim gets ported here

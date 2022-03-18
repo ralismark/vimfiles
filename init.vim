@@ -2,6 +2,9 @@
 
 let g:configdir = fnamemodify($MYVIMRC, ':p:h')
 
+" This needs to be early I think
+let g:python3_host_prog = '/usr/bin/python3'
+
 " Plugins {{{1
 
 command! -nargs=+ NXnoremap  nnoremap <args>|xnoremap <args>
@@ -62,6 +65,7 @@ Plug 'tomtom/tcomment_vim'
 Plug '/usr/share/vim/vimfiles'
 
 Plug g:configdir . '/bundle/vimrc'
+Plug g:configdir . '/bundle/vsurround'
 " Plug g:configdir . '/bundle/isabelle'
 
 call plug#end()
@@ -89,7 +93,6 @@ lspconfig.util.default_config = vim.tbl_extend(
 )
 
 lspconfig.pylsp.setup {
-	cmd = { "pyls" },
 	settings = {
 		pyls = {
 			plugins = {
@@ -138,9 +141,9 @@ nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
 nnoremap <silent> K  <cmd>lua vim.lsp.buf.hover()<cr>
 
 sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
-sign define DiagnosticSignWarn  text=! texthl=DiagnosticSignWarn  linehl= numhl=
-sign define DiagnosticSignInfo  text=🞶 texthl=DiagnosticSignInfo  linehl= numhl=
-sign define DiagnosticSignHint  text=? texthl=DiagnosticSignHint  linehl= numhl=
+sign define DiagnosticSignWarn  text=▲ texthl=DiagnosticSignWarn  linehl= numhl=
+sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numhl=
+sign define DiagnosticSignHint  text=🞶 texthl=DiagnosticSignHint  linehl= numhl=
 
 let g:lsp_enable = 1
 
@@ -155,13 +158,11 @@ augroup vimrc_lsp
 		\ | hi link LspDiagnosticsWarning LspDiagnosticsVirtualText
 		\ | hi link LspDiagnosticsInformation LspDiagnosticsVirtualText
 		\ | hi link LspDiagnosticsHint LspDiagnosticsVirtualText
-		\ | hi LspParameterHint cterm=italic ctermfg=yellow guifg=yellow 
+		\ | hi LspParameterHint cterm=italic ctermfg=yellow guifg=yellow
 
 	au CursorHold * silent lua vim.diagnostic.open_float(nil, { focusable = false })
 
 	" au BufWritePre * silent! lua vim.lsp.buf.formatting_sync(nil, 1000)
-
-	"au BufEnter * if g:lsp_enable | call luaeval("require'completion'.on_attach()") | endif
 
 augroup END
 
@@ -179,7 +180,7 @@ cmp.setup({
 	}, {
 		{ name = "buffer" },
 	}),
-	experimetnal = {
+	experimental = {
 		native_menu = true,
 	},
 	formatting = {
@@ -191,12 +192,16 @@ cmp.setup({
 EOF
 
 inoremap <expr> <Plug>(cmp-complete) luaeval("require'cmp'.complete()") ? "" : ""
+inoremap <expr> <Plug>(cmp-select-next-item) luaeval("require'cmp'.select_next_item()") ? "" : ""
+inoremap <expr> <Plug>(cmp-select-prev-item) luaeval("require'cmp'.select_prev_item()") ? "" : ""
 
 imap <silent><expr> <tab>
-	\ luaeval("require'cmp'.visible()") ? "\<c-n>"
+	\ luaeval("require'cmp'.visible()") ? "\<Plug>(cmp-select-next-item)"
 	\ : (col('.') > 1 && getline('.')[col('.') - 2] !~ '\s') ? "\<Plug>(cmp-complete)"
 	\ : "\<Plug>ItabTab"
-inoremap <expr> <s-tab> luaeval("require'cmp'.visible()") ? "\<c-p>" : "\t"
+imap <expr> <s-tab>
+	\ luaeval("require'cmp'.visible()") ? "\<Plug>(cmp-select-prev-item)"
+	\ : "\t"
 
 " Goyo {{{2
 
@@ -242,10 +247,9 @@ endif
 set diffopt+=algorithm:patience,indent-heuristic
 set updatetime=1000
 
-let g:python3_host_prog = '/usr/bin/python3'
 let g:man_hardwrap = 0
 
-set nofixeol " Don't want to keep updating eol in random files
+let loaded_netrwPlugin = 1 " Disable netrw
 
 " User Interface {{{2
 
@@ -333,6 +337,9 @@ set undofile
 
 " Editing {{{2
 
+set nohidden " drop buffers after they're closed
+set nofixeol " Don't want to keep updating eol in random files
+
 " Mouse control
 set mouse+=a
 
@@ -389,6 +396,9 @@ set autoindent
 set copyindent
 set preserveindent
 
+" vim continuation indent
+let g:vim_indent_cont = 0
+
 " c indent
 set cino=
 set cino+=(s  " Contents of unclosed parentheses
@@ -422,53 +432,86 @@ EOF
 function! TabLineLabel(n) " {{{2
 	let buflist = tabpagebuflist(a:n)
 	let winnr = tabpagewinnr(a:n)
-	let bufname = expand("#" . buflist[winnr - 1] . ":p")
+	let bufname = expand("#" . buflist[winnr - 1] . ":t")
 	return bufname == "" ? "-" : bufname
 endfunction
 
 function! TabLine() " {{{2
 	let s = ""
 	for i in range(1, tabpagenr("$"))
-		" Prefix
-		let s .= " "
+		let s .= i == 1 ? "" : " "
 
-		" Highlighting
-		let s .= i == tabpagenr() ? "%#TabLineSel#" : "%#TabLine#"
+		let mode = i == tabpagenr() ? "Sel" : "Tab"
 
-		" Actual label
-		let s .= "%{TabLineLabel(" . i . ")}"
-
-		" Reset
-		let s .= '%#TabLineFill#%T'
-
-		" Separator
-		let s .= i < tabpagenr() ? " " : " "
+		let s .= "%#TabLine".mode."I#%#TabLine".mode."#%".i."T "
+		let s .= "" . i . ". " . "%{TabLineLabel(" . i . ")}" " Actual label
+		let s .= " %0T%#TabLine".mode."I#%#TabLineFill#"
 	endfor
 
-	" after the last tab fill with TabLineFill and reset tab page nr
-	let s .= '%#TabLineFill#%T'
-
-	return s
+	return "%=" . s . "%#TabLineFill#%="
 endfunction
+
+augroup vimrc_tabline
+	au!
+	au ColorScheme *
+	\   hi TabLineFill  ctermfg=red             ctermbg=234             cterm=NONE
+	\ | hi TabLineTab   ctermfg=white           ctermbg=237             cterm=NONE
+	\ | hi TabLineTabI  ctermfg=237             ctermbg=234             cterm=NONE
+	\ | hi TabLineTabF  ctermfg=grey            ctermbg=237             cterm=NONE
+	\ | hi TabLineSel   ctermfg=black           ctermbg=white           cterm=NONE
+	\ | hi TabLineSelI  ctermfg=white           ctermbg=234             cterm=NONE
+	\ | hi TabLineSelF  ctermfg=grey            ctermbg=white           cterm=NONE
+augroup END
 
 set tabline=%!TabLine()
-
-function! SortMotion(motion) " {{{2
-	if a:motion ==# "line"
-		'[,']sort
-	elseif a:motion ==# "\<c-v>"
-		let regex = '/\%' . virtcol("'<") . 'v.*\%<' . (virtcol("'>") + 1) . 'v/'
-		exec "normal! \<esc>"
-		exec "'<,'>sort" regex
-	elseif a:motion ==# "V" || a:motion ==# "v"
-		exec "normal! \<esc>"
-		'<,'>sort
-	endif
-endfunction
 
 function! GetSynClass() " {{{2
 	return map(synstack(line('.'), col('.')), {k,v -> synIDattr(v, "name")})
 endfunction
+
+function! OperatorFuncTest(motion) " {{{2
+	if a:motion ==# "line"
+		normal! `[V`]
+	elseif a:motion ==# "char"
+		normal! `[v`]
+	elseif a:motion ==# "block"
+		exec "normal! `[\<c-v>`]"
+	endif
+endfunction
+
+function! SortMotion(motion) " {{{2
+	if a:motion ==# "line"
+		'[,']sort
+	elseif a:motion ==# "block"
+		let regex = '/\%' . virtcol("'[") . 'v.*\%<' . (virtcol("']") + 2) . 'v/'
+		exec "'[,']sort" regex
+	elseif a:motion ==# "V"
+		exec "normal! \<esc>"
+		'<,'>sort
+	elseif a:motion ==# "\<c-v>"
+		let regex = '/\%' . virtcol("'<") . 'v.*\%<' . (virtcol("'>") + 2) . 'v/'
+		exec "normal! \<esc>"
+		exec "'<,'>sort" regex
+	endif
+endfunction
+
+function! OpenCorresponding() " {{{2
+	let candidate_exts = get(g:corresmap, expand("%:e"), [])
+	for ext in candidate_exts
+		let candidate = expand("%:r") . "." . ext
+		if filereadable(candidate)
+			exec "edit" candidate
+			return
+		endif
+	endfor
+	echoe "No corresponding file found! looked for: " . join(candidate_exts, ", ")
+endfunction
+let g:corresmap = {
+\ "h": ["c", "cpp"],
+\ "hpp": ["c", "cpp"],
+\ "c": ["h", "hpp"],
+\ "cpp": ["h", "hpp"],
+\ }
 
 " Autocommands {{{1
 
@@ -487,7 +530,7 @@ augroup vimrc
 	au BufLeave,FocusLost,WinLeave * set cursorline<
 
 	" Non-breaking autochdir
-	au BufWinEnter * if empty(&buftype) | silent lcd %:p:h | endif
+	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
 
 	au FocusLost,VimLeavePre *
 		\ if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite'
@@ -580,9 +623,27 @@ nnoremap gs <cmd>set operatorfunc=SortMotion<cr>g@
 nnoremap gss <nop>
 xnoremap gs <cmd>call SortMotion(mode())<cr>
 
-" Fast replace shortcuts
-nnoremap s :%s/\v
-xnoremap s :s/\v
+" surround operation
+NXmap s <Plug>(vsurround)
+
+" listify
+function! Listify(motion) " {{{
+	if a:motion !=# "V"
+		echoe "Cannot Listify outside of linewise-visual mode"
+		return
+	endif
+
+	exec "normal! \<esc>"
+	'<,'>s/$/,
+	'<s/^\s*/\0[ /
+	'>s/,$/ ]/
+	'<,'>join
+	normal! V
+endfunction " }}}
+xnoremap L <cmd>call Listify(mode())<cr>
+
+" operatorfunc tester
+nnoremap go <cmd>set operatorfunc=OperatorFuncTest<cr>g@
 
 " find/replace tools
 nnoremap # <cmd>let @/ = '\V\C\<' . escape(expand('<cword>'), '\') . '\>' <bar> set hls<cr>
@@ -668,6 +729,7 @@ nnoremap <leader>w <cmd>up<cr>
 nnoremap <leader>q <cmd>q<cr>
 
 nnoremap <leader>ev <cmd>e $MYVIMRC<cr>
+nnoremap <leader>ee <cmd>call OpenCorresponding()<cr>
 
 " cleanup
 nnoremap <silent> <leader>k <nop>
@@ -684,6 +746,36 @@ nnoremap <silent> <leader>sl :belowright vertical new<cr>
 nnoremap <leader>t :tab new<cr>
 
 " Other Features {{{1
+
+augroup vimrc_ssh
+	au!
+
+	" au BufReadCmd ssh://*
+	" 	\   exe "silent doau BufReadPre" fnameescape(expand("<amatch>"))
+	" 	\ | echo "TODO"
+	" 	\ | exe "silent doau BufReadPost" fnameescape(expand("<amatch>"))
+    "
+	" au FileReadCmd ssh://*
+	" 	\   exe "silent doau FileReadPre" fnameescape(expand("<amatch>"))
+	" 	\ | echo "TODO"
+	" 	\ | exe "silent doau FileReadPost" fnameescape(expand("<amatch>"))
+    "
+	" au BufWriteCmd ssh://*
+	" 	\   exe "silent doau BufWritePre" fnameescape(expand("<amatch>"))
+	" 	\ | echo "TODO"
+	" 	\ | exe "silent doau BufWritePost" fnameescape(expand("<amatch>"))
+    "
+	" au FileWriteCmd ssh://*
+	" 	\   exe "silent doau FileWritePre" fnameescape(expand("<amatch>"))
+	" 	\ | echo "TODO"
+	" 	\ | exe "silent doau FileWritePost" fnameescape(expand("<amatch>"))
+    "
+	" au SourceCmd ssh://*
+	" 	\   exe "silent doau FileWritePre" fnameescape(expand("<amatch>"))
+	" 	\ | echo "TODO"
+	" 	\ | exe "silent doau FileWritePost" fnameescape(expand("<amatch>"))
+
+augroup END
 
 lua << EOF
 local function open_pdf_out()
@@ -714,13 +806,34 @@ execprg = {
 	pandoc = open_pdf_out,
 	dot = open_pdf_out,
 }
+
+-- TODO make this work
+function snip_complete()
+	return {
+		{
+			word = ([[
+logging.basicConfig(
+    format="%(asctime)s.%(msecs)03d [%(levelname)s] [%(name)s:%(lineno)d] %(message)s",
+    datefmt="%Y%m%d:%H:%M:%S",
+    level=logging.DEBUG,
+)
+			]]):gsub("\n", "\r"),
+			abbr = "logging.basicConfig(...)",
+		}
+	}
+end
 EOF
+
+inoremap <c-r><c-x> <c-r>=complete(col("."), v:lua.snip_complete()) ? "" : ""<cr>
 
 call sl#enable()
 
 " HACK for fixing colorscheme
 hi diffAdded ctermfg=green
 hi diffRemoved ctermfg=red
+exec "doau <nomodeline> ColorScheme" g:colors_name
+
+exec "source" g:configdir . "/init2.lua"
 
 " Stop plugins from pollution leader
 let mapleader = "\\"
