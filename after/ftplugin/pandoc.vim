@@ -8,7 +8,7 @@ setlocal formatoptions=roqnlj
 setlocal spell
 setlocal wrap
 
-let &l:makeprg = 'pandoc "%" -o ' . g:pdf_out . ' $*'
+let &l:makeprg = 'pandoc "%" -o ' . g:pdf_out . ' --pdf-engine=tectonic $*'
 
 function! PandocFold()
 	let depth = match(getline(v:lnum), '\(^#\+\)\@<=\( .*$\)\@=')

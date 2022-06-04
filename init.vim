@@ -1,5 +1,9 @@
 " vim: set foldmethod=marker:
 
+if exists("g:vscode")
+	finish " Config is incompatible
+endif
+
 let g:configdir = fnamemodify($MYVIMRC, ':p:h')
 
 " This needs to be early I think
@@ -22,8 +26,9 @@ Plug 'nvim-lua/plenary.nvim'
 
 " Language Server Protocol
 Plug 'neovim/nvim-lspconfig'
-Plug 'ray-x/lsp_signature.nvim'
 Plug 'jose-elias-alvarez/null-ls.nvim'
+Plug 'ray-x/lsp_signature.nvim'
+Plug 'kosayoda/nvim-lightbulb'
 
 " Completion
 Plug 'hrsh7th/nvim-cmp'
@@ -36,13 +41,14 @@ Plug 'hrsh7th/cmp-cmdline'
 Plug 'ayu-theme/ayu-vim'
 Plug 'junegunn/goyo.vim'
 Plug 'mbbill/undotree'
+Plug 'luochen1990/rainbow'
+Plug 'nvim-telescope/telescope.nvim'
 
 " Workflow/Misc
 Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch'
 Plug 'ralismark/vim-recover'
 Plug 'chrisbra/Colorizer'
-Plug 'rafcamlet/nvim-luapad'
 
 " Syntax/Language
 Plug 'editorconfig/editorconfig-vim'
@@ -79,6 +85,8 @@ nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
 nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
 nnoremap <silent> K  <cmd>lua vim.lsp.buf.hover()<cr>
 
+" TODO: Switch to using numhl when neovim v0.7 gets released <2022-03-18>
+"       This is blocked on neovim/neovim#16914 'don't put empty sign text in line number column'
 sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
 sign define DiagnosticSignWarn  text=▲ texthl=DiagnosticSignWarn  linehl= numhl=
 sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numhl=
@@ -88,16 +96,16 @@ let g:lsp_enable = 1
 
 augroup vimrc_lsp
 	au!
-	au ColorScheme *
-		\ hi LspDiagnosticsVirtualText cterm=italic ctermfg=yellow guifg=yellow
-		\ | hi LspDiagnosticsErrorSign ctermfg=white ctermbg=red guifg=white guibg=red
-		\ | hi LspDiagnosticsWarningSign ctermfg=black ctermbg=yellow guifg=black guibg=yellow
-		\ | hi LspDiagnosticsInformationSign ctermfg=yellow guifg=yellow
-		\ | hi link LspDiagnosticsError LspDiagnosticsVirtualText
-		\ | hi link LspDiagnosticsWarning LspDiagnosticsVirtualText
-		\ | hi link LspDiagnosticsInformation LspDiagnosticsVirtualText
-		\ | hi link LspDiagnosticsHint LspDiagnosticsVirtualText
-		\ | hi LspParameterHint cterm=italic ctermfg=yellow guifg=yellow
+	" au ColorScheme *
+	" 	\ hi DiagnosticsError
+	" 	\ hi DiagnosticsVirtualText        ctermfg=yellow cterm=italic
+	" 	\ | hi DiagnosticsSignError        ctermfg=white ctermbg=red
+	" 	\ | hi DiagnosticsSignWarn         ctermfg=black ctermbg=yellow
+	" 	\ | hi DiagnosticsSignInfo         ctermfg=green
+	" 	\ | hi link DiagnosticsError       DiagnosticsVirtualText
+	" 	\ | hi link DiagnosticsWarning     DiagnosticsVirtualText
+	" 	\ | hi link DiagnosticsInformation DiagnosticsVirtualText
+	" 	\ | hi link DiagnosticsHint        DiagnosticsVirtualText
 
 	au CursorHold * silent lua vim.diagnostic.open_float(nil, { focusable = false })
 
@@ -119,8 +127,8 @@ cmp.setup({
 	}, {
 		{ name = "buffer" },
 	}),
-	experimental = {
-		native_menu = true,
+	view = {
+		entries = "native",
 	},
 	formatting = {
 	},
@@ -145,6 +153,44 @@ imap <expr> <s-tab>
 " Goyo {{{2
 
 let g:goyo_width = 90
+
+" Undotree {{{2
+
+let g:undotree_RelativeTimestamp = 0
+
+" rainbow {{{2
+
+let g:rainbow_active = 0
+let g:rainbow_conf = {
+\	'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick'],
+\	'ctermfgs': ['none', 'lightyellow', 'lightred', 'lightmagenta'],
+\	'guis': [''],
+\	'cterms': [''],
+\	'operators': '',
+\	'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
+\	'separately': {
+\		'*': {},
+\		'markdown': {
+\			'parentheses_options': 'containedin=markdownCode contained',
+\		},
+\		'lisp': {
+\			'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick', 'darkorchid3'],
+\		},
+\		'haskell': {
+\			'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/\v\{\ze[^-]/ end=/}/ fold'],
+\		},
+\		'vim': {
+\			'parentheses_options': 'containedin=vimFuncBody',
+\		},
+\		'perl': {
+\			'syn_name_prefix': 'perlBlockFoldRainbow',
+\		},
+\		'stylus': {
+\			'parentheses': ['start=/{/ end=/}/ fold contains=@colorableGroup'],
+\		},
+\		'css': 0,
+\	}
+\}
 
 " vim-polyglot {{{2
 
@@ -227,7 +273,8 @@ set concealcursor=
 
 " Hidden chars
 set list listchars=tab:│\ ,extends:›,precedes:‹,nbsp:⎵,trail:∙
-set fillchars=eob:\ ,vert:│,fold:─,stl:─,stlnc:─,foldopen:╒,foldclose:═
+set fillchars=eob:\ ,vert:│,fold:─,stl:\ ,stlnc:\ ,diff:-,foldopen:╒,foldclose:═
+
 
 " Line numbers
 set number relativenumber
@@ -299,6 +346,9 @@ set ttimeoutlen=10
 
 " Clipboard
 set clipboard=unnamed,unnamedplus
+
+" c-a and c-x
+set nrformats=alpha,unsigned
 
 " Automate
 set autoread
@@ -421,16 +471,20 @@ endfunction
 function! SortMotion(motion) " {{{2
 	if a:motion ==# "line"
 		'[,']sort
-	elseif a:motion ==# "block"
-		let regex = '/\%' . virtcol("'[") . 'v.*\%<' . (virtcol("']") + 2) . 'v/'
-		exec "'[,']sort" regex
 	elseif a:motion ==# "V"
 		exec "normal! \<esc>"
 		'<,'>sort
+	elseif a:motion ==# "block"
+		let [left, right] = sort([virtcol("'["), virtcol("']")], "n")
+		let regex = '/\%>' . (left - 1) . 'v.*\%<' . (right + 2) . 'v/'
+		exec "'[,']sort" regex "r"
 	elseif a:motion ==# "\<c-v>"
-		let regex = '/\%' . virtcol("'<") . 'v.*\%<' . (virtcol("'>") + 2) . 'v/'
 		exec "normal! \<esc>"
-		exec "'<,'>sort" regex
+		let [left, right] = sort([virtcol("'<"), virtcol("'>")], "n")
+		let regex = '/\%>' . (left - 1) . 'v.*\%<' . (right + 2) . 'v/'
+		exec "'<,'>sort" regex "r"
+	elseif type(a:motion) == v:t_number
+		exec ".,.+" . a:motion . "sort"
 	endif
 endfunction
 
@@ -472,7 +526,7 @@ augroup vimrc
 	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
 
 	au FocusLost,VimLeavePre *
-		\ if (&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite'
+		\ if ((&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite') && !&readonly
 		\ | 	silent update
 		\ | endif
 	au VimResized * wincmd =
@@ -559,7 +613,7 @@ xnoremap <expr> p '"' . v:register . 'pgv' . '"' . v:register . 'y'
 
 " sort motion
 nnoremap gs <cmd>set operatorfunc=SortMotion<cr>g@
-nnoremap gss <nop>
+nnoremap gss <cmd>call SortMotion(v:count1)<cr>
 xnoremap gs <cmd>call SortMotion(mode())<cr>
 
 " surround operation
@@ -647,7 +701,6 @@ let mapleader = "\<Space>"
 nnoremap <leader> <nop>
 nnoremap <leader>x <cmd>call v:lua.exec_current()<cr>
 nnoremap <leader>m <cmd>Dispatch<cr>
-nnoremap <leader>z <cmd>term<cr><cmd>startinsert<cr>
 
 " misc
 nnoremap <silent> <leader>r <cmd>mode <bar> syntax sync fromstart<cr>
@@ -661,6 +714,7 @@ nnoremap <silent> <leader>ow <cmd>set wrap! <bar> set wrap?<cr>
 nnoremap <silent> <leader>ou <cmd>UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os <cmd>set spell! <bar> set spell?<cr>
 nnoremap <silent> <leader>og <cmd>Goyo<cr>ze
+nnoremap <silent> <leader>on <cmd>set relativenumber! <bar> set relativenumber?<cr>
 nnoremap <expr> <silent> <leader>od (&diff ? '<cmd>diffoff' : '<cmd>diffthis') . ' <bar> set diff?<cr>'
 
 " file ctl
@@ -740,6 +794,10 @@ execprg = {
 		local stem = vim.fn.expand("%:r")
 		vim.fn.jobstart({ "xdg-open", stem .. ".pdf" })
 	end,
+	java = function()
+		vim.api.cmd("botright split")
+		vim.fn.termopen({"java", vim.fn.expand("%")})
+	end,
 
 	rmd = open_pdf_out,
 	pandoc = open_pdf_out,
@@ -767,9 +825,6 @@ inoremap <c-r><c-x> <c-r>=complete(col("."), v:lua.snip_complete()) ? "" : ""<cr
 
 call sl#enable()
 
-" HACK for fixing colorscheme
-hi diffAdded ctermfg=green
-hi diffRemoved ctermfg=red
 exec "doau <nomodeline> ColorScheme" g:colors_name
 
 exec "source" g:configdir . "/init2.lua"
