@@ -45,6 +45,12 @@ lspconfig.rust_analyzer.setup {
 lspconfig.clangd.setup {
 }
 
+lspconfig.jdtls.setup {
+	cmd = {
+		"jdtls",
+	}
+}
+
 -- require "isabelle"
 -- lspconfig.isabelle.setup {}
 
@@ -53,6 +59,7 @@ null_ls.setup({
 	sources = {
 		null_ls.builtins.formatting.black,
 		null_ls.builtins.diagnostics.shellcheck,
+		null_ls.builtins.diagnostics.vale,
 	},
 })
 
@@ -67,3 +74,18 @@ require "lsp_signature".setup({
 	hint_prefix = "◇ ",
 	hint_scheme = "LspParameterHint",
 })
+
+-- nvim-lightbulb {{{2
+
+require "nvim-lightbulb".setup {
+	autocmd = {
+		enabled = true,
+	},
+}
+
+vim.cmd([[
+	augroup vimrc_lightbulb
+		au!
+		au CursorHold,CursorHoldI * lua require"nvim-lightbulb".update_lightbulb()
+	augroup END
+]])
