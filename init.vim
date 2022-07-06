@@ -823,8 +823,6 @@ EOF
 
 inoremap <c-r><c-x> <c-r>=complete(col("."), v:lua.snip_complete()) ? "" : ""<cr>
 
-call sl#enable()
-
 exec "doau <nomodeline> ColorScheme" g:colors_name
 
 exec "source" g:configdir . "/init2.lua"
