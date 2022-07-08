@@ -28,8 +28,9 @@ function! vsurround#run(motion) " {{{
 	if a:motion ==# "line"
 		'[,']s/^\(\s*\)\(.\+\)$/\=submatch(1) . openchar . submatch(2) . closechar
 	elseif a:motion ==# "block"
-		let width = virtcol("'>") + 1 - virtcol("'<")
-		let pattern = '\%' . virtcol("'[") . 'v.*\%<' . (virtcol("']") + 2) . 'v'
+		let [left, right] = sort([virtcol("'["), virtcol("']")], "n")
+		let width = right + 1 - left
+		let pattern = '\%' . left . 'v.*\%<' . (right + 2) . 'v'
 		exec "'<,'>s/" . pattern . '/\=openchar . submatch(0) . repeat(" ", width - len(submatch(0))) . closechar'
 	elseif a:motion ==# "char"
 		s/\%'\[.*\%'\]./\=openchar . submatch(0) . closechar
@@ -39,8 +40,9 @@ function! vsurround#run(motion) " {{{
 		'<,'>s/^\(\s*\)\(.\+\)$/\=submatch(1) . openchar . submatch(2) . closechar
 	elseif a:motion ==# "\<c-v>"
 		exec "normal! \<esc>"
-		let width = virtcol("'>") + 1 - virtcol("'<")
-		let pattern = '\%' . virtcol("'<") . 'v.*\%<' . (virtcol("'>") + 2) . 'v'
+		let [left, right] = sort([virtcol("'<"), virtcol("'>")], "n")
+		let width = right + 1 - left
+		let pattern = '\%' . left . 'v.*\%<' . (right + 2) . 'v'
 		exec "'<,'>s/" . pattern . '/\=openchar . submatch(0) . repeat(" ", width - len(submatch(0))) . closechar'
 		normal! g`<
 	elseif a:motion ==# "v"

@@ -37,16 +37,23 @@ Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
 
+" Snippets
+Plug 'L3MON4D3/LuaSnip'
+Plug 'saadparwaiz1/cmp_luasnip'
+
+" " Tree-Sitter
+" Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+
 " UI
 Plug 'ayu-theme/ayu-vim'
 Plug 'junegunn/goyo.vim'
 Plug 'mbbill/undotree'
 Plug 'luochen1990/rainbow'
-Plug 'nvim-telescope/telescope.nvim'
 
 " Workflow/Misc
+Plug 'nvim-telescope/telescope.nvim'
 Plug 'tpope/vim-dispatch'
-Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-eunuch' | let g:eunuch_no_maps = 1
 Plug 'ralismark/vim-recover'
 Plug 'chrisbra/Colorizer'
 
@@ -57,8 +64,8 @@ let g:polyglot_disabled = ["latex"]
 Plug 'sheerun/vim-polyglot'
 
 " Editing
-let itab#disable_maps = 0
-Plug 'ralismark/itab'
+" let itab#disable_maps = 0
+" Plug 'ralismark/itab'
 Plug 'junegunn/vim-easy-align'
 Plug 'kana/vim-textobj-entire'
 Plug 'kana/vim-textobj-indent'
@@ -72,7 +79,7 @@ Plug '/usr/share/vim/vimfiles'
 
 Plug g:configdir . '/bundle/vimrc'
 Plug g:configdir . '/bundle/vsurround'
-" Plug g:configdir . '/bundle/isabelle'
+Plug g:configdir . '/bundle/isabelle'
 
 call plug#end()
 
@@ -80,10 +87,13 @@ call plug#end()
 
 command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients()) <bar> let g:lsp_enable = 0
 
+nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>
 nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
 nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
 nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
 nnoremap <silent> K  <cmd>lua vim.lsp.buf.hover()<cr>
+nnoremap <silent> H  <cmd>lua vim.lsp.buf.code_action()<cr>
+xnoremap <silent> H  <cmd>lua vim.lsp.buf.range_code_action()<cr>
 
 " TODO: Switch to using numhl when neovim v0.7 gets released <2022-03-18>
 "       This is blocked on neovim/neovim#16914 'don't put empty sign text in line number column'
@@ -112,43 +122,6 @@ augroup vimrc_lsp
 	" au BufWritePre * silent! lua vim.lsp.buf.formatting_sync(nil, 1000)
 
 augroup END
-
-" Autocomplete (nvim-cmp) {{{2
-
-lua << EOF
-local cmp = require "cmp"
-
-cmp.setup({
-	mapping = {
-	},
-	sources = cmp.config.sources({
-		{ name = "nvim_lsp" },
-		{ name = "path" },
-	}, {
-		{ name = "buffer" },
-	}),
-	view = {
-		entries = "native",
-	},
-	formatting = {
-	},
-	completion = {
-	},
-})
-
-EOF
-
-inoremap <expr> <Plug>(cmp-complete) luaeval("require'cmp'.complete()") ? "" : ""
-inoremap <expr> <Plug>(cmp-select-next-item) luaeval("require'cmp'.select_next_item()") ? "" : ""
-inoremap <expr> <Plug>(cmp-select-prev-item) luaeval("require'cmp'.select_prev_item()") ? "" : ""
-
-imap <silent><expr> <tab>
-	\ luaeval("require'cmp'.visible()") ? "\<Plug>(cmp-select-next-item)"
-	\ : (col('.') > 1 && getline('.')[col('.') - 2] !~ '\s') ? "\<Plug>(cmp-complete)"
-	\ : "\<Plug>ItabTab"
-imap <expr> <s-tab>
-	\ luaeval("require'cmp'.visible()") ? "\<Plug>(cmp-select-prev-item)"
-	\ : "\t"
 
 " Goyo {{{2
 
@@ -277,7 +250,7 @@ set fillchars=eob:\ ,vert:│,fold:─,stl:\ ,stlnc:\ ,diff:-,foldopen:╒,foldc
 
 
 " Line numbers
-set number relativenumber
+set number norelativenumber
 set signcolumn=number " signs in number column
 
 " Line wrapping, toggle bound to <space>ow
@@ -437,7 +410,14 @@ function! TabLine() " {{{2
 		let s .= " %0T%#TabLine".mode."I#%#TabLineFill#"
 	endfor
 
-	return "%=" . s . "%#TabLineFill#%="
+	let s = "%=" . s . "%#TabLineFill#%="
+
+	let n_errs = luaeval("#vim.diagnostic.get(nil, { severity = vim.diagnostic.severity.ERROR })")
+	let n_warn = luaeval("#vim.diagnostic.get(nil, { severity = vim.diagnostic.severity.WARNING })") - n_errs
+	if n_errs != 0 || n_warn != 0
+		let s = s . "" . (n_errs ? " E:" . n_errs : "") . (n_warn ? " W:" . n_warn : "") . " "
+	endif
+	return s
 endfunction
 
 augroup vimrc_tabline
@@ -472,14 +452,14 @@ function! SortMotion(motion) " {{{2
 	if a:motion ==# "line"
 		'[,']sort
 	elseif a:motion ==# "V"
-		exec "normal! \<esc>"
+		exec "normal! \<c-\>\<c-n>"
 		'<,'>sort
 	elseif a:motion ==# "block"
 		let [left, right] = sort([virtcol("'["), virtcol("']")], "n")
 		let regex = '/\%>' . (left - 1) . 'v.*\%<' . (right + 2) . 'v/'
 		exec "'[,']sort" regex "r"
 	elseif a:motion ==# "\<c-v>"
-		exec "normal! \<esc>"
+		exec "normal! \<c-\>\<c-n>"
 		let [left, right] = sort([virtcol("'<"), virtcol("'>")], "n")
 		let regex = '/\%>' . (left - 1) . 'v.*\%<' . (right + 2) . 'v/'
 		exec "'<,'>sort" regex "r"
@@ -566,9 +546,12 @@ augroup vimrc
 		\ CRED CREDIT THANKS
 		\ STAT STATUS
 		\ RVD REVIEWED REVIEW
+		\ SAFETY
 		\ | hi def link Codetags Todo
 
-" FAQ
+	" diagnostics
+	au DiagnosticChanged * lua require"vimrc.diagnostic".update_qf()
+
 augroup END
 
 " Bindings {{{1
@@ -579,6 +562,87 @@ command! -nargs=0 W exec "w !pkexec tee %:p >/dev/null" | setl nomod
 " This, for some reason, doesn't work if you put it in a function
 command! -nargs=+ Keepview let s:view_save = winsaveview() | exec <q-args> | call winrestview(s:view_save)
 command! -nargs=+ -complete=file Fork call jobstart(<q-args>)
+command! -nargs=* -complete=lua LP lua print(vim.inspect(<args>))
+
+" Multitools {{{2
+
+lua << EOF
+local luasnip = require "luasnip"
+local cmp = require "cmp"
+
+local function has_words_before()
+	local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+	return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
+
+local function interp(x)
+	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false)
+end
+
+-- these can't be <expr> maps since inserting text is forbidden while evaluating the map
+
+vim.keymap.set({ "i", "s" }, "<tab>", function()
+	if cmp.visible() then
+		cmp.select_next_item()
+	elseif luasnip.expand_or_locally_jumpable() then
+		luasnip.expand_or_jump()
+	elseif has_words_before() then
+		cmp.complete()
+	else
+		interp("<Tab>")
+	end
+end)
+
+vim.keymap.set({ "i", "s" }, "<s-tab>", function()
+	if cmp.visible() then
+		cmp.select_prev_item()
+	elseif luasnip.in_snippet() and luasnip.jumpable(-1) then
+		luasnip.jump(-1)
+	else
+		interp("<Tab>")
+	end
+end)
+
+vim.keymap.set({ "i", "s"}, "<cr>", function()
+	if cmp.get_selected_entry() ~= nil then
+		cmp.confirm()
+	else
+		interp("<cr>")
+	end
+end)
+
+vim.keymap.set({ "i", "s" }, "<c-j>", function()
+	if cmp.get_selected_entry() ~= nil then
+		cmp.confirm()
+		return
+	end
+	if cmp.visible() then
+		cmp.close()
+	end
+	if luasnip.expand_or_locally_jumpable() then
+		luasnip.expand_or_jump()
+	end
+end)
+
+vim.keymap.set({ "i", "s" }, "<c-k>", function()
+	if luasnip.in_snippet() and luasnip.jumpable(-1) then
+		luasnip.jump(-1)
+	end
+end)
+
+-- vim.keymap.set("i", "<space>", function()
+-- 	if cmp.visible() then
+-- 		cmp.confirm()
+-- 	end
+-- 	interp("<space>")
+-- end)
+
+EOF
+
+map <expr> <return>
+	\ (&buftype == "help" <bar><bar> expand("%:p") =~ "^man://") ? "\<c-]>"
+	\ : &buftype == "quickfix" ? "\<CR>"
+	\ : "@q"
 
 " Misc {{{2
 
@@ -587,23 +651,11 @@ NXnoremap <right> zl
 NXnoremap <up> <c-y>
 NXnoremap <down> <c-e>
 
-" Insert ISO 8601 date
-noremap! <c-r><c-d> <c-r>=strftime("%Y-%m-%d")<cr>
-" Insert name of tempfile
-noremap! <c-r><c-t> <c-r>=tempname()<cr>
-
-inoremap <c-e> <c-o><c-e>
-inoremap <c-y> <c-o><c-y>
-
 " better binds
 noremap ; :
 noremap , ;
 noremap ' `
 noremap <silent> <expr> 0 &wrap ? 'g0' : '0'
-map <expr> <return>
-	\ or(&buftype == 'help', expand("%:p") =~ '^man://') ? "\<c-]>"
-	\ : &buftype == 'quickfix' ? "\<CR>"
-	\ : "@q"
 command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/[\x0d[:space:]]\+$//e | nohl
 NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
@@ -663,10 +715,35 @@ noremap <expr> $ &wrap ? "g$" : "$"
 xnoremap < <gv
 xnoremap > >gv
 
+" Select pasted text
+" TODO this doesn't work when pasting from non-default registers
+nnoremap <expr> gp "`[" . getregtype()[0] . "`]"
+
 " Register-preserving delete
 NXmap X "_d
 nmap XX "_dd
 nnoremap x "_x
+
+nnoremap <c-f> "xyy
+xnoremap <c-f> "xy
+inoremap <c-f> <cmd>lua require("luasnip.extras.otf").on_the_fly("x")<cr>
+
+" Insert mode {{{2
+
+" Insert ISO 8601 date
+noremap! <c-r><c-d> <c-r>=strftime("%Y-%m-%d")<cr>
+
+inoremap <c-r><c-r> <c-r>"
+cnoremap <c-r><c-r> <c-r>"
+snoremap <c-r><c-r> <c-r>"
+
+inoremap <c-e> <c-o><c-e>
+inoremap <c-y> <c-o><c-y>
+
+" readline binds
+inoremap <c-a> <c-o>^
+cnoremap <c-a> <Home>
+cnoremap <c-k> <c-\>egetcmdline()[:getcmdpos()-2]<cr>
 
 " Terminal {{{2
 
@@ -715,6 +792,9 @@ nnoremap <silent> <leader>ou <cmd>UndotreeToggle<cr><c-w>999h
 nnoremap <silent> <leader>os <cmd>set spell! <bar> set spell?<cr>
 nnoremap <silent> <leader>og <cmd>Goyo<cr>ze
 nnoremap <silent> <leader>on <cmd>set relativenumber! <bar> set relativenumber?<cr>
+nnoremap <silent><expr> <leader>oc getqflist({"winid":0}).winid ? "<cmd>cclose<cr>" : "<cmd>botright copen<cr>"
+nnoremap <silent><expr> <leader>ol getloclist(0, {"winid":0}).winid ? "<cmd>botright lclose<cr>" : "<cmd>botright lopen<cr>"
+nnoremap <silent><expr> <leader>oL getqflist({"winid":0}).winid ? "<cmd>cclose<cr>" : "<cmd>lua require'vimrc.diagnostic'.load_qf()<cr><cmd>botright copen<cr>"
 nnoremap <expr> <silent> <leader>od (&diff ? '<cmd>diffoff' : '<cmd>diffthis') . ' <bar> set diff?<cr>'
 
 " file ctl
@@ -783,7 +863,7 @@ execprg = {
 		vim.cmd("source %")
 	end,
 	lua = function()
-		vim.api.cmd("luafile %")
+		vim.cmd("luafile %")
 	end,
 
 	html = function()
@@ -795,33 +875,16 @@ execprg = {
 		vim.fn.jobstart({ "xdg-open", stem .. ".pdf" })
 	end,
 	java = function()
-		vim.api.cmd("botright split")
+		vim.cmd("botright split")
 		vim.fn.termopen({"java", vim.fn.expand("%")})
 	end,
 
 	rmd = open_pdf_out,
 	pandoc = open_pdf_out,
 	dot = open_pdf_out,
+	mermaid = open_pdf_out,
 }
-
--- TODO make this work
-function snip_complete()
-	return {
-		{
-			word = ([[
-logging.basicConfig(
-    format="%(asctime)s.%(msecs)03d [%(levelname)s] [%(name)s:%(lineno)d] %(message)s",
-    datefmt="%Y%m%d:%H:%M:%S",
-    level=logging.DEBUG,
-)
-			]]):gsub("\n", "\r"),
-			abbr = "logging.basicConfig(...)",
-		}
-	}
-end
 EOF
-
-inoremap <c-r><c-x> <c-r>=complete(col("."), v:lua.snip_complete()) ? "" : ""<cr>
 
 exec "doau <nomodeline> ColorScheme" g:colors_name
 
