@@ -77,7 +77,6 @@ Plug 'tomtom/tcomment_vim'
 " System
 Plug '/usr/share/vim/vimfiles'
 
-Plug g:configdir . '/bundle/vimrc'
 Plug g:configdir . '/bundle/vsurround'
 Plug g:configdir . '/bundle/isabelle'
 
