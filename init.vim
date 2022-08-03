@@ -56,6 +56,7 @@ Plug 'tpope/vim-dispatch'
 Plug 'tpope/vim-eunuch' | let g:eunuch_no_maps = 1
 Plug 'ralismark/vim-recover'
 Plug 'chrisbra/Colorizer'
+Plug 'NMAC427/guess-indent.nvim'
 
 " Syntax/Language
 Plug 'editorconfig/editorconfig-vim'
@@ -86,7 +87,9 @@ call plug#end()
 " Neovim Native LSP {{{2
 
 command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients()) <bar> let g:lsp_enable = 0
+command! -nargs=0 LspDebug lua vim.lsp.set_log_level(vim.log.levels.DEBUG)
 
+" TODO add a timeout to these <2022-07-10>
 nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>
 nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
 nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
@@ -204,6 +207,7 @@ endif
 
 set diffopt+=algorithm:patience,indent-heuristic
 set updatetime=1000
+set shell=$SHELL
 
 let g:man_hardwrap = 0
 
@@ -400,6 +404,7 @@ endfunction
 
 function! TabLine() " {{{2
 	let s = ""
+
 	for i in range(1, tabpagenr("$"))
 		let s .= i == 1 ? "" : " "
 
@@ -412,10 +417,12 @@ function! TabLine() " {{{2
 
 	let s = "%=" . s . "%#TabLineFill#%="
 
+	" let s = getcwd() . " " . s
+
 	let n_errs = luaeval("#vim.diagnostic.get(nil, { severity = vim.diagnostic.severity.ERROR })")
 	let n_warn = luaeval("#vim.diagnostic.get(nil, { severity = vim.diagnostic.severity.WARNING })") - n_errs
 	if n_errs != 0 || n_warn != 0
-		let s = s . "" . (n_errs ? " E:" . n_errs : "") . (n_warn ? " W:" . n_warn : "") . " "
+		let s .= "" . (n_errs ? " E:" . n_errs : "") . (n_warn ? " W:" . n_warn : "") . " "
 	endif
 	return s
 endfunction
@@ -529,9 +536,6 @@ augroup vimrc
 		\ SAFETY
 		\ | hi def link Codetags Todo
 
-	" diagnostics
-	au DiagnosticChanged * lua require"vimrc.diagnostic".update_qf()
-
 augroup END
 
 " Bindings {{{1
@@ -641,10 +645,12 @@ NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
 nnoremap Y y$
 nnoremap g= 1z=
-xnoremap <expr> p '"' . v:register . 'pgv' . '"' . v:register . 'y'
+nnoremap & <cmd>&&<cr>
+xnoremap & <c-\><c-n><cmd>'<,'>&&<cr>
+xnoremap p P
 
 " surround operation
-NXmap s <Plug>(vsurround)
+xmap s <Plug>(vsurround)
 
 " listify
 function! Listify(motion) " {{{
@@ -728,16 +734,20 @@ tnoremap <esc> <c-\><c-n>
 " Buffer/window/tab {{{2
 
 " Buffer/Tab switching
-nnoremap <silent> [b :bp<cr>
-nnoremap <silent> ]b :bn<cr>
-nnoremap <silent> [t :tabp<cr>
-nnoremap <silent> ]t :tabn<cr>
+nnoremap <silent> [b <cmd>bprev<cr>
+nnoremap <silent> ]b <cmd>bnext<cr>
+nnoremap <silent> [t <cmd>tabprev<cr>
+nnoremap <silent> ]t <cmd>tabnext<cr>
+nnoremap <silent> [T <cmd>tabmove -1<cr>
+nnoremap <silent> ]T <cmd>tabmove +1<cr>
 
 " quickfix browse
-nnoremap <silent> [c :cprev<cr>
-nnoremap <silent> ]c :cnext<cr>
-nnoremap <silent> [l :lprev<cr>
-nnoremap <silent> ]l :lnext<cr>
+nnoremap <silent> [c <cmd>cprev<cr>
+nnoremap <silent> ]c <cmd>cnext<cr>
+nnoremap <silent> [l <cmd>lprev<cr>
+nnoremap <silent> ]l <cmd>lnext<cr>
+nnoremap <silent> ]d <cmd>lua vim.diagnostic.goto_next()<cr>
+nnoremap <silent> [d <cmd>lua vim.diagnostic.goto_prev()<cr>
 
 " Buffer ctl
 nnoremap <c-h> <c-w>h
@@ -777,6 +787,7 @@ nnoremap <leader>w <cmd>up<cr>
 nnoremap <leader>q <cmd>q<cr>
 
 nnoremap <leader>ev <cmd>e $MYVIMRC<cr>
+nnoremap <leader>el <cmd>exec "e" g:configdir . "/init2.lua"<cr>
 nnoremap <leader>ee <cmd>call OpenCorresponding()<cr>
 
 " cleanup
@@ -838,7 +849,14 @@ execprg = {
 		vim.cmd("source %")
 	end,
 	lua = function()
-		vim.cmd("luafile %")
+		local mod = require "vimrc.reload".module_from_path(vim.fn.expand("%:p"))
+		if mod ~= nil then
+			print("Reloading " .. mod)
+			require "plenary.reload".reload_module(mod, false)
+			require(mod)
+		else
+			vim.cmd("luafile %")
+		end
 	end,
 
 	html = function()

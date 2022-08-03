@@ -54,7 +54,7 @@ lspconfig.clangd.setup {
 
 lspconfig.jdtls.setup {
 	cmd = {
-		"java",
+		"/usr/bin/java", -- BUGFIX this needs to be at least java17, dotenv can cause this to be older so use global one <2022-07-10>
 		"-Declipse.application=org.eclipse.jdt.ls.core.id1",
 		"-Dosgi.bundles.defaultStartLevel=4",
 		"-Declipse.product=org.eclipse.jdt.ls.core.product",
@@ -216,11 +216,22 @@ require "vimrc.luasnip"
 -- telescope {{{2
 
 require "telescope".setup {
+	defaults = {
+		-- sorting_strategy = "ascending",
+	},
 }
 
+vim.keymap.set("n", "<leader><leader>b", function()
+	require "telescope.builtin".buffers {
+		sort_mru = true,
+	}
+end)
+
 vim.keymap.set("n", "<leader><leader>f", function()
-	require "telescope.builtin".find_files {
+	require "vimrc.telescope_live_file" {
+	-- require "telescope.builtin".find_files {
 		cwd = require "lspconfig".util.find_git_ancestor(vim.fn.getcwd()),
+		sorter = require "telescope.sorters".get_fuzzy_file(),
 	}
 end)
 
@@ -229,7 +240,18 @@ vim.keymap.set("n", "<leader><leader>g", function()
 	}
 end)
 
--- Misc {{{1
+-- guess-indent {{{2
+
+require "guess-indent".setup {
+	auto_cmd = true,
+}
+
+-- local {{{2
+
+require "vimrc.diagnostic".setup {
+}
+
+-- Statusline {{{1
 
 local function lazy(e)
 	return function()
@@ -313,3 +335,12 @@ require "vimrc.statusline".setup {
 		z = { "n_errors" },
 	},
 }
+
+-- Other vimrc modules {{{1
+
+vim.keymap.set("n", "<c-g>", function()
+	local msg = require "vimrc.git_blame".blame()
+	if msg ~= nil then
+		print(msg)
+	end
+end)

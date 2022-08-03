@@ -42,7 +42,7 @@ function M.make_status(config)
 			error "component is not a table"
 		end
 
-		if x.visible ~= nil and x.visible() then
+		if x.visible ~= nil and vim.api.nvim_win_call(vim.g.statusline_winid, x.visible) then
 			return nil
 		end
 		local c = vim.api.nvim_win_call(vim.g.statusline_winid, x.content)
