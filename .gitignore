@@ -11,9 +11,5 @@ session/
 spell/*.spl
 spell/en.utf-8.sug
 
-# plug.vim
-autoload/plug.vim
-autoload/plug.vim.old
-
 # nix
 /result
