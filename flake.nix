@@ -9,13 +9,18 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
+
     neovim = {
       url = "github:neovim/neovim?dir=contrib&ref=v0.7.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { self, nixpkgs, flake-utils, neovim }:
+  outputs = { self, nixpkgs, flake-utils, neovim, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
