@@ -24,15 +24,17 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
-        neovim-underlying = neovim.packages.${system}.neovim;
+        neovim-unwrapped = neovim.packages.${system}.neovim;
+        vim-plug = pkgs.vimPlugins.vim-plug;
       in
       rec {
-        apps.default = apps.remote-wrapper;
-        packages.default = packages.remote-wrapper;
-
-        apps.remote-wrapper = {
+        apps.default = {
           type = "app";
           program = "${packages.remote-wrapper}/bin/vim";
+        };
+        packages.default = pkgs.symlinkJoin {
+          name = "neovim";
+          paths = [ packages.remote-wrapper packages.my-neovim ];
         };
 
         # The dependency on neovim-remote is mainly because --remote-wait is unsupported
@@ -49,15 +51,21 @@
           fi
         '';
 
-        packages.my-neovim = pkgs.wrapNeovim neovim-underlying {
+        packages.my-neovim = pkgs.wrapNeovim neovim-unwrapped {
           withRuby = false;
           configure = {
             customRC = ''
+              source ${vim-plug.rtp}/plug.vim
+
               " for now, bootstrap into actual vimrc
               let &rtp .= "," .. stdpath("config")
               let $MYVIMRC = stdpath("config") .. "/init.vim"
               source $MYVIMRC
             '';
+
+            packages.main = {
+              start = [ vim-plug ];
+            };
           };
         };
       });
