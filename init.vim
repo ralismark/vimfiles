@@ -73,6 +73,7 @@ Plug 'kana/vim-textobj-user'
 Plug 'sgur/vim-textobj-parameter'
 Plug 'thinca/vim-textobj-between'
 Plug 'tomtom/tcomment_vim'
+Plug 'ralismark/opsort.vim'
 
 " System
 Plug '/usr/share/vim/vimfiles'
@@ -447,26 +448,6 @@ function! OperatorFuncTest(motion) " {{{2
 	endif
 endfunction
 
-function! SortMotion(motion) " {{{2
-	if a:motion ==# "line"
-		'[,']sort
-	elseif a:motion ==# "V"
-		exec "normal! \<c-\>\<c-n>"
-		'<,'>sort
-	elseif a:motion ==# "block"
-		let [left, right] = sort([virtcol("'["), virtcol("']")], "n")
-		let regex = '/\%>' . (left - 1) . 'v.*\%<' . (right + 2) . 'v/'
-		exec "'[,']sort" regex "r"
-	elseif a:motion ==# "\<c-v>"
-		exec "normal! \<c-\>\<c-n>"
-		let [left, right] = sort([virtcol("'<"), virtcol("'>")], "n")
-		let regex = '/\%>' . (left - 1) . 'v.*\%<' . (right + 2) . 'v/'
-		exec "'<,'>sort" regex "r"
-	elseif type(a:motion) == v:t_number
-		exec ".,.+" . a:motion . "sort"
-	endif
-endfunction
-
 function! OpenCorresponding() " {{{2
 	let candidate_exts = get(g:corresmap, expand("%:e"), [])
 	for ext in candidate_exts
@@ -661,11 +642,6 @@ noremap <s-return> @w
 nnoremap Y y$
 nnoremap g= 1z=
 xnoremap <expr> p '"' . v:register . 'pgv' . '"' . v:register . 'y'
-
-" sort motion
-nnoremap gs <cmd>set operatorfunc=SortMotion<cr>g@
-nnoremap gss <cmd>call SortMotion(v:count1)<cr>
-xnoremap gs <cmd>call SortMotion(mode())<cr>
 
 " surround operation
 NXmap s <Plug>(vsurround)
