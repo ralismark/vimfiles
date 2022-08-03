@@ -71,6 +71,8 @@ local function java_parse_signature()
 			access = "protected"
 		elseif consume("static%s+") then
 			static = true
+		elseif consume("abstract%s+") then
+			abstract = true
 		elseif consume("final%s+") then
 			final = true
 		end
