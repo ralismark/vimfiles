@@ -249,30 +249,33 @@ require "vimrc.statusline".setup {
 		ll_filename = lazy("ll#filename()"),
 		ll_rostate = lazy("ll#rostate()"),
 		ll_wordcount = lazy("ll#wordcount()"),
-		ll_lsp = function()
-			local clients = vim.tbl_values(vim.tbl_map(function(x) return x.name end, vim.lsp.buf_get_clients()))
-			if #clients == 0 then
-				return nil
-			end
-			return "lsp:" .. table.concat(vim.fn.uniq(vim.fn.sort(clients)), " ")
-		end,
+		ll_lsp = {
+			-- visible = function() return vim.fn.winwidth(0) > 40 end,
+			content = function()
+				local clients = vim.tbl_values(vim.tbl_map(function(x) return x.name end, vim.lsp.buf_get_clients()))
+				if #clients == 0 then
+					return nil
+				end
+				return "lsp:" .. table.concat(vim.fn.uniq(vim.fn.sort(clients)), " ")
+			end,
+		},
 		eol = function()
 			if vim.o.ff == "unix" then
-				if vim.fn.has("unix") or vim.fn.has("linux") or vim.fn.has("wsl") or vim.fn.has("bsd") then
+				if vim.fn.has("unix") > 0 or vim.fn.has("linux") > 0 or vim.fn.has("wsl") > 0 or vim.fn.has("bsd") > 0 then
 					return nil
 				else
 					return "\\n"
 				end
 			end
 			if vim.o.ff == "dos" then
-				if vim.fn.has("win22") or vim.fn.has("win64") then
+				if vim.fn.has("win22") > 0 or vim.fn.has("win64") > 0 then
 					return nil
 				else
 					return "\\r\\n"
 				end
 			end
 			if vim.o.ff == "mac" then
-				if vim.fn.has("mac") then
+				if vim.fn.has("mac") > 0 then
 					return nil
 				else
 					return "\\r"

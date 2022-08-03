@@ -25,12 +25,44 @@ fun! ll#bufinfo() " {{{1
 	return buf_str . (end_tab != 1 ? ' : ' . tab_str : '')
 endfun
 
+fun! ll#relpath() " {{{1
+	let path = split(expand("%:p"), "/")
+	let cwd = split(getcwd(), "/")
+	while len(path) >= 2 && !empty(cwd) && path[0] == cwd[0]
+		call remove(path, 0)
+		call remove(cwd, 0)
+	endwhile
+	return join(repeat([".."], len(cwd)) + path, "/")
+endfun
+
+fun! ll#abspath() " {{{1
+	let path = expand("%:~")
+	let usermount = "~/.local/mount/"
+	if path[:len(usermount) - 1] == usermount
+		let path = "~" . path[len(usermount):]
+	endif
+	return path
+endfun
+
 fun! ll#filename() " {{{1
 	if ll#nonfile()
 		return ''
 	endif
-	let name = bufname('') == '' ? '-' : bufname('')
-	return name
+
+	if bufname('') == ''
+		return '-'
+	" elseif winwidth(0) > 75
+	" 	return substitute(expand("%:~:."), '\([^/]\{1,3}\)[^/]*/', '\1/', 'g')
+	else
+		let relpath = ll#relpath()
+		let abspath = ll#abspath()
+		let path = len(relpath) <= len(abspath) ? relpath : abspath
+		let pat = '^\([^/]*\)/[^/]*/[^/]*/'
+		while len(path) > winwidth(0) / 2 && match(path, pat) == 0
+			let path = substitute(path, pat, '\1/…/', '')
+		endwhile
+		return path
+	endif
 endfun
 
 fun! ll#special(winid) " {{{1
@@ -84,11 +116,7 @@ fun! ll#locpercent() " {{{1
 endfun
 
 fun! ll#location() " {{{1
-	if winwidth(0) > 60
-		return printf('%s %3d:%-2d', ll#locpercent(), line('.'), col('.'))
-	else
-		return printf("%3d", line("."))
-	endif
+	return printf('%s %3d:%-2d', ll#locpercent(), line('.'), col('.'))
 endfun
 
 fun! ll#rostate() " {{{1
@@ -132,7 +160,7 @@ fun! ll#wordcount() " {{{1
 	return 'words: ' . xwords . '/' . wc.words
 endfun
 
-fun ll#lsp() " {{{1
+fun! ll#lsp() " {{{1
 	let clients = luaeval("vim.tbl_values(vim.tbl_map(function(x) return x.name end, vim.lsp.buf_get_clients()))")
 	if len(clients) > 0
 		return "lsp:" . join(uniq(sort(clients)), " ")
