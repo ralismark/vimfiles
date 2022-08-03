@@ -11,9 +11,9 @@ session/
 spell/*.spl
 spell/en.utf-8.sug
 
-# temporary files (swap, undo)
-tempfiles/
-
 # plug.vim
 autoload/plug.vim
 autoload/plug.vim.old
+
+# nix
+/result
