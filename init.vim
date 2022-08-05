@@ -5,9 +5,14 @@ if exists("g:vscode")
 endif
 
 let g:configdir = fnamemodify($MYVIMRC, ':p:h')
+let g:freestanding = exists("g:freestanding") && g:freestanding
 
-" This needs to be early I think
-let g:python3_host_prog = '/usr/bin/python3'
+" Some hosted environment stuff
+if !g:freestanding
+	" This needs to be early I think
+	let g:python3_host_prog = '/usr/bin/python3'
+	set rtp+=/usr/share/vim/vimfiles
+endif
 
 " Plugins {{{1
 
@@ -16,73 +21,11 @@ command! -nargs=+ NXmap      nmap <args>|xmap <args>
 
 if &loadplugins
 
-" Vim-Plug {{{2
-
-call plug#begin(g:configdir . '/plugged')
-
-" Frameworks
-Plug 'tpope/vim-repeat'
-Plug 'nvim-lua/plenary.nvim'
-
-" Language Server Protocol
-Plug 'neovim/nvim-lspconfig'
-Plug 'jose-elias-alvarez/null-ls.nvim'
-Plug 'ray-x/lsp_signature.nvim'
-Plug 'kosayoda/nvim-lightbulb'
-
-" Completion
-Plug 'hrsh7th/nvim-cmp'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-cmdline'
-
-" Snippets
-Plug 'L3MON4D3/LuaSnip'
-Plug 'saadparwaiz1/cmp_luasnip'
-
-" " Tree-Sitter
-" Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-
-" UI
-Plug 'ayu-theme/ayu-vim'
-Plug 'junegunn/goyo.vim'
-Plug 'mbbill/undotree'
-Plug 'luochen1990/rainbow'
-
-" Workflow/Misc
-Plug 'nvim-telescope/telescope.nvim'
-Plug 'tpope/vim-dispatch'
-Plug 'tpope/vim-eunuch' | let g:eunuch_no_maps = 1
-Plug 'ralismark/vim-recover'
-Plug 'chrisbra/Colorizer'
-Plug 'NMAC427/guess-indent.nvim'
-
-" Syntax/Language
-Plug 'editorconfig/editorconfig-vim'
-Plug 'vim-pandoc/vim-pandoc-syntax'
+let g:eunuch_no_maps = 1
 let g:polyglot_disabled = ["latex"]
-Plug 'sheerun/vim-polyglot'
-
-" Editing
-" let itab#disable_maps = 0
-" Plug 'ralismark/itab'
-Plug 'junegunn/vim-easy-align'
-Plug 'kana/vim-textobj-entire'
-Plug 'kana/vim-textobj-indent'
-Plug 'kana/vim-textobj-user'
-Plug 'sgur/vim-textobj-parameter'
-Plug 'thinca/vim-textobj-between'
-Plug 'tomtom/tcomment_vim'
-Plug 'ralismark/opsort.vim'
 
 " System
-Plug '/usr/share/vim/vimfiles'
-
-Plug g:configdir . '/bundle/vsurround'
-Plug g:configdir . '/bundle/isabelle'
-
-call plug#end()
+let &packpath .= "," + g:configdir
 
 " Neovim Native LSP {{{2
 

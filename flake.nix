@@ -18,55 +18,128 @@
       url = "github:neovim/neovim?dir=contrib&ref=v0.7.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # plugins
+    "plugin:vim-repeat" = { url = "github:tpope/vim-repeat"; flake = false; };
+    "plugin:plenary.nvim" = { url = "github:nvim-lua/plenary.nvim"; flake = false; };
+    "plugin:nvim-lspconfig" = { url = "github:neovim/nvim-lspconfig"; flake = false; };
+    "plugin:null-ls.nvim" = { url = "github:jose-elias-alvarez/null-ls.nvim"; flake = false; };
+    "plugin:lsp_signature.nvim" = { url = "github:ray-x/lsp_signature.nvim"; flake = false; };
+    "plugin:nvim-lightbulb" = { url = "github:kosayoda/nvim-lightbulb"; flake = false; };
+    "plugin:nvim-cmp" = { url = "github:hrsh7th/nvim-cmp"; flake = false; };
+    "plugin:cmp-nvim-lsp" = { url = "github:hrsh7th/cmp-nvim-lsp"; flake = false; };
+    "plugin:cmp-buffer" = { url = "github:hrsh7th/cmp-buffer"; flake = false; };
+    "plugin:cmp-path" = { url = "github:hrsh7th/cmp-path"; flake = false; };
+    "plugin:cmp-cmdline" = { url = "github:hrsh7th/cmp-cmdline"; flake = false; };
+    "plugin:LuaSnip" = { url = "github:L3MON4D3/LuaSnip"; flake = false; };
+    "plugin:cmp_luasnip" = { url = "github:saadparwaiz1/cmp_luasnip"; flake = false; };
+    "plugin:ayu-vim" = { url = "github:ayu-theme/ayu-vim"; flake = false; };
+    "plugin:goyo.vim" = { url = "github:junegunn/goyo.vim"; flake = false; };
+    "plugin:undotree" = { url = "github:mbbill/undotree"; flake = false; };
+    "plugin:rainbow" = { url = "github:luochen1990/rainbow"; flake = false; };
+    "plugin:telescope.nvim" = { url = "github:nvim-telescope/telescope.nvim"; flake = false; };
+    "plugin:vim-dispatch" = { url = "github:tpope/vim-dispatch"; flake = false; };
+    "plugin:vim-eunuch" = { url = "github:tpope/vim-eunuch"; flake = false; };
+    "plugin:vim-recover" = { url = "github:ralismark/vim-recover"; flake = false; };
+    "plugin:Colorizer" = { url = "github:chrisbra/Colorizer"; flake = false; };
+    "plugin:guess-indent.nvim" = { url = "github:NMAC427/guess-indent.nvim"; flake = false; };
+    "plugin:editorconfig-vim" = { url = "github:editorconfig/editorconfig-vim"; flake = false; };
+    "plugin:vim-pandoc-syntax" = { url = "github:vim-pandoc/vim-pandoc-syntax"; flake = false; };
+    "plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
+    "plugin:vim-easy-align" = { url = "github:junegunn/vim-easy-align"; flake = false; };
+    "plugin:vim-textobj-user" = { url = "github:kana/vim-textobj-user"; flake = false; };
+    "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };
+    "plugin:vim-textobj-parameter" = { url = "github:sgur/vim-textobj-parameter"; flake = false; };
+    "plugin:vim-textobj-between" = { url = "github:thinca/vim-textobj-between"; flake = false; };
+    "plugin:tcomment_vim" = { url = "github:tomtom/tcomment_vim"; flake = false; };
+    "plugin:opsort.vim" = { url = "github:ralismark/opsort.vim"; flake = false; };
+
   };
 
-  outputs = { self, nixpkgs, flake-utils, neovim, ... }:
+  outputs = { self, nixpkgs, flake-utils, neovim, ... }@inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
         neovim-unwrapped = neovim.packages.${system}.neovim;
-        vim-plug = pkgs.vimPlugins.vim-plug;
+
+        # parse inputs to extract everything beginning with plugin:
+        vimPlugins =
+          let
+            plugName = input:
+              builtins.substring
+                (builtins.stringLength "plugin:")
+                (builtins.stringLength input)
+                input;
+
+            buildPlug = name: pkgs.vimUtils.buildVimPluginFrom2Nix {
+              pname = plugName name;
+              version = "master";
+              src = builtins.getAttr name inputs;
+            };
+          in
+          builtins.map buildPlug
+            (builtins.attrNames
+              (pkgs.lib.attrsets.filterAttrs
+                (k: v: (builtins.match "plugin:.*" k) != null)
+                inputs));
+
+        neovim-with-bootstrapper = rc: pkgs.wrapNeovim neovim-unwrapped {
+          withRuby = false;
+          withPython3 = false;
+          configure = {
+            customRC = ''
+              ${rc}
+            '';
+
+            packages.main = {
+              start = vimPlugins;
+            };
+          };
+        };
+
+        with-nvim = final-neovim:
+          let
+            # The dependency on neovim-remote is mainly because --remote-wait is unsupported
+            final-wrapper = pkgs.writeScriptBin "vim" ''
+              if [ -n "$NVIM" ]; then
+                if [ "$#" -eq 0 ]; then
+                  echo "Can't open blank nested neovim" >&2
+                  exit 1
+                else
+                  exec ${pkgs.neovim-remote}/bin/nvr --nostart -cc split -c "setl bufhidden=delete" --remote-wait "$@"
+                fi
+              else
+                exec ${final-neovim}/bin/nvim "$@"
+              fi
+            '';
+          in
+          pkgs.symlinkJoin {
+            name = "neovim";
+            paths = [ final-neovim final-wrapper ];
+          };
       in
       rec {
         apps.default = {
           type = "app";
-          program = "${packages.remote-wrapper}/bin/vim";
+          program = "${packages.default}/bin/nvim";
         };
-        packages.default = pkgs.symlinkJoin {
-          name = "neovim";
-          paths = [ packages.remote-wrapper packages.my-neovim ];
-        };
+        packages.default = with-nvim (neovim-with-bootstrapper ''
+          " bootstrap into actual vimrc
+          let &rtp .= "," .. stdpath("config")
+          let $MYVIMRC = stdpath("config") .. "/init.vim"
+          source $MYVIMRC
+        '');
 
-        # The dependency on neovim-remote is mainly because --remote-wait is unsupported
-        packages.remote-wrapper = pkgs.writeScriptBin "vim" ''
-          if [ -n "$NVIM" ]; then
-            if [ "$#" -eq 0 ]; then
-              echo "Can't open blank nested neovim" >&2
-              exit 1
-            else
-              exec ${pkgs.neovim-remote}/bin/nvr --nostart -cc split -c "setl bufhidden=delete" --remote-wait "$@"
-            fi
-          else
-            exec ${packages.my-neovim}/bin/nvim "$@"
-          fi
+        apps.freestanding = {
+          type = "app";
+          program = "${packages.freestanding}/bin/nvim";
+        };
+        packages.freestanding = neovim-with-bootstrapper ''
+          " bootstrap into packaged vimrc
+          let g:freestanding = 1
+          let &rtp .= ",${./.}"
+          let $MYVIMRC = "${./.}/init.vim"
+          source $MYVIMRC
         '';
-
-        packages.my-neovim = pkgs.wrapNeovim neovim-unwrapped {
-          withRuby = false;
-          configure = {
-            customRC = ''
-              source ${vim-plug.rtp}/plug.vim
-
-              " for now, bootstrap into actual vimrc
-              let &rtp .= "," .. stdpath("config")
-              let $MYVIMRC = stdpath("config") .. "/init.vim"
-              source $MYVIMRC
-            '';
-
-            packages.main = {
-              start = [ vim-plug ];
-            };
-          };
-        };
       });
 }
