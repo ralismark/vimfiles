@@ -12,6 +12,8 @@ if !g:freestanding
 	" This needs to be early I think
 	let g:python3_host_prog = '/usr/bin/python3'
 	set rtp+=/usr/share/vim/vimfiles
+
+	set shadafile= " nix passes --clean which sets this to NONE
 endif
 
 " Plugins {{{1
@@ -23,9 +25,6 @@ if &loadplugins
 
 let g:eunuch_no_maps = 1
 let g:polyglot_disabled = ["latex"]
-
-" System
-let &packpath .= "," + g:configdir
 
 " Neovim Native LSP {{{2
 
@@ -146,6 +145,9 @@ if executable("rg")
 elseif executable("ag")
 	let &grepprg = "ag --nogroup --nocolor --column $*"
 	set grepformat=%f:%l:%c%m
+else
+	let &grepprg = "grep -rn"
+	set grepformat=%f:%l:%m
 endif
 
 set diffopt+=algorithm:patience,indent-heuristic

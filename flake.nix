@@ -119,14 +119,18 @@
           };
       in
       rec {
-        apps.default = {
+        apps.default = apps.hosted;
+        packages.default = packages.hosted;
+
+        apps.hosted = {
           type = "app";
-          program = "${packages.default}/bin/nvim";
+          program = "${packages.hosted}/bin/nvim";
         };
-        packages.default = with-nvim (neovim-with-bootstrapper ''
+        packages.hosted = with-nvim (neovim-with-bootstrapper ''
           " bootstrap into actual vimrc
-          let &rtp .= "," .. stdpath("config")
+          let &rtp = stdpath("config") .. "," .. &rtp .. "," .. stdpath("config") .. "/after"
           let $MYVIMRC = stdpath("config") .. "/init.vim"
+          let g:flake_lock = "${./flake.lock}"
           source $MYVIMRC
         '');
 
@@ -134,11 +138,14 @@
           type = "app";
           program = "${packages.freestanding}/bin/nvim";
         };
+        # we need to use ${./.} here instead of e.g. ${./init.vim} to ensure
+        # the whole directory is copied over
         packages.freestanding = neovim-with-bootstrapper ''
           " bootstrap into packaged vimrc
           let g:freestanding = 1
-          let &rtp .= ",${./.}"
+          let &rtp = "${./.}," .. &rtp .. ",${./.}/after"
           let $MYVIMRC = "${./.}/init.vim"
+          let g:flake_lock = "${./.}/flake.lock"
           source $MYVIMRC
         '';
       });
