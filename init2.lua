@@ -16,6 +16,12 @@
 
 -- LSP Config {{{2
 
+require "vimrc.packctl".setup {
+
+	["neovim/nvim-lspconfig"] = function() end,
+
+}
+
 local lspconfig = require "lspconfig"
 
 lspconfig.util.default_config = vim.tbl_extend(
