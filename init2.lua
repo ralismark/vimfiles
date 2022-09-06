@@ -14,13 +14,61 @@
 -- 	},
 -- }
 
--- LSP Config {{{2
-
 require "vimrc.packctl".setup {
 
-	["neovim/nvim-lspconfig"] = function() end,
+	["plugin:nvim-lspconfig"] = function() end,
+	["plugin:vim-eunuch"] = function() -- {{{
+		vim.g.eunuch_no_maps = 1
+	end, -- }}}
+	["plugin:vim-polyglot"] = function() -- {{{
+		vim.g.did_cpp_syntax_inits = 1
+		vim.g.polyglot_disabled = {"latex"}
+	end, -- }}}
+	["plugin:vim-easy-align"] = function() -- {{{
+		-- Start interactive EasyAlign in visual mode (e.g. vipga)
+		vim.keymap.set("x", "ga", "<Plug>(EasyAlign)", {
+			remap = true,
+		})
+
+		-- Start interactive EasyAlign for a motion/text object (e.g. gaip)
+		vim.keymap.set("n", "ga", "<Plug>(EasyAlign)", {
+			remap = true,
+		})
+
+		vim.g.easy_align_delimiters = {
+			t = {
+				pattern = "\\t",
+				left_margin = 0,
+				right_margin = 0,
+				stick_to_left = 1,
+			},
+		}
+	end, -- }}}
+	["plugin:nvim-lightbulb"] = function() -- {{{
+		require "nvim-lightbulb".setup {
+			sign = {
+				enabled = true,
+				priority = 20,
+			},
+			autocmd = {
+				enabled = false,
+			},
+		}
+
+		vim.cmd([[
+			augroup vimrc_lightbulb
+				au!
+				au CursorHold,CursorHoldI * lua require "nvim-lightbulb".update_lightbulb()
+			augroup END
+		]])
+	end, -- }}}
+
+	-- ["extern:packadd-name"] = function()
+	-- end,
 
 }
+
+-- LSP Config {{{2
 
 local lspconfig = require "lspconfig"
 
@@ -82,6 +130,7 @@ lspconfig.jdtls.setup {
 }
 
 lspconfig.gopls.setup {
+	cmd = { "gopls", "-remote=auto" },
 }
 
 lspconfig.sumneko_lua.setup {
@@ -106,7 +155,7 @@ lspconfig.sumneko_lua.setup {
 	},
 }
 
--- require "isabelle"
+-- vim.cmd [[ packadd isabelle ]]
 -- lspconfig.isabelle.setup {}
 
 local null_ls = require "null-ls"
@@ -128,25 +177,6 @@ require "lsp_signature".setup {
 	hint_prefix = "◇ ",
 	hint_scheme = "LspParameterHint",
 }
-
--- nvim-lightbulb {{{2
-
-require "nvim-lightbulb".setup {
-	sign = {
-		enabled = true,
-		priority = 20,
-	},
-	autocmd = {
-		enabled = false,
-	},
-}
-
-vim.cmd([[
-	augroup vimrc_lightbulb
-		au!
-		au CursorHold,CursorHoldI * lua require "nvim-lightbulb".update_lightbulb()
-	augroup END
-]])
 
 -- nvim-cmp {{{2
 

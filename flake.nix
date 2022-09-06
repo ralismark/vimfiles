@@ -36,7 +36,7 @@
     "plugin:ayu-vim" = { url = "github:ayu-theme/ayu-vim"; flake = false; };
     "plugin:goyo.vim" = { url = "github:junegunn/goyo.vim"; flake = false; };
     "plugin:undotree" = { url = "github:mbbill/undotree"; flake = false; };
-    "plugin:rainbow" = { url = "github:luochen1990/rainbow"; flake = false; };
+    # "plugin:rainbow" = { url = "github:luochen1990/rainbow"; flake = false; };
     "plugin:telescope.nvim" = { url = "github:nvim-telescope/telescope.nvim"; flake = false; };
     "plugin:vim-dispatch" = { url = "github:tpope/vim-dispatch"; flake = false; };
     "plugin:vim-eunuch" = { url = "github:tpope/vim-eunuch"; flake = false; };

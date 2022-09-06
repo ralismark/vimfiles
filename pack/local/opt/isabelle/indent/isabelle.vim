@@ -8,4 +8,4 @@ let b:did_indent = 1
 
 setlocal nolisp
 setlocal autoindent
-setlocal indentexpr=luaeval(\"require'isabelle'.indent(vim.v.lnum)\")
+setlocal indentexpr=v:lua.require'isabelle'.indent(v:lnum)

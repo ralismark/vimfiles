@@ -59,45 +59,52 @@ function M.indent(lnum)
 	return ind
 end
 
-require"lspconfig/configs".isabelle = {
-	default_config = {
-		cmd = { "isabelle", "vscode_server", "-o", "vscode_unicode_symbols=true", "-o", "vscode_pide_extensions" },
-		filetypes = { "isabelle" },
-		root_dir = require"lspconfig/util".path.dirname,
-		on_init = function(client, result)
-			vim.cmd([[
-				augroup isabelle_lsp
-					au!
-					au CursorMoved,CursorMovedI * lua require'isabelle'.caret_update()
-				augroup END
-			]])
-			M.caret_update()
-			M.output_buf()
-		end,
-		on_exit = function(code, signal, client_id)
-			vim.cmd([[
-				augroup isabelle_lsp
-					au!
-				augroup END
-			]])
-		end,
-		handlers = {
-			["PIDE/dynamic_output"] = function(err, result, context, config)
-				config = config or {}
-				local lines = {}
-				for line in result.content:gmatch('[^\n]+') do
-					table.insert(lines, line)
+function M.old_plugin()
+	require"lspconfig.configs".isabelle = {
+		default_config = {
+			cmd = { "isabelle", "vscode_server", "-o", "vscode_unicode_symbols=true", "-o", "vscode_pide_extensions" },
+			filetypes = { "isabelle" },
+			root_dir = require"lspconfig/util".path.dirname,
+			on_init = function(client, result)
+				vim.cmd([[
+					augroup isabelle_lsp
+						au!
+						au CursorMoved,CursorMovedI * lua require'isabelle'.caret_update()
+					augroup END
+				]])
+				M.caret_update()
+				M.output_buf()
+			end,
+			on_exit = function(code, signal, client_id)
+				vim.cmd([[
+					augroup isabelle_lsp
+						au!
+					augroup END
+				]])
+			end,
+			handlers = {
+				["PIDE/dynamic_output"] = function(err, result, context, config)
+					config = config or {}
+					local lines = {}
+					for line in result.content:gmatch('[^\n]+') do
+						table.insert(lines, line)
+					end
+
+					vim.api.nvim_buf_set_lines(M.output_buf(), 0, -1, true, lines)
 				end
-
-				vim.api.nvim_buf_set_lines(M.output_buf(), 0, -1, true, lines)
-			end
+			},
 		},
-	},
-}
+	}
 
--- plugin stuff
-vim.cmd([[
-	command! -bar IsabelleOpen lua require"isabelle".open_output_buf()
-]])
+	-- plugin stuff
+	vim.cmd([[
+		command! -bar IsabelleOpen lua require"isabelle".open_output_buf()
+	]])
+end
+
+function M.plugin()
+	-- print(vim.inspect(require"lspconfig.configs"))
+	-- require "lspconfig.configs".isabelle = require "isabelle.lsp"
+end
 
 return M
