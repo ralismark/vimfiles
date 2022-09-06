@@ -374,22 +374,6 @@
         "type": "github"
       }
     },
-    "plugin:rainbow": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1636956299,
-        "narHash": "sha256-rOVhTU8IvFo8/jlHuMI7rS6DVJIa4MpIVSr/wIcLydQ=",
-        "owner": "luochen1990",
-        "repo": "rainbow",
-        "rev": "c18071e5c7790928b763c2e88c487dfc93d84a15",
-        "type": "github"
-      },
-      "original": {
-        "owner": "luochen1990",
-        "repo": "rainbow",
-        "type": "github"
-      }
-    },
     "plugin:tcomment_vim": {
       "flake": false,
       "locked": {
@@ -638,7 +622,6 @@
         "plugin:nvim-lspconfig": "plugin:nvim-lspconfig",
         "plugin:opsort.vim": "plugin:opsort.vim",
         "plugin:plenary.nvim": "plugin:plenary.nvim",
-        "plugin:rainbow": "plugin:rainbow",
         "plugin:tcomment_vim": "plugin:tcomment_vim",
         "plugin:telescope.nvim": "plugin:telescope.nvim",
         "plugin:undotree": "plugin:undotree",

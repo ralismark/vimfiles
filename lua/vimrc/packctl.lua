@@ -1,32 +1,11 @@
-local M = {}
+local M = {} -- TODO document
 
-local flake_data = nil
-function M.flake_data()
-	if flake_data == nil then
-		-- load flake lock
-		local data = {}
-		local flake = vim.json.decode(vim.fn.readfile(vim.g.flake_lock, "B"))
-		if flake.version ~= 7 then
-			error("Unknown flake version")
-		end
-		local inputs = flake.nodes[flake.root].inputs
-		for name, dep in pairs(inputs) do
-			if name:find("^plugin") ~= nil then
-				local spec = flake.nodes[dep].locked
-				local fullname = spec.owner .. "/" .. spec.repo
-				data[fullname] = {
-					shortname = name:sub(8)
-				}
-			end
-		end
-
-		flake_data = data
+local packs_cache = nil
+function M.packs()
+	if packs_cache ~= nil then
+		return packs_cache
 	end
-	return flake_data
 
-end
-
-function M.setup(config)
 	local packs = {}
 
 	local function handle_pack(path, is_opt)
@@ -35,9 +14,15 @@ function M.setup(config)
 			error("duplicate package " .. name)
 		end
 		if not is_opt then
-			packs[name] = function() end
+			packs[name] = {
+				load = function() end,
+				path = path,
+			}
 		else
-			packs[name] = function() vim.cmd("packadd! " .. name) end
+			packs[name] = {
+				load = function() vim.cmd("packadd! " .. name) end,
+				path = path,
+			}
 		end
 	end
 
@@ -48,15 +33,32 @@ function M.setup(config)
 		handle_pack(path, true)
 	end
 
-	for name, value in pairs(config) do
-		local shortname = name:gsub(".*/", "")
-		local flake = M.flake_data()[name]
-		if flake == nil or packs[shortname] == nil then
-			print("no package with name " .. vim.inspect(name))
+	packs_cache = packs
+	return packs_cache
+end
+
+function M.setup(config)
+	-- convention: config keys are flake names
+	for name, fn in pairs(config) do
+		local shortname = name:gsub(".*/", ""):gsub(".*:", "")
+		local pack = M.packs()[shortname]
+
+		local extern_prefix = "extern:"
+		if name:sub(0, #extern_prefix) == extern_prefix then
+			-- external
 		else
-			local pack = packs[shortname]
-			pack()
-			value()
+			-- managed in flake
+			local flake = require "vimrc.flake".inputs()[name]
+			if flake == nil then
+				pack = nil
+			end
+		end
+
+		if pack == nil then
+			print("no package with name " .. vim.inspect(shortname))
+		else
+			pack.load()
+			fn()
 		end
 	end
 end

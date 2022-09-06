@@ -7,6 +7,8 @@ endif
 let g:configdir = fnamemodify($MYVIMRC, ':p:h')
 let g:freestanding = exists("g:freestanding") && g:freestanding
 
+let &packpath .= "," .. g:configdir
+
 " Some hosted environment stuff
 if !g:freestanding
 	" This needs to be early I think
@@ -22,9 +24,6 @@ command! -nargs=+ NXnoremap  nnoremap <args>|xnoremap <args>
 command! -nargs=+ NXmap      nmap <args>|xmap <args>
 
 if &loadplugins
-
-let g:eunuch_no_maps = 1
-let g:polyglot_disabled = ["latex"]
 
 " Neovim Native LSP {{{2
 
@@ -72,10 +71,6 @@ augroup END
 
 let g:goyo_width = 90
 
-" Undotree {{{2
-
-let g:undotree_RelativeTimestamp = 0
-
 " rainbow {{{2
 
 let g:rainbow_active = 0
@@ -109,22 +104,6 @@ let g:rainbow_conf = {
 \		'css': 0,
 \	}
 \}
-
-" vim-polyglot {{{2
-
-let g:did_cpp_syntax_inits = 1
-
-" vim-easy-align {{{2
-
-" Start interactive EasyAlign in visual mode (e.g. vipga)
-xmap ga <Plug>(EasyAlign)
-
-" Start interactive EasyAlign for a motion/text object (e.g. gaip)
-nmap ga <Plug>(EasyAlign)
-
-let g:easy_align_delimiters = {
-\ 't': { 'pattern': '\t', 'left_margin': 0, 'right_margin': 0, 'stick_to_left': 1 },
-\ }
 
 " Dispatch {{{2
 
