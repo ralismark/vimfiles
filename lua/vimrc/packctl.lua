@@ -11,7 +11,7 @@ function M.packs()
 	local function handle_pack(path, is_opt)
 		local name = vim.fn.fnamemodify(path, ":t")
 		if packs[name] ~= nil then
-			error("duplicate package " .. name)
+			error("duplicate package " .. name .. " at " .. packs[name].path .. " and " .. path)
 		end
 		if not is_opt then
 			packs[name] = {
