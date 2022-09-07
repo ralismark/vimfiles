@@ -7,7 +7,7 @@ endif
 let g:configdir = fnamemodify($MYVIMRC, ':p:h')
 let g:freestanding = exists("g:freestanding") && g:freestanding
 
-let &packpath .= "," .. g:configdir
+" let &packpath .= "," .. g:configdir
 
 " Some hosted environment stuff
 if !g:freestanding
@@ -29,6 +29,8 @@ if &loadplugins
 
 command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients()) <bar> let g:lsp_enable = 0
 command! -nargs=0 LspDebug lua vim.lsp.set_log_level(vim.log.levels.DEBUG)
+command! -nargs=0 LspFormat lua vim.lsp.buf.formatting_sync()
+command! -nargs=1 LspRename call v:lua.vim.lsp.buf.rename(<q-args>)
 
 " TODO add a timeout to these <2022-07-10>
 nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>

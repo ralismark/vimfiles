@@ -62,6 +62,13 @@
         pkgs = import nixpkgs { inherit system; };
         neovim-unwrapped = neovim.packages.${system}.neovim;
 
+        # other binaries to make accessible to vim
+        extraEnv = pkgs.symlinkJoin {
+          name = "vim-bundled";
+          paths = [
+          ];
+        };
+
         # parse inputs to extract everything beginning with plugin:
         vimPlugins =
           let
@@ -97,10 +104,13 @@
           };
         };
 
+        # wrap neovim+vimrc in a script that runs nvr/nvim as appropriate
         with-nvim = final-neovim:
           let
             # The dependency on neovim-remote is mainly because --remote-wait is unsupported
             final-wrapper = pkgs.writeScriptBin "vim" ''
+              export PATH=${extraEnv}/bin:$PATH
+
               if [ -n "$NVIM" ]; then
                 if [ "$#" -eq 0 ]; then
                   echo "Can't open blank nested neovim" >&2
@@ -113,10 +123,11 @@
               fi
             '';
           in
-          pkgs.symlinkJoin {
-            name = "neovim";
-            paths = [ final-neovim final-wrapper ];
-          };
+          final-wrapper;
+          # pkgs.symlinkJoin {
+          #   name = "neovim";
+          #   paths = [ final-neovim final-wrapper ];
+          # };
       in
       rec {
         apps.default = apps.hosted;
@@ -124,7 +135,7 @@
 
         apps.hosted = {
           type = "app";
-          program = "${packages.hosted}/bin/nvim";
+          program = "${packages.hosted}/bin/vim";
         };
         packages.hosted = with-nvim (neovim-with-bootstrapper ''
           " bootstrap into actual vimrc
@@ -136,7 +147,7 @@
 
         apps.freestanding = {
           type = "app";
-          program = "${packages.freestanding}/bin/nvim";
+          program = "${packages.freestanding}/bin/vim";
         };
         # we need to use ${./.} here instead of e.g. ${./init.vim} to ensure
         # the whole directory is copied over
