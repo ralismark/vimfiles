@@ -62,6 +62,10 @@ require "vimrc.packctl".setup {
 			augroup END
 		]])
 	end, -- }}}
+	["plugin:vim-replacewithregister"] = function() -- {{{
+		vim.keymap.set("n", "s", "<Plug>ReplaceWithRegisterOperator")
+		vim.keymap.set("x", "s", "<Plug>ReplaceWithRegisterVisual")
+	end, -- }}}
 
 	-- ["extern:packadd-name"] = function()
 	-- end,
