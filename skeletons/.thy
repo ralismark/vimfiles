@@ -1,5 +1,0 @@
-theory
-imports Main
-begin
-
-

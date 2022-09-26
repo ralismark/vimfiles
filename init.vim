@@ -429,13 +429,13 @@ augroup vimrc
 		\ | hi def link ConflictMarker Error
 
 	" Skeleton files
-	au BufNewFile *
-		\ for fname in glob(g:configdir . '/skeletons/{.,}*', v:false, v:true)
-		\ | 	if expand('<afile>') =~# glob2regpat('*' . fnamemodify(fname, ':t'))
-		\ | 		silent exec '0read' fname | silent $d | silent $
-		\ | 		break
-		\ | 	endif
-		\ | endfor
+	" au BufNewFile *
+	" 	\ for fname in glob(g:configdir . '/skeletons/{.,}*', v:false, v:true)
+	" 	\ | 	if expand('<afile>') =~# glob2regpat('*' . fnamemodify(fname, ':t'))
+	" 	\ | 		silent exec '0read' fname | silent $d | silent $
+	" 	\ | 		break
+	" 	\ | 	endif
+	" 	\ | endfor
 
 	" PEP 350 Codetags (https://www.python.org/dev/peps/pep-0350/)
 	au Syntax * syn keyword Codetags contained containedin=.*Comment.*
