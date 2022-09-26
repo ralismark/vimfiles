@@ -5,6 +5,8 @@
 -- This can be renamed to init.lua if/when everything from
 -- init.vim gets ported here
 
+local augroup = vim.api.nvim_create_augroup("vimrc_init2", {clear = true})
+
 -- Plugins {{{1
 
 -- nvim-treesitter {{{2
@@ -384,3 +386,10 @@ vim.keymap.set("n", "<c-g>", function()
 		print(msg)
 	end
 end)
+
+vim.api.nvim_create_autocmd("BufNewFile", {
+	group = augroup,
+	pattern = "*",
+	desc = "vimrc.skeletons",
+	callback = require "vimrc.skeletons",
+})
