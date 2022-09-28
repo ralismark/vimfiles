@@ -23,13 +23,8 @@ local function dirname()
 end
 
 local skels = {
-	["*.go"] = s("", {
-		t("package "), dirname(), t({ "",
-			"",
-			"",
-		}),
-	}),
 
+	-- templates
 	["setup.py"] = s("", {
 		t({ "#!/usr/bin/env python3",
 			"",
@@ -47,8 +42,6 @@ local skels = {
 			"    },",
 			")", }),
 	}),
-
-	-- templates
 	[".editorconfig"] = s("", t({
 		"root = true",
 		"",
@@ -186,6 +179,12 @@ local skels = {
 	}),
 
 	-- preambles
+	["*.go"] = s("", {
+		t("package "), f(function() return vim.fn.expand("%:p:h:t"):gsub("%W", "_") end), t({ "",
+			"",
+			"",
+		}),
+	}),
 	["*.hpp"] = s("", t({ "#pragma once", "" })),
 	["*.h"] = s("", t({ "#pragma once", "" })),
 	["*.xml"] = s("", t({ "<?xml version=\"1.0\" encoding=\"utf-8\"?>", "" })),
@@ -198,9 +197,10 @@ local skels = {
 
 -------------------------------------------------------------------------------
 
-return function(au)
+return function()
+	local fname = vim.fn.expand("<afile>:t")
 	for pat, snip in pairs(skels) do
-		if vim.fn.match(au.file, vim.fn.glob2regpat(pat)) >= 0 then
+		if vim.fn.match(fname, vim.fn.glob2regpat(pat)) >= 0 then
 			ls.snip_expand(snip, {})
 			return
 		end

@@ -3,11 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-
-    flake-utils = {
-      url = "github:numtide/flake-utils";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -147,7 +143,7 @@
 
         apps.freestanding = {
           type = "app";
-          program = "${packages.freestanding}/bin/vim";
+          program = "${packages.freestanding}/bin/nvim";
         };
         # we need to use ${./.} here instead of e.g. ${./init.vim} to ensure
         # the whole directory is copied over
