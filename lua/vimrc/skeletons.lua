@@ -34,10 +34,10 @@ local skels = {
 			"    name=\"" }), dirname(), t({ "\",",
 			"    version=\"0.1.0\",",
 			"    install_requires=[",
-			"        ",
 			"    ],",
 			"    entry_points={",
 			"        \"console_scripts\": [",
+			"            # \"cmd = " }), dirname(), t({ ".main:cli",
 			"        ]",
 			"    },",
 			")", }),
@@ -197,12 +197,15 @@ local skels = {
 
 -------------------------------------------------------------------------------
 
-return function()
-	local fname = vim.fn.expand("<afile>:t")
-	for pat, snip in pairs(skels) do
-		if vim.fn.match(fname, vim.fn.glob2regpat(pat)) >= 0 then
-			ls.snip_expand(snip, {})
-			return
+return {
+	defs = skels,
+	expand = function()
+		local fname = vim.fn.expand("<afile>:t")
+		for pat, snip in pairs(skels) do
+			if vim.fn.match(fname, vim.fn.glob2regpat(pat)) >= 0 then
+				ls.snip_expand(snip, {})
+				return
+			end
 		end
-	end
-end
+	end,
+}
