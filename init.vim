@@ -578,22 +578,6 @@ xnoremap p P
 " surround operation
 xmap s <Plug>(vsurround)
 
-" listify
-function! Listify(motion) " {{{
-	if a:motion !=# "V"
-		echoe "Cannot Listify outside of linewise-visual mode"
-		return
-	endif
-
-	exec "normal! \<esc>"
-	'<,'>s/$/,
-	'<s/^\s*/\0[ /
-	'>s/,$/ ]/
-	'<,'>join
-	normal! V
-endfunction " }}}
-xnoremap L <cmd>call Listify(mode())<cr>
-
 " operatorfunc tester
 nnoremap go <cmd>set operatorfunc=OperatorFuncTest<cr>g@
 
