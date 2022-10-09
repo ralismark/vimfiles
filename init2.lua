@@ -388,6 +388,8 @@ vim.keymap.set("n", "<c-g>", function()
 	end
 end)
 
+vim.keymap.set("i", "<c-r>!", [[<c-r>=system(input("!", "", "shellcmd"))<cr>]])
+
 vim.api.nvim_create_autocmd("BufNewFile", {
 	group = augroup,
 	pattern = "*",
