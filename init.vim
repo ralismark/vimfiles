@@ -275,7 +275,7 @@ set virtualedit+=block
 
 " Word formatting
 set textwidth=0
-set formatoptions=tcrqlnj
+set formatoptions=tcro/qlnj
 set nojoinspaces
 
 " kernel style indents
@@ -403,6 +403,10 @@ let g:corresmap = {
 
 augroup vimrc
 	au!
+
+	" Colorscheme additions
+	au ColorScheme *
+	\ hi pandocHTMLComment ctermbg=245 ctermfg=192 cterm=none
 
 	" for proper nesting
 	au TermOpen * let $NVIM_LISTEN_ADDRESS=v:servername
@@ -575,8 +579,8 @@ nnoremap & <cmd>&&<cr>
 xnoremap & <c-\><c-n><cmd>'<,'>&&<cr>
 xnoremap p P
 
-" surround operation
-xmap s <Plug>(vsurround)
+" Select pasted text
+nnoremap <expr> gp '`[' . getregtype()[0] . '`]'
 
 " operatorfunc tester
 nnoremap go <cmd>set operatorfunc=OperatorFuncTest<cr>g@

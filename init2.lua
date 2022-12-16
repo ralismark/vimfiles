@@ -24,7 +24,10 @@ require "vimrc.packctl".setup {
 	end, -- }}}
 	["plugin:vim-polyglot"] = function() -- {{{
 		vim.g.did_cpp_syntax_inits = 1
-		vim.g.polyglot_disabled = {"latex"}
+		vim.g.polyglot_disabled = {
+			"latex",
+			"protobuf",
+		}
 	end, -- }}}
 	["plugin:vim-easy-align"] = function() -- {{{
 		-- Start interactive EasyAlign in visual mode (e.g. vipga)
@@ -242,7 +245,7 @@ require "cmp".setup {
 				local snip = require "luasnip".get_id_snippet(entry:get_completion_item().data.snip_id)
 				vim_item.menu = snip.name or vim_item.abbr
 			end
-			vim_item.kind = kind_icons[vim_item.kind]
+			-- vim_item.kind = kind_icons[vim_item.kind]
 			return vim_item
 		end,
 	},
@@ -381,6 +384,15 @@ require "vimrc.statusline".setup {
 
 -- Other vimrc modules {{{1
 
+vim.api.nvim_create_autocmd("BufNewFile", {
+	group = augroup,
+	pattern = "*",
+	desc = "vimrc.skeletons",
+	callback = (require "vimrc.skeletons").expand,
+})
+
+-- Bindings {{{1
+
 vim.keymap.set("n", "<c-g>", function()
 	local msg = require "vimrc.git_blame".blame()
 	if msg ~= nil then
@@ -389,10 +401,3 @@ vim.keymap.set("n", "<c-g>", function()
 end)
 
 vim.keymap.set("i", "<c-r>!", [[<c-r>=system(input("!", "", "shellcmd"))<cr>]])
-
-vim.api.nvim_create_autocmd("BufNewFile", {
-	group = augroup,
-	pattern = "*",
-	desc = "vimrc.skeletons",
-	callback = (require "vimrc.skeletons").expand,
-})
