@@ -86,14 +86,11 @@
                 (k: v: (builtins.match "plugin:.*" k) != null)
                 inputs));
 
-        neovim-with-bootstrapper = rc: pkgs.wrapNeovim neovim-unwrapped {
+        neovim-with-bootstrapper = customRC: pkgs.wrapNeovim neovim-unwrapped {
           withRuby = false;
           withPython3 = false;
           configure = {
-            customRC = ''
-              ${rc}
-            '';
-
+            inherit customRC;
             packages.main = {
               start = vimPlugins;
             };
@@ -105,8 +102,6 @@
           let
             # The dependency on neovim-remote is mainly because --remote-wait is unsupported
             final-wrapper = pkgs.writeScriptBin "vim" ''
-              export PATH=${extraEnv}/bin:$PATH
-
               if [ -n "$NVIM" ]; then
                 if [ "$#" -eq 0 ]; then
                   echo "Can't open blank nested neovim" >&2
@@ -124,6 +119,12 @@
           #   name = "neovim";
           #   paths = [ final-neovim final-wrapper ];
           # };
+
+        # common bits of rc init
+        common-rc = ''
+          " shared init
+          let $PATH .= ":${extraEnv}/bin"
+        '';
       in
       rec {
         apps.default = apps.hosted;
@@ -134,6 +135,8 @@
           program = "${packages.hosted}/bin/vim";
         };
         packages.hosted = with-nvim (neovim-with-bootstrapper ''
+          ${common-rc}
+
           " bootstrap into actual vimrc
           let &rtp = stdpath("config") .. "," .. &rtp .. "," .. stdpath("config") .. "/after"
           let $MYVIMRC = stdpath("config") .. "/init.vim"
@@ -148,6 +151,8 @@
         # we need to use ${./.} here instead of e.g. ${./init.vim} to ensure
         # the whole directory is copied over
         packages.freestanding = neovim-with-bootstrapper ''
+          ${common-rc}
+
           " bootstrap into packaged vimrc
           let g:freestanding = 1
           let &rtp = "${./.}," .. &rtp .. ",${./.}/after"
