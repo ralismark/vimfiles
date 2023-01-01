@@ -101,7 +101,7 @@
         with-nvim = final-neovim:
           let
             # The dependency on neovim-remote is mainly because --remote-wait is unsupported
-            final-wrapper = pkgs.writeScriptBin "vim" ''
+            vim = pkgs.writeScriptBin "vim" ''
               if [ -n "$NVIM" ]; then
                 if [ "$#" -eq 0 ]; then
                   echo "Can't open blank nested neovim" >&2
@@ -113,12 +113,21 @@
                 exec ${final-neovim}/bin/nvim "$@"
               fi
             '';
+
+            manpager = pkgs.writeScriptBin "vim-manpager" ''
+              cat > /dev/null # eat the rendered page
+              if [ -n "$NVIM" ]; then
+                echo "Opening man page for `$MAN_PN` in parent vim..."
+                exec ${pkgs.neovim-remote}/bin/nvr --nostart -c "Man $MAN_PN"
+              else
+                exec ${final-neovim}/bin/nvim "man://$MAN_PN"
+              fi
+            '';
           in
-          final-wrapper;
-          # pkgs.symlinkJoin {
-          #   name = "neovim";
-          #   paths = [ final-neovim final-wrapper ];
-          # };
+          pkgs.symlinkJoin {
+            name = "neovim";
+            paths = [ final-neovim vim manpager ];
+          };
 
         # common bits of rc init
         common-rc = ''
