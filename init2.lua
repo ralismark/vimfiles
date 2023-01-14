@@ -27,6 +27,7 @@ require "vimrc.packctl".setup {
 		vim.g.polyglot_disabled = {
 			"latex",
 			"protobuf",
+			"sensible", -- does shortmess=+A
 		}
 	end, -- }}}
 	["plugin:vim-easy-align"] = function() -- {{{

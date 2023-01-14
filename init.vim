@@ -14,8 +14,6 @@ if !g:freestanding
 	" This needs to be early I think
 	let g:python3_host_prog = system(["which", "python3"])
 	set rtp+=/usr/share/vim/vimfiles
-
-	set shadafile= " nix passes --clean which sets this to NONE
 endif
 
 " Plugins {{{1

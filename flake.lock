@@ -505,11 +505,11 @@
     "plugin:vim-recover": {
       "flake": false,
       "locked": {
-        "lastModified": 1627732755,
-        "narHash": "sha256-wwRv2OInKIiT/Nnqy4aNpcCOVKUWlbNGfWO7vdev9Gc=",
+        "lastModified": 1673619448,
+        "narHash": "sha256-t8Olce3Zj8+Ovnx6z8x5LHrOWs3r30PTCmw08ncDGnY=",
         "owner": "ralismark",
         "repo": "vim-recover",
-        "rev": "b8673ef97a9bc8974e91dfad2ddd51c270144c2a",
+        "rev": "a6c9822d99db67395f67a24587d1f726e8059e4d",
         "type": "github"
       },
       "original": {
