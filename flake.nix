@@ -133,9 +133,12 @@
         common-rc = ''
           " shared init
           let $PATH .= ":${extraEnv}/bin"
+          let g:flake_lock = "${./.}/flake.lock"
         '';
       in
       rec {
+        packages.unwrapped = neovim-unwrapped;
+
         apps.default = apps.hosted;
         packages.default = packages.hosted;
 
@@ -146,10 +149,9 @@
         packages.hosted = with-nvim (neovim-with-bootstrapper ''
           ${common-rc}
 
-          " bootstrap into actual vimrc
+          " hosted: bootstrap into actual vimrc
           let &rtp = stdpath("config") .. "," .. &rtp .. "," .. stdpath("config") .. "/after"
           let $MYVIMRC = stdpath("config") .. "/init.vim"
-          let g:flake_lock = "${./flake.lock}"
           source $MYVIMRC
         '');
 
@@ -162,11 +164,10 @@
         packages.freestanding = neovim-with-bootstrapper ''
           ${common-rc}
 
-          " bootstrap into packaged vimrc
+          " freestanding: bootstrap into packaged vimrc
           let g:freestanding = 1
           let &rtp = "${./.}," .. &rtp .. ",${./.}/after"
           let $MYVIMRC = "${./.}/init.vim"
-          let g:flake_lock = "${./.}/flake.lock"
           source $MYVIMRC
         '';
       });
