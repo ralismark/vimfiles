@@ -190,6 +190,8 @@ require "lsp_signature".setup {
 
 -- nvim-cmp {{{2
 
+require "cmp".register_source("hr", require "vimrc.nvim-cmp-hr")
+
 local kind_icons = {
 	--  ⮺ ⎆⎗⎘⎌
 	Text          = "𝐓",
@@ -229,6 +231,7 @@ require "cmp".setup {
 	mapping = {
 	},
 	sources = require "cmp".config.sources({
+		{ name = "hr" },
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
 		{ name = "path" },
