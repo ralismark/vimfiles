@@ -9,8 +9,6 @@ local augroup = vim.api.nvim_create_augroup("vimrc_init2", {clear = true})
 
 -- Plugins {{{1
 
--- nvim-treesitter {{{2
-
 -- require "nvim-treesitter.configs".setup {
 -- 	ensure_installed = {
 -- 	},
@@ -72,6 +70,11 @@ require "vimrc.packctl".setup {
 		vim.keymap.set("n", "s", "<Plug>ReplaceWithRegisterOperator")
 		vim.keymap.set("n", "ss", "<Plug>ReplaceWithRegisterLine")
 		vim.keymap.set("x", "s", "<Plug>ReplaceWithRegisterVisual")
+	end, -- }}}
+	["plugin:editorconfig-vim"] = function() -- {{{
+		vim.g.EditorConfig_exclude_patterns = {
+			".*/\\.git/.*", -- ignore things inside git repo
+		}
 	end, -- }}}
 
 	-- ["extern:packadd-name"] = function()
