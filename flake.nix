@@ -116,11 +116,13 @@
 
             manpager = pkgs.writeScriptBin "vim-manpager" ''
               cat > /dev/null # eat the rendered page
+              # unescape MAN_PN -- see <https://gitlab.com/man-db/man-db/-/blob/92dd5e7fb57fd841b89e21bf16b584aa654c612b/src/man.c#L870-898>
+              pn=$(printf %s "$MAN_PN" | sed -e 's/\\\(.\)/\1/g')
               if [ -n "$NVIM" ]; then
-                echo "Opening man page for '$MAN_PN' in parent vim..."
-                exec ${pkgs.neovim-remote}/bin/nvr --nostart -c "Man $MAN_PN"
+                echo "Opening man page for '$pn' in parent vim..."
+                exec ${pkgs.neovim-remote}/bin/nvr --nostart -c "Man $pn"
               else
-                exec ${final-neovim}/bin/nvim "man://$MAN_PN"
+                exec ${final-neovim}/bin/nvim "man://$pn"
               fi
             '';
           in
