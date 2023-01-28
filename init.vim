@@ -420,12 +420,6 @@ augroup vimrc
 	" Non-breaking autochdir
 	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
 
-	au FocusLost,VimLeavePre *
-		\ if ((&bt == '' && !empty(glob(bufname('%')))) || &bt == 'acwrite') && !&readonly
-		\ | 	silent update
-		\ | endif
-	au VimResized * wincmd =
-
 	au Syntax *
 		\ syntax match ConflictMarker containedin=ALL /^\(<<<<<<<\|=======\||||||||\|>>>>>>>\).*/
 		\ | hi def link ConflictMarker Error
