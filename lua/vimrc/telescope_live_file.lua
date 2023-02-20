@@ -8,7 +8,7 @@ return function(opts)
 
 	local finder = finders.new_oneshot_job(
 		vim.tbl_flatten {
-			"tunnel-run",
+			-- "tunnel-run",
 			"find",
 			".",
 			opts.follow and {

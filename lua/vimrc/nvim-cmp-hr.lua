@@ -24,6 +24,10 @@ end
 ---@param callback fun(response: lsp.CompletionResponse|nil)
 function source:complete(params, callback)
   local startcol = params.context:get_offset(self.get_keyword_pattern())
+  if startcol == params.context.cursor.col then
+    return
+  end
+
   local len = 80 - startcol
   callback({
       { label = ("-"):rep(len) },

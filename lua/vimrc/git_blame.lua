@@ -32,7 +32,7 @@ function M.blame()
 	elseif data.commit == "0000000000000000000000000000000000000000" then
 		return data.author
 	else
-		return data.author .. " ∙ " .. data.summary .. " ∙ " .. data.commit
+		return data.commit:sub(0, 7) .. " ∙ " .. os.date("%d %b %Y", data["author-time"]) .. " ∙ " .. data.summary .. " ∙ " .. data.author
 	end
 end
 
