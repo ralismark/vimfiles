@@ -16,100 +16,8 @@ if !g:freestanding
 	set rtp+=/usr/share/vim/vimfiles
 endif
 
-" Plugins {{{1
-
 command! -nargs=+ NXnoremap  nnoremap <args>|xnoremap <args>
 command! -nargs=+ NXmap      nmap <args>|xmap <args>
-
-if &loadplugins
-
-" Neovim Native LSP {{{2
-
-command! -nargs=0 LspStop lua vim.lsp.stop_client(vim.lsp.get_active_clients()) <bar> let g:lsp_enable = 0
-command! -nargs=0 LspDebug lua vim.lsp.set_log_level(vim.log.levels.DEBUG)
-command! -nargs=0 LspFormat lua vim.lsp.buf.formatting_sync()
-command! -nargs=1 LspRename call v:lua.vim.lsp.buf.rename(<q-args>)
-
-" TODO add a timeout to these <2022-07-10>
-nnoremap <silent> gD <cmd>lua vim.lsp.buf.declaration()<cr>
-nnoremap <silent> gd <cmd>lua vim.lsp.buf.definition()<cr>
-nnoremap <silent> gi <cmd>lua vim.lsp.buf.implementation()<cr>
-nnoremap <silent> gr <cmd>lua vim.lsp.buf.references()<cr>
-nnoremap <silent> K  <cmd>lua vim.lsp.buf.hover()<cr>
-nnoremap <silent> H  <cmd>lua vim.lsp.buf.code_action()<cr>
-xnoremap <silent> H  <cmd>lua vim.lsp.buf.range_code_action()<cr>
-
-" TODO: Switch to using numhl when neovim v0.7 gets released <2022-03-18>
-"       This is blocked on neovim/neovim#16914 'don't put empty sign text in line number column'
-sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
-sign define DiagnosticSignWarn  text=▲ texthl=DiagnosticSignWarn  linehl= numhl=
-sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numhl=
-sign define DiagnosticSignHint  text=🞶 texthl=DiagnosticSignHint  linehl= numhl=
-
-let g:lsp_enable = 1
-
-augroup vimrc_lsp
-	au!
-	" au ColorScheme *
-	" 	\ hi DiagnosticsError
-	" 	\ hi DiagnosticsVirtualText        ctermfg=yellow cterm=italic
-	" 	\ | hi DiagnosticsSignError        ctermfg=white ctermbg=red
-	" 	\ | hi DiagnosticsSignWarn         ctermfg=black ctermbg=yellow
-	" 	\ | hi DiagnosticsSignInfo         ctermfg=green
-	" 	\ | hi link DiagnosticsError       DiagnosticsVirtualText
-	" 	\ | hi link DiagnosticsWarning     DiagnosticsVirtualText
-	" 	\ | hi link DiagnosticsInformation DiagnosticsVirtualText
-	" 	\ | hi link DiagnosticsHint        DiagnosticsVirtualText
-
-	au CursorHold * silent lua vim.diagnostic.open_float(nil, { focusable = false })
-
-	" au BufWritePre * silent! lua vim.lsp.buf.formatting_sync(nil, 1000)
-
-augroup END
-
-" Goyo {{{2
-
-let g:goyo_width = 90
-
-" rainbow {{{2
-
-let g:rainbow_active = 0
-let g:rainbow_conf = {
-\	'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick'],
-\	'ctermfgs': ['none', 'lightyellow', 'lightred', 'lightmagenta'],
-\	'guis': [''],
-\	'cterms': [''],
-\	'operators': '',
-\	'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/{/ end=/}/ fold'],
-\	'separately': {
-\		'*': {},
-\		'markdown': {
-\			'parentheses_options': 'containedin=markdownCode contained',
-\		},
-\		'lisp': {
-\			'guifgs': ['royalblue3', 'darkorange3', 'seagreen3', 'firebrick', 'darkorchid3'],
-\		},
-\		'haskell': {
-\			'parentheses': ['start=/(/ end=/)/ fold', 'start=/\[/ end=/\]/ fold', 'start=/\v\{\ze[^-]/ end=/}/ fold'],
-\		},
-\		'vim': {
-\			'parentheses_options': 'containedin=vimFuncBody',
-\		},
-\		'perl': {
-\			'syn_name_prefix': 'perlBlockFoldRainbow',
-\		},
-\		'stylus': {
-\			'parentheses': ['start=/{/ end=/}/ fold contains=@colorableGroup'],
-\		},
-\		'css': 0,
-\	}
-\}
-
-" Dispatch {{{2
-
-let g:dispatch_no_maps = 1
-
-endif
 
 " Options {{{1
 
@@ -117,88 +25,19 @@ endif
 
 let g:pdf_out = "/tmp/document.pdf"
 
-" Use Ag if possible
-if executable("rg")
-	let &grepprg = "rg --vimgrep"
-	set grepformat=%f:%l:%c:%m
-elseif executable("ag")
-	let &grepprg = "ag --nogroup --nocolor --column $*"
-	set grepformat=%f:%l:%c%m
-else
-	let &grepprg = "grep -rn"
-	set grepformat=%f:%l:%m
-endif
-
 set diffopt+=algorithm:patience,indent-heuristic
 set updatetime=1000
-set shell=$SHELL
 
 let g:man_hardwrap = 0
 
-let loaded_netrwPlugin = 1 " Disable netrw
-
 " User Interface {{{2
-
-" Status line
-set laststatus=2
-set showmode
-set showtabline=1
-
-" Line buffer at top/bottom when scrolling
-set scrolloff=5
-
-" Wild menu!
-set wildmenu
-set wildmode=longest:full,full
-
-" searching stuff
-set hlsearch
-set ignorecase
-set smartcase
-set incsearch
-
-" replacing stuff
-set inccommand=nosplit
 
 " Don't redraw during macros
 set lazyredraw
 
-" No bells/flash
-set noerrorbells
-set novisualbell
-set belloff=all
-
-" Conceal
-set conceallevel=1
-set concealcursor=
-
-" Hidden chars
-set list listchars=tab:│\ ,extends:›,precedes:‹,nbsp:⎵,trail:∙
-set fillchars=eob:\ ,vert:│,fold:─,stl:\ ,stlnc:\ ,diff:-,foldopen:╒,foldclose:═
-
-
-" Line numbers
-set number norelativenumber
-set signcolumn=number " signs in number column
-
-" Line wrapping, toggle bound to <space>ow
-set nowrap
-set linebreak
-set breakindent
-let &showbreak='↳ '
-
-" Fold on triple brace
-set foldmethod=indent
-
-" Minimal folding initially
-set foldlevelstart=99
-
 " Don't open folds
 set foldopen&
 set foldclose&
-
-" Make with tee
-set shellpipe=2>&1\ \|\ tee
 
 " hit-enter prompt
 set shortmess=nxcIT
@@ -207,67 +46,14 @@ set shortmess=nxcIT
 set splitright
 " set splitbelow
 
-" % for angle brackets
-set matchpairs+=<:>
-
-" Show partial keypresses
-set showcmd
-
-" Colorscheme
-colorscheme duality
-
-" Tempfiles {{{2
-
-" use default dirs
-set swapfile
-set undofile
-
 " Editing {{{2
-
-set nohidden " drop buffers after they're closed
-set nofixeol " Don't want to keep updating eol in random files
-
-" Mouse control
-set mouse+=a
-
-" Shell Options
-set shellslash
 
 " Completion
 set completeopt=menu,menuone,noinsert,noselect
 set complete=.,w,b,t
 
-" Modeline
-set modeline
-
-" Timeout
-set notimeout
-set ttimeout
-set ttimeoutlen=10
-
 " Clipboard
 set clipboard=unnamed,unnamedplus
-
-" c-a and c-x
-set nrformats=alpha,unsigned
-
-" Automate
-set autoread
-set autowrite
-
-" Key over lines
-set backspace=2
-set whichwrap+=<,>,[,]
-
-" Spelling
-set spelllang=en_au,en_gb
-set spellsuggest=fast,8
-
-" Viminfo
-set viminfo=!,%,'64,/16,s10,c,f1,h,rD:,rE:
-
-" Allow cursor to go anywhere in visual block mode
-set virtualedit+=block
 
 " Formatting {{{2
 
@@ -402,61 +188,8 @@ let g:corresmap = {
 augroup vimrc
 	au!
 
-	" Colorscheme additions
-	au ColorScheme *
-	\ hi pandocHTMLComment ctermbg=245 ctermfg=192 cterm=none
-
-	" for proper nesting
-	au TermOpen * let $NVIM_LISTEN_ADDRESS=v:servername
-	au TermOpen * setl nonumber norelativenumber
-
-	" Cursorline if not active
-	setg cursorline
-	au BufEnter,FocusGained,WinEnter * set nocursorline
-	au User GoyoEnter setg nocursorline
-	au User GoyoLeave setg cursorline
-	au BufLeave,FocusLost,WinLeave * set cursorline<
-
 	" Non-breaking autochdir
 	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
-
-	au Syntax *
-		\ syntax match ConflictMarker containedin=ALL /^\(<<<<<<<\|=======\||||||||\|>>>>>>>\).*/
-		\ | hi def link ConflictMarker Error
-
-	" Skeleton files
-	" au BufNewFile *
-	" 	\ for fname in glob(g:configdir . '/skeletons/{.,}*', v:false, v:true)
-	" 	\ | 	if expand('<afile>') =~# glob2regpat('*' . fnamemodify(fname, ':t'))
-	" 	\ | 		silent exec '0read' fname | silent $d | silent $
-	" 	\ | 		break
-	" 	\ | 	endif
-	" 	\ | endfor
-
-	" PEP 350 Codetags (https://www.python.org/dev/peps/pep-0350/)
-	au Syntax * syn keyword Codetags contained containedin=.*Comment.*
-		\ TODO MILESTONE MLSTN DONE YAGNI TDB TOBEDONE
-		\ FIXME XXX DEBUG BROKEN REFACTOR REFACT RFCTR OOPS SMELL NEEDSWORK INSPECT
-		\ BUG BUGFIX
-		\ NOBUG NOFIX WONTFIX DONTFIX NEVERFIX UNFIXABLE CANTFIX
-		\ REQ REQUIREMENT STORY
-		\ RFE FEETCH NYI FR FTRQ FTR
-		\ IDEA
-		\ QUESTION QUEST QSTN WTF
-		\ ALERT
-		\ HACK CLEVER MAGIC
-		\ PORT PORTABILITY WKRD
-		\ CAVEAT CAV CAVT WARNING CAUTION
-		\ NOTE HELP
-		\ FAQ
-		\ GLOSS GLOSSARY
-		\ SEE REF REFERENCE
-		\ TODOC DOCDO DODOC NEEDSDOC EXPLAIN DOCUMENT
-		\ CRED CREDIT THANKS
-		\ STAT STATUS
-		\ RVD REVIEWED REVIEW
-		\ SAFETY
-		\ | hi def link Codetags Todo
 
 augroup END
 
@@ -470,86 +203,6 @@ command! -nargs=+ Keepview let s:view_save = winsaveview() | exec <q-args> | cal
 command! -nargs=+ -complete=file Fork call jobstart(<q-args>)
 command! -nargs=* -complete=lua LP lua print(vim.inspect(<args>))
 
-" Multitools {{{2
-
-lua << EOF
-local luasnip = require "luasnip"
-local cmp = require "cmp"
-
-local function has_words_before()
-	local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-	return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
-
-local function interp(x)
-	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false)
-end
-
--- these can't be <expr> maps since inserting text is forbidden while evaluating the map
-
-vim.keymap.set({ "i", "s" }, "<tab>", function()
-	if cmp.visible() then
-		cmp.select_next_item()
-	elseif luasnip.expand_or_locally_jumpable() then
-		luasnip.expand_or_jump()
-	elseif has_words_before() then
-		cmp.complete()
-	else
-		interp("<Tab>")
-	end
-end)
-
-vim.keymap.set({ "i", "s" }, "<s-tab>", function()
-	if cmp.visible() then
-		cmp.select_prev_item()
-	elseif luasnip.in_snippet() and luasnip.jumpable(-1) then
-		luasnip.jump(-1)
-	else
-		interp("<Tab>")
-	end
-end)
-
-vim.keymap.set({ "i", "s"}, "<cr>", function()
-	if cmp.get_selected_entry() ~= nil then
-		cmp.confirm()
-	else
-		interp("<cr>")
-	end
-end)
-
-vim.keymap.set({ "i", "s" }, "<c-j>", function()
-	if cmp.get_selected_entry() ~= nil then
-		cmp.confirm()
-		return
-	end
-	if cmp.visible() then
-		cmp.close()
-	end
-	if luasnip.expand_or_locally_jumpable() then
-		luasnip.expand_or_jump()
-	end
-end)
-
-vim.keymap.set({ "i", "s" }, "<c-k>", function()
-	if luasnip.in_snippet() and luasnip.jumpable(-1) then
-		luasnip.jump(-1)
-	end
-end)
-
--- vim.keymap.set("i", "<space>", function()
--- 	if cmp.visible() then
--- 		cmp.confirm()
--- 	end
--- 	interp("<space>")
--- end)
-
-EOF
-
-map <expr> <return>
-	\ (&buftype == "help" <bar><bar> expand("%:p") =~ "^man://") ? "\<c-]>"
-	\ : &buftype == "quickfix" ? "\<CR>"
-	\ : "@q"
-
 " Misc {{{2
 
 NXnoremap <left> zh
@@ -558,18 +211,9 @@ NXnoremap <up> <c-y>
 NXnoremap <down> <c-e>
 
 " better binds
-noremap ; :
-noremap , ;
-noremap ' `
-noremap <silent> <expr> 0 &wrap ? 'g0' : '0'
 command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/[\x0d[:space:]]\+$//e | nohl
-NXnoremap <expr> G &wrap ? "G$g0" : "G"
 noremap <s-return> @w
-nnoremap Y y$
 nnoremap g= 1z=
-nnoremap & <cmd>&&<cr>
-xnoremap & <c-\><c-n><cmd>'<,'>&&<cr>
-xnoremap p P
 
 " Select pasted text
 nnoremap <expr> gp '`[' . getregtype()[0] . '`]'
@@ -580,10 +224,6 @@ nnoremap go <cmd>set operatorfunc=OperatorFuncTest<cr>g@
 " find/replace tools
 nnoremap # <cmd>let @/ = '\V\C\<' . escape(expand('<cword>'), '\') . '\>' <bar> set hls<cr>
 
-" Fixed I/A for visual
-xnoremap <expr> I mode() ==# 'v' ? "\<c-v>I" : mode() ==# 'V' ? "\<c-v>^o^I" : "I"
-xnoremap <expr> A mode() ==# 'v' ? "\<c-v>A" : mode() ==# 'V' ? "\<c-v>Oo$A" : "A"
-
 " Folding
 nnoremap <tab> za
 
@@ -592,15 +232,6 @@ noremap <c-p> <c-i>
 
 " Clear highlight
 nnoremap <silent> <esc> <cmd>nohl<cr>
-
-" Logical lines
-noremap <expr> j (v:count == 0 ? 'gj' : 'j')
-noremap <expr> k (v:count == 0 ? 'gk' : 'k')
-noremap <expr> $ &wrap ? "g$" : "$"
-
-" Keep visual
-xnoremap < <gv
-xnoremap > >gv
 
 " Select pasted text
 " TODO this doesn't work when pasting from non-default registers
@@ -631,11 +262,6 @@ inoremap <c-y> <c-o><c-y>
 inoremap <c-a> <c-o>^
 cnoremap <c-a> <Home>
 cnoremap <c-k> <c-\>egetcmdline()[:getcmdpos()-2]<cr>
-
-" Terminal {{{2
-
-" escape as normal
-tnoremap <esc> <c-\><c-n>
 
 " Buffer/window/tab {{{2
 
@@ -712,36 +338,6 @@ nnoremap <leader>t :tab new<cr>
 
 " Other Features {{{1
 
-augroup vimrc_ssh
-	au!
-
-	" au BufReadCmd ssh://*
-	" 	\   exe "silent doau BufReadPre" fnameescape(expand("<amatch>"))
-	" 	\ | echo "TODO"
-	" 	\ | exe "silent doau BufReadPost" fnameescape(expand("<amatch>"))
-    "
-	" au FileReadCmd ssh://*
-	" 	\   exe "silent doau FileReadPre" fnameescape(expand("<amatch>"))
-	" 	\ | echo "TODO"
-	" 	\ | exe "silent doau FileReadPost" fnameescape(expand("<amatch>"))
-    "
-	" au BufWriteCmd ssh://*
-	" 	\   exe "silent doau BufWritePre" fnameescape(expand("<amatch>"))
-	" 	\ | echo "TODO"
-	" 	\ | exe "silent doau BufWritePost" fnameescape(expand("<amatch>"))
-    "
-	" au FileWriteCmd ssh://*
-	" 	\   exe "silent doau FileWritePre" fnameescape(expand("<amatch>"))
-	" 	\ | echo "TODO"
-	" 	\ | exe "silent doau FileWritePost" fnameescape(expand("<amatch>"))
-    "
-	" au SourceCmd ssh://*
-	" 	\   exe "silent doau FileWritePre" fnameescape(expand("<amatch>"))
-	" 	\ | echo "TODO"
-	" 	\ | exe "silent doau FileWritePost" fnameescape(expand("<amatch>"))
-
-augroup END
-
 lua << EOF
 local function open_pdf_out()
 	if vim.g.pdf_out == nil then
@@ -785,9 +381,4 @@ execprg = {
 }
 EOF
 
-exec "doau <nomodeline> ColorScheme" g:colors_name
-
 exec "source" g:configdir . "/init2.lua"
-
-" Stop plugins from pollution leader
-let mapleader = "\\"

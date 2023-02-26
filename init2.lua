@@ -17,6 +17,12 @@ local augroup = vim.api.nvim_create_augroup("vimrc_init2", {clear = true})
 require "vimrc.packctl".setup {
 
 	["plugin:nvim-lspconfig"] = function() end,
+	["plugin:vim-dispatch"] = function() -- {{{
+		vim.g.dispatch_no_maps = true
+	end, -- }}}
+	["plugin:goyo.vim"] = function() -- {{{
+		vim.g.goyo_width = 90
+	end, -- }}}
 	["plugin:vim-eunuch"] = function() -- {{{
 		vim.g.eunuch_no_maps = 1
 	end, -- }}}
@@ -59,12 +65,13 @@ require "vimrc.packctl".setup {
 			},
 		}
 
-		vim.cmd([[
-			augroup vimrc_lightbulb
-				au!
-				au CursorHold,CursorHoldI * lua require "nvim-lightbulb".update_lightbulb()
-			augroup END
-		]])
+		vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+			group = augroup,
+			desc = "require\"nvim-lightbulb\".update_lightbulb()",
+			callback = function()
+				require "nvim-lightbulb".update_lightbulb()
+			end,
+		})
 	end, -- }}}
 	["plugin:vim-replacewithregister"] = function() -- {{{
 		vim.keymap.set("n", "s", "<Plug>ReplaceWithRegisterOperator")
@@ -73,123 +80,28 @@ require "vimrc.packctl".setup {
 	end, -- }}}
 	["plugin:editorconfig-vim"] = function() -- {{{
 		vim.g.EditorConfig_exclude_patterns = {
-			".*/\\.git/.*", -- ignore things inside git repo
+			".*/\\.git/.*", -- don't apply to git-internal things e.g. commit message
+		}
+	end, -- }}}
+	["plugin:null-ls.nvim"] = function() -- {{{
+		local null_ls = require "null-ls"
+		null_ls.setup({
+			sources = {
+				null_ls.builtins.formatting.black,
+				null_ls.builtins.diagnostics.shellcheck,
+			},
+		})
+	end, -- }}}
+	["plugin:LuaSnip"] = function() -- {{{
+		require "luasnip.loaders.from_vscode".lazy_load()
+		require "vimrc.luasnip"
+	end, -- }}}
+	["plugin:guess-indent.nvim"] = function() -- {{{
+		require "guess-indent".setup {
+			auto_cmd = true,
 		}
 	end, -- }}}
 
-	-- ["extern:packadd-name"] = function()
-	-- end,
-
-}
-
--- LSP Config {{{2
-
-local lspconfig = require "lspconfig"
-
-lspconfig.util.default_config = vim.tbl_extend(
-	"force",
-	lspconfig.util.default_config,
-	{
-		capabilities = require "cmp_nvim_lsp".update_capabilities(
-			vim.lsp.protocol.make_client_capabilities()
-		),
-		handlers = {
-			["textDocument/hover"] = vim.lsp.with(
-				vim.lsp.handlers.hover, {
-					focusable = false
-				}
-			)
-		},
-	}
-)
-
-lspconfig.pylsp.setup {
-	settings = {
-		pyls = {
-			plugins = {
-				pylint = { enabled = true },
-				yapf = { enabled = false },
-			},
-		},
-	},
-}
-
-lspconfig.rust_analyzer.setup {
-}
-
-lspconfig.clangd.setup {
-}
-
-lspconfig.jdtls.setup {
-	cmd = {
-		"/usr/bin/java", -- BUGFIX this needs to be at least java17, dotenv can cause this to be older so use global one <2022-07-10>
-		"-Declipse.application=org.eclipse.jdt.ls.core.id1",
-		"-Dosgi.bundles.defaultStartLevel=4",
-		"-Declipse.product=org.eclipse.jdt.ls.core.product",
-		"-Dosgi.checkConfiguration=true",
-		"-Dosgi.sharedConfiguration.area=/usr/share/java/jdtls/config_linux",
-		"-Dosgi.sharedConfiguration.area.readOnly=true",
-		"-Dosgi.configuration.cascaded=true",
-		-- "-Dlog.protocol=true",
-		-- "-Dlog.level=ALL",
-		"-noverify",
-		"-Xms512M",
-		"-Xmx1G",
-		"--add-modules=ALL-SYSTEM",
-		"--add-opens", "java.base/java.util=ALL-UNNAMED",
-		"--add-opens", "java.base/java.lang=ALL-UNNAMED",
-		"-jar", vim.fn.glob("/usr/share/java/jdtls/plugins/org.eclipse.equinox.launcher_*.jar"),
-		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
-	}
-}
-
-lspconfig.gopls.setup {
-	cmd = { "gopls", "-remote=auto" },
-}
-
-lspconfig.sumneko_lua.setup {
-	settings = {
-		Lua = {
-			runtime = {
-				version = "LuaJIT",
-			},
-			diagnostics = {
-				-- Get the language server to recognize the `vim` global
-				globals = {'vim'},
-			},
-			workspace = {
-				-- Make the server aware of Neovim runtime files
-				library = vim.api.nvim_get_runtime_file("", true),
-			},
-			-- Do not send telemetry data containing a randomized but unique identifier
-			telemetry = {
-				enable = false,
-			},
-		},
-	},
-}
-
--- vim.cmd [[ packadd isabelle ]]
--- lspconfig.isabelle.setup {}
-
-local null_ls = require "null-ls"
-null_ls.setup({
-	sources = {
-		null_ls.builtins.formatting.black,
-		null_ls.builtins.diagnostics.shellcheck,
-	},
-})
-
-require "lsp_signature".setup {
-	floating_window = true, -- show hint in a floating window, set to false for virtual text only mode
-	doc_lines = 0,
-	handler_opts = {
-		border = "none",
-	},
-
-	hint_enable = false, -- virtual hint enable
-	hint_prefix = "◇ ",
-	hint_scheme = "LspParameterHint",
 }
 
 -- nvim-cmp {{{2
@@ -260,12 +172,6 @@ require "cmp".setup {
 	},
 }
 
--- luasnip {{{2
-
-require "luasnip.loaders.from_vscode".lazy_load()
-
-require "vimrc.luasnip"
-
 -- telescope {{{2
 
 require "telescope".setup {
@@ -293,18 +199,183 @@ vim.keymap.set("n", "<leader><leader>g", function()
 	}
 end)
 
--- guess-indent {{{2
-
-require "guess-indent".setup {
-	auto_cmd = true,
-}
-
 -- local {{{2
+
+vim.api.nvim_create_autocmd("BufNewFile", {
+	group = augroup,
+	pattern = "*",
+	desc = "vimrc.skeletons",
+	callback = (require "vimrc.skeletons").expand,
+})
+
+
+-- LSP {{{1
+
+-- UI {{{2
+
+vim.api.nvim_create_autocmd({ "CursorHold" }, {
+	group = augroup,
+	desc = "vim.diagnostic.open_float",
+	callback = function()
+		vim.diagnostic.open_float(nil, { focusable = false })
+	end,
+})
+
+require "lsp_signature".setup {
+	floating_window = true, -- show hint in a floating window, set to false for virtual text only mode
+	doc_lines = 0,
+	handler_opts = {
+		border = "none",
+	},
+
+	hint_enable = false, -- virtual hint enable
+	hint_prefix = "◇ ",
+	hint_scheme = "LspParameterHint",
+}
 
 require "vimrc.diagnostic".setup {
 }
 
--- Statusline {{{1
+-- TODO: Switch to using numhl when neovim v0.7 gets released <2022-03-18>
+--       This is blocked on neovim/neovim#16914 'don't put empty sign text in line number column'
+vim.cmd([[
+sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
+sign define DiagnosticSignWarn  text=▲ texthl=DiagnosticSignWarn  linehl= numhl=
+sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numhl=
+sign define DiagnosticSignHint  text=🞶 texthl=DiagnosticSignHint  linehl= numhl=
+]])
+
+-- binds {{{2
+
+vim.api.nvim_create_user_command("LspDebug", function()
+	vim.lsp.set_log_level(vim.log.levels.DEBUG)
+end, {
+	nargs = 0,
+	desc = "vim.lsp.set_log_level(vim.log.levels.DEBUG)",
+})
+
+vim.api.nvim_create_user_command("LspFormat", function() vim.lsp.buf.formatting_sync() end, {
+	nargs = 0,
+	desc = "vim.lsp.buf.formatting_sync()",
+})
+
+vim.api.nvim_create_user_command("LspRename", function(params)
+	vim.lsp.buf.rename(params.args)
+end, {
+	nargs = 1,
+	desc = "vim.lsp.buf.rename(...)",
+})
+
+-- TODO add a timeout to these <2022-07-10>
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "vim.lsp.buf.declaration" })
+vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "vim.lsp.buf.definition" })
+vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "vim.lsp.buf.implementation" })
+vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "vim.lsp.buf.references" })
+vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "vim.lsp.buf.hover" })
+vim.keymap.set("n", "H", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })
+vim.keymap.set("x", "H", vim.lsp.buf.range_code_action, { desc = "vim.lsp.buf.range_code_action" })
+
+-- Language servers {{{2
+
+local lspconfig = require "lspconfig"
+
+lspconfig.util.default_config = vim.tbl_extend(
+	"force",
+	lspconfig.util.default_config,
+	{
+		capabilities = require "cmp_nvim_lsp".update_capabilities(
+			vim.lsp.protocol.make_client_capabilities()
+		),
+		handlers = {
+			["textDocument/hover"] = vim.lsp.with(
+				vim.lsp.handlers.hover, {
+					focusable = false
+				}
+			)
+		},
+	}
+)
+
+lspconfig.pylsp.setup {
+	settings = {
+		pyls = {
+			plugins = {
+				pylint = { enabled = true },
+				yapf = { enabled = false },
+			},
+		},
+	},
+}
+
+lspconfig.rust_analyzer.setup {
+}
+
+lspconfig.clangd.setup {
+}
+
+lspconfig.jdtls.setup {
+	cmd = {
+		"nix", "run", "nixpkgs#jdt-language-server", "--",
+		"-Xms512M",
+		"-Xmx1G",
+		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
+	},
+	root_dir = function(fname)
+		return (
+			lspconfig.util.find_git_ancestor(fname)
+			or lspconfig.util.root_pattern("build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts")(fname)
+			or lspconfig.util.root_pattern("build.gradle", "build.gradle.kts")
+		)
+	end,
+}
+
+lspconfig.gopls.setup {
+	cmd = { "gopls", "-remote=auto" },
+}
+
+lspconfig.sumneko_lua.setup {
+	settings = {
+		Lua = {
+			runtime = {
+				version = "LuaJIT",
+			},
+			diagnostics = {
+				-- Get the language server to recognize the `vim` global
+				globals = {'vim'},
+			},
+			workspace = {
+				-- Make the server aware of Neovim runtime files
+				library = vim.api.nvim_get_runtime_file("", true),
+			},
+			-- Do not send telemetry data containing a randomized but unique identifier
+			telemetry = {
+				enable = false,
+			},
+		},
+	},
+}
+
+-- vim.cmd [[ packadd isabelle ]]
+-- lspconfig.isabelle.setup {}
+
+-- Terminal {{{1
+
+vim.keymap.set("t", "<esc>", [[<c-\><c-n>]])
+
+vim.api.nvim_create_autocmd({ "TermOpen" }, {
+	group = augroup,
+	callback = function()
+		-- IPC compatibility for nvr
+		vim.env.NVIM_LISTEN_ADDRESS = vim.v.servername
+		-- no gutter
+		vim.wo.number = false
+		vim.wo.relativenumber = false
+	end,
+})
+
+-- UI {{{1
+
+-- Statusline {{{2
 
 local function lazy(e)
 	return function()
@@ -389,14 +460,159 @@ require "vimrc.statusline".setup {
 	},
 }
 
--- Other vimrc modules {{{1
+-- Colours {{{2
 
-vim.api.nvim_create_autocmd("BufNewFile", {
+vim.cmd("colorscheme duality")
+
+vim.api.nvim_create_autocmd({ "ColorScheme" }, {
 	group = augroup,
-	pattern = "*",
-	desc = "vimrc.skeletons",
-	callback = (require "vimrc.skeletons").expand,
+	desc = "colorscheme patches",
+	callback = function()
+		vim.cmd [[
+			hi pandocHTMLComment ctermbg=245 ctermfg=192 cterm=none
+		]]
+	end,
 })
+
+vim.api.nvim_create_autocmd({ "Syntax" }, {
+	group = augroup,
+	desc = "syntax patches",
+	callback = function()
+		vim.cmd [[
+			syntax match ConflictMarker containedin=ALL /^\(<<<<<<<\|=======\||||||||\|>>>>>>>\).*/
+			hi def link ConflictMarker Error
+
+			" PEP 350 Codetags (https://www.python.org/dev/peps/pep-0350/)
+			syn keyword Codetag contained containedin=.*Comment.*
+				\ TODO MILESTONE MLSTN DONE YAGNI TDB TOBEDONE
+				\ FIXME XXX DEBUG BROKEN REFACTOR REFACT RFCTR OOPS SMELL NEEDSWORK INSPECT
+				\ BUG BUGFIX
+				\ NOBUG NOFIX WONTFIX DONTFIX NEVERFIX UNFIXABLE CANTFIX
+				\ REQ REQUIREMENT STORY
+				\ RFE FEETCH NYI FR FTRQ FTR
+				\ IDEA
+				\ QUESTION QUEST QSTN WTF
+				\ ALERT
+				\ HACK CLEVER MAGIC
+				\ PORT PORTABILITY WKRD
+				\ CAVEAT CAV CAVT WARNING CAUTION
+				\ NOTE HELP
+				\ FAQ
+				\ GLOSS GLOSSARY
+				\ SEE REF REFERENCE
+				\ TODOC DOCDO DODOC NEEDSDOC EXPLAIN DOCUMENT
+				\ CRED CREDIT THANKS
+				\ STAT STATUS
+				\ RVD REVIEWED REVIEW
+				\ SAFETY
+			hi def link Codetag Todo
+		]]
+	end,
+})
+
+-- Options {{{1
+
+-- UI/Editor {{{2
+
+vim.opt.timeout = false
+vim.opt.matchpairs:append("<:>")
+vim.opt.shada = "!,'64,/16,<50,f1,h,s10"
+vim.opt.hidden = false -- drop buffers after they're closed
+
+-- Status line
+vim.opt.laststatus = 2
+vim.opt.showmode = true
+vim.opt.showtabline = 1
+vim.opt.showcmd = true
+
+-- Top/bottom margins
+vim.opt.scrolloff = 5
+
+-- Wild menu!
+vim.opt.wildmenu = true
+vim.opt.wildmode = "longest:full,full"
+
+-- Search
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.incsearch = true
+
+-- Replacing stuff
+vim.opt.inccommand = "nosplit"
+
+-- No bells/flash
+vim.opt.errorbells = false
+vim.opt.visualbell = false
+vim.opt.belloff = "all"
+
+-- Conceal
+vim.opt.conceallevel = 1
+vim.opt.concealcursor = ""
+
+-- Hidden chars
+vim.opt.list = true
+vim.opt.listchars = "tab:│ ,extends:›,precedes:‹,nbsp:⎵,trail:∙"
+vim.opt.fillchars = "eob: ,fold:─,stl: ,stlnc: ,diff:-,foldopen:╒,foldclose:═"
+
+-- Line wrapping
+vim.opt.wrap = false -- toggle with <leader>ow
+vim.opt.linebreak = true
+vim.opt.breakindent = true
+vim.opt.showbreak = "↳ "
+
+-- Folds
+vim.opt.foldmethod = "indent"
+vim.opt.foldlevelstart = 999 -- open everything initially
+
+-- Mouse
+vim.opt.mouse = "a"
+
+-- c-a and c-x
+vim.opt.nrformats = "alpha,unsigned"
+
+-- Key over lines
+vim.opt.backspace = "indent,eol,start,nostop"
+vim.opt.whichwrap = "b,s,<,>,[,]"
+
+-- Allow cursor to go anywhere in visual block mode
+vim.opt.virtualedit = "block"
+
+-- Gutter
+vim.opt.number = true
+vim.opt.relativenumber = false
+vim.opt.signcolumn = "number"
+
+-- Behaviour {{{2
+
+if vim.fn.executable("rg") > 0 then
+	vim.opt.grepprg = "rg --vimgrep"
+	vim.opt.grepformat = "%f:%l:%c:%m"
+elseif vim.fn.executable("ag") > 0 then
+	vim.opt.grepprg = "ag --nogroup --nocolor --column"
+	vim.opt.grepformat = "%f:%l:%c%m"
+else
+	vim.opt.grepprg = "grep -rn"
+	vim.opt.grepformat = "%f:%l:%m"
+end
+
+vim.opt.fixeol = false -- don't make unnecessary changes
+
+-- Shell things
+-- TODO are these still relevant? <2023-02-24>
+vim.opt.shell = vim.env.SHELL
+vim.opt.shellslash = true
+vim.opt.shellpipe = "2>&1 | tee"
+
+-- Automate/persistence
+vim.opt.autoread = true
+vim.opt.autowrite = true
+vim.opt.undofile = true
+vim.opt.updatetime = 1000
+
+-- Spelling
+vim.opt.spelllang = "en_au,en_us,en-rare"
+vim.opt.spelloptions = "camel"
+vim.opt.spellsuggest = "fast,8"
 
 -- Bindings {{{1
 
@@ -407,4 +623,145 @@ vim.keymap.set("n", "<c-g>", function()
 	end
 end)
 
-vim.keymap.set("i", "<c-r>!", [[<c-r>=system(input("!", "", "shellcmd"))<cr>]])
+vim.keymap.set({ "i", "s" }, "<c-r>!", [[<c-r>=system(input("!", "", "shellcmd"))<cr>]])
+
+-- Multitools {{{2
+
+local luasnip = require "luasnip"
+local cmp = require "cmp"
+
+local function has_words_before()
+	local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+	return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
+
+local function interp(x) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false) end
+
+-- these can't be <expr> maps since inserting text is forbidden while evaluating the map
+
+vim.keymap.set({ "i", "s" }, "<tab>", function()
+	if cmp.visible() then
+		cmp.select_next_item()
+	elseif luasnip.expand_or_locally_jumpable() then
+		luasnip.expand_or_jump()
+	elseif has_words_before() then
+		cmp.complete()
+	else
+		interp("<Tab>")
+	end
+end)
+
+vim.keymap.set({ "i", "s" }, "<s-tab>", function()
+	if cmp.visible() then
+		cmp.select_prev_item()
+	elseif luasnip.in_snippet() and luasnip.jumpable(-1) then
+		luasnip.jump(-1)
+	else
+		interp("<Tab>")
+	end
+end)
+
+vim.keymap.set({ "i", "s"}, "<cr>", function()
+	if cmp.get_selected_entry() ~= nil then
+		cmp.confirm()
+	else
+		interp("<cr>")
+	end
+end)
+
+vim.keymap.set({ "i", "s" }, "<c-j>", function()
+	if cmp.get_selected_entry() ~= nil then
+		cmp.confirm()
+		return
+	end
+	if cmp.visible() then
+		cmp.close()
+	end
+	if luasnip.expand_or_locally_jumpable() then
+		luasnip.expand_or_jump()
+	end
+end)
+
+vim.keymap.set({ "i", "s" }, "<c-k>", function()
+	if luasnip.in_snippet() and luasnip.jumpable(-1) then
+		luasnip.jump(-1)
+	end
+end)
+
+vim.keymap.set({ "n", "x" }, "<return>", function()
+	man_url = "man://"
+	if vim.bo.buftype == "help" or vim.fn.expand("%:p"):sub(1, #man_url) == man_url then
+		return interp("<c-]>")
+	elseif vim.bo.buftype == "quickfix" then
+		return interp("<cr>")
+	else
+		return interp("@q")
+	end
+end)
+
+-- vim.keymap.set("i", "<space>", function()
+-- 	if cmp.visible() then
+-- 		cmp.confirm()
+-- 	end
+-- 	interp("<space>")
+-- end)
+
+-- Misc {{{2
+
+local function ifwrap(a, b)
+	return function()
+		if vim.o.wrap then
+			return interp(a)
+		else
+			return interp(b)
+		end
+	end
+end
+
+-- better binds
+vim.keymap.set({ "n", "x" }, ";", ":")
+vim.keymap.set({ "n", "x" }, ",", ";")
+vim.keymap.set({ "n", "x" }, "'", "`")
+vim.keymap.set("n", "Y", "y$")
+vim.keymap.set("n", "&", "<cmd>&&<cr>")
+vim.keymap.set("x", "&", [[<c-\><c-n><cmd>'<,'>&&<cr>]])
+vim.keymap.set("x", "p", "P")
+
+-- wrapping (logical lines)
+vim.keymap.set({ "n", "x" }, "0", ifwrap("g0", "0"))
+vim.keymap.set({ "n", "x" }, "G", ifwrap("G$g0", "G"))
+vim.keymap.set({ "n", "x" }, "$", ifwrap("g$", "$"))
+vim.keymap.set({ "n", "x" }, "j", function() if vim.v.count == 0 then return "gj" else return "j" end end, { expr = true })
+vim.keymap.set({ "n", "x" }, "k", function() if vim.v.count == 0 then return "gk" else return "k" end end, { expr = true })
+
+-- visual mode improvements
+vim.keymap.set("x", "I", function()
+	if vim.fn.mode() == "v" then
+		return interp("<c-v>I")
+	elseif vim.fn.mode() == "V" then
+		return interp("<c-v>^o^I")
+	else
+		return interp("I")
+	end
+end)
+vim.keymap.set("x", "A", function()
+	if vim.fn.mode() == "v" then
+		return interp("<c-v>A")
+	elseif vim.fn.mode() == "V" then
+		return interp("<c-v>Oo$A")
+	else
+		return interp("A")
+	end
+end)
+vim.keymap.set("x", "<", "<gv")
+vim.keymap.set("x", ">", ">gv")
+
+
+-- Other Things {{{1
+
+vim.g.loaded_netrwPlugin = true -- disable netrw
+
+-- apply colorscheme patches
+-- vim.cmd [[exec "doau <nomodeline> ColorScheme" g:colors_name]]
+
+vim.g.mapleader = "\\" -- stop plugins from polluting our leader
