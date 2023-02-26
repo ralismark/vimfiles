@@ -55,17 +55,17 @@
       },
       "locked": {
         "dir": "contrib",
-        "lastModified": 1656256102,
-        "narHash": "sha256-eKKQNM02Vhy+3yL2QV+0FSEpcniEa5Aq6hkAUIgLo1k=",
+        "lastModified": 1675344803,
+        "narHash": "sha256-ItJ8aX/WUfcAovxRsXXyWKBAI92hFloYIZiv7viPIdQ=",
         "owner": "neovim",
         "repo": "neovim",
-        "rev": "e8ee6733926db83ef216497a1d660a173184ff39",
+        "rev": "129264dbb41404b94b835baadfc3fa25ffac3d3e",
         "type": "github"
       },
       "original": {
         "dir": "contrib",
         "owner": "neovim",
-        "ref": "v0.7.2",
+        "ref": "v0.8.3",
         "repo": "neovim",
         "type": "github"
       }
@@ -486,22 +486,6 @@
         "type": "github"
       }
     },
-    "plugin:vim-polyglot": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1651324053,
-        "narHash": "sha256-yZQlexgkWXBD6q/MQlMSqZZGDh9XtEHLA5pbKt1wX5c=",
-        "owner": "sheerun",
-        "repo": "vim-polyglot",
-        "rev": "38282d58387cff48ac203f6912c05e4c8686141b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "sheerun",
-        "repo": "vim-polyglot",
-        "type": "github"
-      }
-    },
     "plugin:vim-recover": {
       "flake": false,
       "locked": {
@@ -645,7 +629,6 @@
         "plugin:vim-easy-align": "plugin:vim-easy-align",
         "plugin:vim-eunuch": "plugin:vim-eunuch",
         "plugin:vim-pandoc-syntax": "plugin:vim-pandoc-syntax",
-        "plugin:vim-polyglot": "plugin:vim-polyglot",
         "plugin:vim-recover": "plugin:vim-recover",
         "plugin:vim-repeat": "plugin:vim-repeat",
         "plugin:vim-replacewithregister": "plugin:vim-replacewithregister",

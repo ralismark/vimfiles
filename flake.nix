@@ -11,7 +11,7 @@
     };
 
     neovim = {
-      url = "github:neovim/neovim?dir=contrib&ref=v0.7.2";
+      url = "github:neovim/neovim?dir=contrib&ref=v0.8.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -41,7 +41,7 @@
     "plugin:guess-indent.nvim" = { url = "github:NMAC427/guess-indent.nvim"; flake = false; };
     "plugin:editorconfig-vim" = { url = "github:editorconfig/editorconfig-vim"; flake = false; };
     "plugin:vim-pandoc-syntax" = { url = "github:vim-pandoc/vim-pandoc-syntax"; flake = false; };
-    "plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
+    # "plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
     "plugin:vim-easy-align" = { url = "github:junegunn/vim-easy-align"; flake = false; };
     "plugin:vim-textobj-user" = { url = "github:kana/vim-textobj-user"; flake = false; };
     "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };
@@ -57,13 +57,6 @@
       let
         pkgs = import nixpkgs { inherit system; };
         neovim-unwrapped = neovim.packages.${system}.neovim;
-
-        # other binaries to make accessible to vim
-        extraEnv = pkgs.symlinkJoin {
-          name = "vim-bundled";
-          paths = [
-          ];
-        };
 
         # parse inputs to extract everything beginning with plugin:
         vimPlugins =
@@ -134,7 +127,6 @@
         # common bits of rc init
         common-rc = ''
           " shared init
-          let $PATH .= ":${extraEnv}/bin"
           let g:flake_lock = "${./.}/flake.lock"
         '';
       in
