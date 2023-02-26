@@ -26,14 +26,14 @@ require "vimrc.packctl".setup {
 	["plugin:vim-eunuch"] = function() -- {{{
 		vim.g.eunuch_no_maps = 1
 	end, -- }}}
-	["plugin:vim-polyglot"] = function() -- {{{
-		vim.g.did_cpp_syntax_inits = 1
-		vim.g.polyglot_disabled = {
-			"latex",
-			"protobuf",
-			"sensible", -- does shortmess=+A
-		}
-	end, -- }}}
+	-- ["plugin:vim-polyglot"] = function() -- {{{
+	-- 	vim.g.did_cpp_syntax_inits = 1
+	-- 	vim.g.polyglot_disabled = {
+	-- 		"latex",
+	-- 		"protobuf",
+	-- 		"sensible", -- does shortmess=+A
+	-- 	}
+	-- end, -- }}}
 	["plugin:vim-easy-align"] = function() -- {{{
 		-- Start interactive EasyAlign in visual mode (e.g. vipga)
 		vim.keymap.set("x", "ga", "<Plug>(EasyAlign)", {
@@ -368,8 +368,10 @@ vim.api.nvim_create_autocmd({ "TermOpen" }, {
 		-- IPC compatibility for nvr
 		vim.env.NVIM_LISTEN_ADDRESS = vim.v.servername
 		-- no gutter
-		vim.wo.number = false
-		vim.wo.relativenumber = false
+		vim.cmd [[
+		setl nonumber
+		setl norelativenumber
+		]]
 	end,
 })
 
