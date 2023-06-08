@@ -50,6 +50,7 @@
     "plugin:tcomment_vim" = { url = "github:tomtom/tcomment_vim"; flake = false; };
     "plugin:opsort.vim" = { url = "github:ralismark/opsort.vim"; flake = false; };
     "plugin:vim-replacewithregister" = { url = "github:inkarkat/vim-ReplaceWithRegister"; flake = false; };
+    "plugin:vim-nix" = { url = "github:LnL7/vim-nix"; flake = false; };
   };
 
   outputs = { self, nixpkgs, flake-utils, neovim, ... }@inputs:
@@ -164,5 +165,9 @@
           let $MYVIMRC = "${./.}/init.vim"
           source $MYVIMRC
         '';
+
+        # ---------------------------------------------------------------------
+
+
       });
 }

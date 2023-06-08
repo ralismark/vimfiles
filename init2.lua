@@ -1,4 +1,4 @@
--- vim: set foldmethod=marker:
+-- vim: set foldmethod=marker foldlevel=0:
 
 -- Primary neovim initialisation
 --
@@ -6,6 +6,9 @@
 -- init.vim gets ported here
 
 local augroup = vim.api.nvim_create_augroup("vimrc_init2", {clear = true})
+
+---@diagnostic disable-next-line: lowercase-global
+const = function(x) return function() return x end end
 
 -- Plugins {{{1
 
@@ -16,7 +19,6 @@ local augroup = vim.api.nvim_create_augroup("vimrc_init2", {clear = true})
 
 require "vimrc.packctl".setup {
 
-	["plugin:nvim-lspconfig"] = function() end,
 	["plugin:vim-dispatch"] = function() -- {{{
 		vim.g.dispatch_no_maps = true
 	end, -- }}}
@@ -83,15 +85,6 @@ require "vimrc.packctl".setup {
 			".*/\\.git/.*", -- don't apply to git-internal things e.g. commit message
 		}
 	end, -- }}}
-	["plugin:null-ls.nvim"] = function() -- {{{
-		local null_ls = require "null-ls"
-		null_ls.setup({
-			sources = {
-				null_ls.builtins.formatting.black,
-				null_ls.builtins.diagnostics.shellcheck,
-			},
-		})
-	end, -- }}}
 	["plugin:LuaSnip"] = function() -- {{{
 		require "luasnip.loaders.from_vscode".lazy_load()
 		require "vimrc.luasnip"
@@ -106,7 +99,24 @@ require "vimrc.packctl".setup {
 
 -- nvim-cmp {{{2
 
-require "cmp".register_source("hr", require "vimrc.nvim-cmp-hr")
+require "cmp".register_source("hr", {
+	is_available = const(true),
+	get_debug_name = const("hr"),
+	get_keyword_pattern = const([[\([-=_]\)\1\{4,}]]),
+	complete = function(self, params, callback)
+		local startcol = params.context:get_offset(self:get_keyword_pattern())
+		if startcol == params.context.cursor.col then
+			return
+		end
+
+		local len = 80 - startcol
+		callback({
+			{ label = ("-"):rep(len) },
+			{ label = ("="):rep(len) },
+			{ label = ("_"):rep(len) },
+		})
+	end,
+})
 
 local kind_icons = {
 	--  ⮺ ⎆⎗⎘⎌
@@ -176,6 +186,21 @@ require "cmp".setup {
 
 require "telescope".setup {
 	defaults = {
+		vimgrep_arguments = {
+			"grep",
+			"--extended-regexp",
+			"--color=never",
+			"--with-filename",
+			"--line-number",
+			"-b", -- grep doesn't support a `--column` option :(
+			"--ignore-case",
+			"--recursive",
+			"--no-messages",
+			"--exclude-dir=*cache*",
+			"--exclude-dir=*.git",
+			"--exclude=.*",
+			--"--binary-files=without-match",
+		},
 		-- sorting_strategy = "ascending",
 	},
 }
@@ -187,11 +212,35 @@ vim.keymap.set("n", "<leader><leader>b", function()
 end)
 
 vim.keymap.set("n", "<leader><leader>f", function()
-	require "vimrc.telescope_live_file" {
-	-- require "telescope.builtin".find_files {
+	require "telescope.builtin".find_files {
+		cwd = require "lspconfig".util.find_git_ancestor(vim.fn.getcwd()),
+	}
+	--[[
+	local conf = require("telescope.config").values
+	local opts = {
 		cwd = require "lspconfig".util.find_git_ancestor(vim.fn.getcwd()),
 		sorter = require "telescope.sorters".get_fuzzy_file(),
+		entry_maker = require "telescope.make_entry".gen_from_file({})
 	}
+
+	local finder = require "telescope.finders".new_oneshot_job(
+		{
+			"find", ".",
+			-- "-L", -- follow symlinks
+			"-name", ".?*", "-prune", "-o", -- ignore hidden files
+			"-type", "f",
+			"-print",
+		},
+		opts
+	)
+
+	require "telescope.pickers".new(opts, {
+		prompt_title = "Find Files",
+		finder = finder,
+		previewer = conf.file_previewer(opts),
+		sorter = conf.generic_sorter(opts)
+	}):find()
+	]]
 end)
 
 vim.keymap.set("n", "<leader><leader>g", function()
@@ -210,6 +259,123 @@ vim.api.nvim_create_autocmd("BufNewFile", {
 
 
 -- LSP {{{1
+
+-- Language servers {{{2
+
+local lspconfig = require "lspconfig"
+
+lspconfig.util.default_config = vim.tbl_extend(
+	"force",
+	lspconfig.util.default_config,
+	{
+		capabilities = require "cmp_nvim_lsp".default_capabilities(),
+		handlers = {
+			["textDocument/hover"] = vim.lsp.with(
+				vim.lsp.handlers.hover, {
+					focusable = false
+				}
+			)
+		},
+	}
+)
+
+lspconfig.pylsp.setup {
+	cmd = {
+		"nix", "shell", "nixpkgs#python3Packages.python-lsp-server", "-c",
+		"pylsp",
+	},
+	settings = {
+		pyls = {
+			plugins = {
+				pylint = { enabled = true },
+				yapf = { enabled = false },
+			},
+		},
+	},
+}
+
+lspconfig.rust_analyzer.setup {
+}
+
+lspconfig.clangd.setup {
+}
+
+lspconfig.jdtls.setup {
+	cmd = {
+		"nix", "run", "nixpkgs#jdt-language-server", "--",
+		"-Xms512M",
+		"-Xmx1G",
+		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
+	},
+	root_dir = function(fname)
+		return (
+			lspconfig.util.find_git_ancestor(fname)
+			or lspconfig.util.root_pattern("build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts", ".project", ".classpath")(fname)
+			or lspconfig.util.root_pattern("build.gradle", "build.gradle.kts")
+		)
+	end,
+}
+
+lspconfig.gopls.setup {
+	cmd = { "gopls", "-remote=auto" },
+}
+
+lspconfig.lua_ls.setup {
+	cmd = {
+		"nix", "run", "nixpkgs#lua-language-server", "--",
+	},
+	settings = {
+		Lua = {
+			runtime = {
+				version = "LuaJIT",
+				path = vim.list_extend({ "lua/?.lua", "lua/?/init.lua", }, vim.split(package.path, ";")),
+			},
+			diagnostics = {
+				-- Get the language server to recognize the `vim` global
+				globals = {'vim'},
+			},
+			workspace = {
+				-- Make the server aware of Neovim runtime files
+				library = vim.api.nvim_get_runtime_file("", true),
+				checkThirdParty = false,
+			},
+		},
+	},
+}
+
+lspconfig.nil_ls.setup {
+	cmd = {
+		"nix", "run", "nixpkgs#nil", "--",
+	},
+}
+
+local null_ls = require "null-ls"
+null_ls.setup {
+	sources = {
+		null_ls.builtins.formatting.black,
+		null_ls.builtins.diagnostics.shellcheck.with({
+			command = function()
+				if vim.fn.executable("shellcheck") > 0 then
+					return "shellcheck"
+				end
+
+				local drv = nil
+				local jobid = vim.fn.jobstart(
+					{"nix", "build", "--no-link", "--json", "nixpkgs#shellcheck" },
+					{
+						stdout_buffered = true,
+						on_stdout = function(chan_id, data, name)
+							drv = vim.fn.json_decode(data)
+						end,
+					}
+				)
+				vim.fn.jobwait({ jobid })
+
+				return drv[1].outputs.bin .. "/bin/shellcheck"
+			end,
+		}),
+	},
+}
 
 -- UI {{{2
 
@@ -245,7 +411,7 @@ sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numh
 sign define DiagnosticSignHint  text=🞶 texthl=DiagnosticSignHint  linehl= numhl=
 ]])
 
--- binds {{{2
+-- Binds {{{2
 
 vim.api.nvim_create_user_command("LspDebug", function()
 	vim.lsp.set_log_level(vim.log.levels.DEBUG)
@@ -274,89 +440,6 @@ vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "vim.lsp.buf.referenc
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "vim.lsp.buf.hover" })
 vim.keymap.set("n", "H", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })
 vim.keymap.set("x", "H", vim.lsp.buf.range_code_action, { desc = "vim.lsp.buf.range_code_action" })
-
--- Language servers {{{2
-
-local lspconfig = require "lspconfig"
-
-lspconfig.util.default_config = vim.tbl_extend(
-	"force",
-	lspconfig.util.default_config,
-	{
-		capabilities = require "cmp_nvim_lsp".update_capabilities(
-			vim.lsp.protocol.make_client_capabilities()
-		),
-		handlers = {
-			["textDocument/hover"] = vim.lsp.with(
-				vim.lsp.handlers.hover, {
-					focusable = false
-				}
-			)
-		},
-	}
-)
-
-lspconfig.pylsp.setup {
-	settings = {
-		pyls = {
-			plugins = {
-				pylint = { enabled = true },
-				yapf = { enabled = false },
-			},
-		},
-	},
-}
-
-lspconfig.rust_analyzer.setup {
-}
-
-lspconfig.clangd.setup {
-}
-
-lspconfig.jdtls.setup {
-	cmd = {
-		"nix", "run", "nixpkgs#jdt-language-server", "--",
-		"-Xms512M",
-		"-Xmx1G",
-		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
-	},
-	root_dir = function(fname)
-		return (
-			lspconfig.util.find_git_ancestor(fname)
-			or lspconfig.util.root_pattern("build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts")(fname)
-			or lspconfig.util.root_pattern("build.gradle", "build.gradle.kts")
-		)
-	end,
-}
-
-lspconfig.gopls.setup {
-	cmd = { "gopls", "-remote=auto" },
-}
-
-lspconfig.sumneko_lua.setup {
-	settings = {
-		Lua = {
-			runtime = {
-				version = "LuaJIT",
-			},
-			diagnostics = {
-				-- Get the language server to recognize the `vim` global
-				globals = {'vim'},
-			},
-			workspace = {
-				-- Make the server aware of Neovim runtime files
-				library = vim.api.nvim_get_runtime_file("", true),
-			},
-			-- Do not send telemetry data containing a randomized but unique identifier
-			telemetry = {
-				enable = false,
-			},
-		},
-	},
-}
-
--- vim.cmd [[ packadd isabelle ]]
--- lspconfig.isabelle.setup {}
 
 -- Terminal {{{1
 
@@ -462,6 +545,20 @@ require "vimrc.statusline".setup {
 	},
 }
 
+-- Tabline {{{2
+
+--[[
+_G.tabline = function()
+	local s = ""
+
+	for i = 1, vim.fn.tabpagenr("$") do
+		if i > 1 then
+			s = s .. " "
+		end
+	end
+end
+]]
+
 -- Colours {{{2
 
 vim.cmd("colorscheme duality")
@@ -514,12 +611,17 @@ vim.api.nvim_create_autocmd({ "Syntax" }, {
 
 -- Options {{{1
 
+vim.g.man_hardwrap = false
+
 -- UI/Editor {{{2
 
 vim.opt.timeout = false
 vim.opt.matchpairs:append("<:>")
-vim.opt.shada = "!,'64,/16,<50,f1,h,s10"
-vim.opt.hidden = false -- drop buffers after they're closed
+vim.opt.lazyredraw = true
+vim.opt.shortmess = "nxcIT"
+
+-- splits
+vim.opt.splitright = true
 
 -- Status line
 vim.opt.laststatus = 2
@@ -527,12 +629,15 @@ vim.opt.showmode = true
 vim.opt.showtabline = 1
 vim.opt.showcmd = true
 
--- Top/bottom margins
+-- Scrolling
 vim.opt.scrolloff = 5
+vim.opt.sidescrolloff = 8
 
--- Wild menu!
+-- Completion
 vim.opt.wildmenu = true
 vim.opt.wildmode = "longest:full,full"
+vim.opt.complete = ".,w,b,t"
+vim.opt.completeopt = "menu,menuone,noinsert,noselect"
 
 -- Search
 vim.opt.ignorecase = true
@@ -586,6 +691,11 @@ vim.opt.signcolumn = "number"
 
 -- Behaviour {{{2
 
+vim.opt.shada = "!,'64,/16,<50,f1,h,s10"
+vim.opt.fixeol = false -- don't make unnecessary changes
+vim.opt.hidden = false -- drop buffers after they're closed
+vim.opt.diffopt:append { "algorithm:patience", "indent-heuristic" }
+
 if vim.fn.executable("rg") > 0 then
 	vim.opt.grepprg = "rg --vimgrep"
 	vim.opt.grepformat = "%f:%l:%c:%m"
@@ -596,8 +706,6 @@ else
 	vim.opt.grepprg = "grep -rn"
 	vim.opt.grepformat = "%f:%l:%m"
 end
-
-vim.opt.fixeol = false -- don't make unnecessary changes
 
 -- Shell things
 -- TODO are these still relevant? <2023-02-24>
@@ -612,20 +720,23 @@ vim.opt.undofile = true
 vim.opt.updatetime = 1000
 
 -- Spelling
-vim.opt.spelllang = "en_au,en_us,en-rare"
+vim.opt.spelllang = "en_au,en_us"
 vim.opt.spelloptions = "camel"
 vim.opt.spellsuggest = "fast,8"
 
 -- Bindings {{{1
 
-vim.keymap.set("n", "<c-g>", function()
-	local msg = require "vimrc.git_blame".blame()
-	if msg ~= nil then
-		print(msg)
-	end
-end)
+local function interp(x) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false) end
 
-vim.keymap.set({ "i", "s" }, "<c-r>!", [[<c-r>=system(input("!", "", "shellcmd"))<cr>]])
+local function ifwrap(a, b)
+	return function()
+		if vim.o.wrap then
+			return interp(a)
+		else
+			return interp(b)
+		end
+	end
+end
 
 -- Multitools {{{2
 
@@ -636,8 +747,6 @@ local function has_words_before()
 	local line, col = unpack(vim.api.nvim_win_get_cursor(0))
 	return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
-
-local function interp(x) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false) end
 
 -- these can't be <expr> maps since inserting text is forbidden while evaluating the map
 
@@ -687,11 +796,13 @@ end)
 vim.keymap.set({ "i", "s" }, "<c-k>", function()
 	if luasnip.in_snippet() and luasnip.jumpable(-1) then
 		luasnip.jump(-1)
+	else
+		return interp("<c-k>")
 	end
 end)
 
 vim.keymap.set({ "n", "x" }, "<return>", function()
-	man_url = "man://"
+	local man_url = "man://"
 	if vim.bo.buftype == "help" or vim.fn.expand("%:p"):sub(1, #man_url) == man_url then
 		return interp("<c-]>")
 	elseif vim.bo.buftype == "quickfix" then
@@ -708,17 +819,36 @@ end)
 -- 	interp("<space>")
 -- end)
 
--- Misc {{{2
+-- Leader {{{2
 
-local function ifwrap(a, b)
-	return function()
-		if vim.o.wrap then
-			return interp(a)
-		else
-			return interp(b)
-		end
-	end
-end
+vim.g.mapleader = " "
+
+vim.keymap.set("n", "<leader>", "<nop>")
+vim.keymap.set("n", "<leader>r", [[<cmd>mode | syntax sync fromstart<cr>]])
+
+-- Toggles
+vim.keymap.set("n", "<leader>o", "<nop>")
+vim.keymap.set("n", "<leader>ou", [[<cmd>UndotreeToggle<cr><c-w>999h]])
+vim.keymap.set("n", "<leader>og", [[<cmd>Goyo<cr>ze]])
+vim.keymap.set("n", "<leader>ow", [[<cmd>set wrap! | set wrap?<cr>]])
+vim.keymap.set("n", "<leader>os", [[<cmd>set spell! | set spell?<cr>]])
+vim.keymap.set("n", "<leader>on", [[<cmd>set relativenumber! | set relativenumber?<cr>]])
+vim.keymap.set("n", "<leader>od", [[<cmd>if &diff | diffoff | else | diffthis | endif | set diff?<cr>]])
+vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclose | else | botright copen | endif<cr>]])
+vim.keymap.set("n", "<leader>ol", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]])
+
+-- Splits
+vim.keymap.set("n", "<leader>s", "<nop>")
+vim.keymap.set("n", "<leader>ss", "<c-w>s")
+vim.keymap.set("n", "<leader>sv", "<c-w>v")
+vim.keymap.set("n", "<leader>sh", "<cmd>aboveleft vertical new<cr>")
+vim.keymap.set("n", "<leader>sl", "<cmd>belowright vertical new<cr>")
+vim.keymap.set("n", "<leader>sj", "<cmd>belowright horizontal new<cr>")
+vim.keymap.set("n", "<leader>sk", "<cmd>aboveleft horizontal new<cr>")
+
+vim.keymap.set("n", "<leader>t", "<cmd>tab new<cr>")
+
+-- Better Defaults {{{2
 
 -- better binds
 vim.keymap.set({ "n", "x" }, ";", ":")
@@ -758,6 +888,33 @@ end)
 vim.keymap.set("x", "<", "<gv")
 vim.keymap.set("x", ">", ">gv")
 
+-- don't dirty registers
+vim.keymap.set({"n", "x"}, "x", "\"_x")
+
+vim.keymap.set("i", "<c-e>", "<c-o><c-e>")
+vim.keymap.set("i", "<c-y>", "<c-o><c-y>")
+
+-- readline
+vim.keymap.set({"i", "c"}, "<c-a>", "<Home>")
+
+-- Misc {{{2
+
+vim.keymap.set({ "i", "s" }, "<c-r>!", [[<c-r>=system(input("!", "", "shellcmd"))<cr>]])
+
+vim.keymap.set("n", "<c-g>", function()
+	local msg = require "vimrc.git_blame".blame()
+	if msg ~= nil then
+		print(msg)
+	end
+end)
+
+-- scroll window
+vim.keymap.set({"n", "x"}, "<left>", "zh")
+vim.keymap.set({"n", "x"}, "<down>", "<c-e>")
+vim.keymap.set({"n", "x"}, "<up>", "<c-y>")
+vim.keymap.set({"n", "x"}, "<right>", "zl")
+
+
 
 -- Other Things {{{1
 
@@ -767,3 +924,13 @@ vim.g.loaded_netrwPlugin = true -- disable netrw
 -- vim.cmd [[exec "doau <nomodeline> ColorScheme" g:colors_name]]
 
 vim.g.mapleader = "\\" -- stop plugins from polluting our leader
+
+vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
+	group = augroup,
+	desc = "autochdir",
+	callback = function()
+		if vim.o.buftype == "" then
+			vim.cmd [[silent! lcd %:p:h]]
+		end
+	end,
+})

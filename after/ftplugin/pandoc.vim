@@ -9,7 +9,7 @@ setlocal formatoptions=roqnlj
 setlocal spell
 setlocal wrap
 
-let &l:makeprg = 'pandoc "%" -o ' . g:pdf_out . ' --pdf-engine=tectonic --citeproc $*'
+let &l:makeprg = 'nix shell nixpkgs\#pandoc nixpkgs\#tectonic -c pandoc "%" -o ' . g:pdf_out . ' --pdf-engine=tectonic --citeproc $*'
 
 function! PandocFold()
 	let depth = match(getline(v:lnum), '\(^#\+\)\@<=\( .*$\)\@=')
@@ -18,6 +18,7 @@ endfunction
 
 setlocal foldmethod=expr foldexpr=PandocFold()
 
+" TODO these aren't entirely accurate due to === and --- headers and codeblocks
 noremap <expr><buffer> ]] ({p -> p ? p . 'gg' : 'G' })(search('^#', 'Wnz'))
 noremap <expr><buffer> [[ ({p -> p ? p . 'gg' : 'gg' })(search('^#', 'Wnbz'))
 
