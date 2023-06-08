@@ -1,4 +1,4 @@
-" vim: set foldmethod=marker:
+" vim: set foldmethod=marker foldlevel=0:
 
 if exists("g:vscode")
 	finish " Config is incompatible
@@ -12,39 +12,15 @@ let g:freestanding = exists("g:freestanding") && g:freestanding
 " Some hosted environment stuff
 if !g:freestanding
 	" This needs to be early I think
-	let g:python3_host_prog = system(["which", "python3"])
+	let g:python3_host_prog = exepath("python3")
 	set rtp+=/usr/share/vim/vimfiles
 endif
-
-command! -nargs=+ NXnoremap  nnoremap <args>|xnoremap <args>
-command! -nargs=+ NXmap      nmap <args>|xmap <args>
 
 " Options {{{1
 
 " Misc {{{2
 
 let g:pdf_out = "/tmp/document.pdf"
-
-set diffopt+=algorithm:patience,indent-heuristic
-set updatetime=1000
-
-let g:man_hardwrap = 0
-
-" User Interface {{{2
-
-" Don't redraw during macros
-set lazyredraw
-
-" Don't open folds
-set foldopen&
-set foldclose&
-
-" hit-enter prompt
-set shortmess=nxcIT
-
-" Split options
-set splitright
-" set splitbelow
 
 " Editing {{{2
 
@@ -183,16 +159,6 @@ let g:corresmap = {
 \ "cpp": ["h", "hpp"],
 \ }
 
-" Autocommands {{{1
-
-augroup vimrc
-	au!
-
-	" Non-breaking autochdir
-	au BufWinEnter * if empty(&buftype) | silent! lcd %:p:h | endif
-
-augroup END
-
 " Bindings {{{1
 
 " Commands {{{2
@@ -204,11 +170,6 @@ command! -nargs=+ -complete=file Fork call jobstart(<q-args>)
 command! -nargs=* -complete=lua LP lua print(vim.inspect(<args>))
 
 " Misc {{{2
-
-NXnoremap <left> zh
-NXnoremap <right> zl
-NXnoremap <up> <c-y>
-NXnoremap <down> <c-e>
 
 " better binds
 command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/[\x0d[:space:]]\+$//e | nohl
@@ -237,11 +198,6 @@ nnoremap <silent> <esc> <cmd>nohl<cr>
 " TODO this doesn't work when pasting from non-default registers
 nnoremap <expr> gp "`[" . getregtype()[0] . "`]"
 
-" Register-preserving delete
-NXmap X "_d
-nmap XX "_dd
-nnoremap x "_x
-
 nnoremap <c-f> "xyy
 xnoremap <c-f> "xy
 inoremap <c-f> <cmd>lua require("luasnip.extras.otf").on_the_fly("x")<cr>
@@ -259,8 +215,6 @@ inoremap <c-e> <c-o><c-e>
 inoremap <c-y> <c-o><c-y>
 
 " readline binds
-inoremap <c-a> <c-o>^
-cnoremap <c-a> <Home>
 cnoremap <c-k> <c-\>egetcmdline()[:getcmdpos()-2]<cr>
 
 " Buffer/window/tab {{{2
@@ -292,27 +246,16 @@ nnoremap <c-l> <c-w>l
 let mapleader = "\<Space>"
 
 " more leaders
-nnoremap <leader> <nop>
 nnoremap <leader>x <cmd>call v:lua.exec_current()<cr>
 nnoremap <leader>m <cmd>Dispatch<cr>
 
 " misc
-nnoremap <silent> <leader>r <cmd>mode <bar> syntax sync fromstart<cr>
 
 nnoremap <silent> <leader>P <cmd>belowright vertical new<cr><c-w>W80<c-w><bar><cmd>set wfw<cr>
 nnoremap <expr><silent> <leader>p (v:count == 0 ? '80' : '') . "<c-w><bar>"
 
 " toggles
-nnoremap <leader>o <nop>
-nnoremap <silent> <leader>ow <cmd>set wrap! <bar> set wrap?<cr>
-nnoremap <silent> <leader>ou <cmd>UndotreeToggle<cr><c-w>999h
-nnoremap <silent> <leader>os <cmd>set spell! <bar> set spell?<cr>
-nnoremap <silent> <leader>og <cmd>Goyo<cr>ze
-nnoremap <silent> <leader>on <cmd>set relativenumber! <bar> set relativenumber?<cr>
-nnoremap <silent><expr> <leader>oc getqflist({"winid":0}).winid ? "<cmd>cclose<cr>" : "<cmd>botright copen<cr>"
-nnoremap <silent><expr> <leader>ol getloclist(0, {"winid":0}).winid ? "<cmd>botright lclose<cr>" : "<cmd>botright lopen<cr>"
 nnoremap <silent><expr> <leader>oL getqflist({"winid":0}).winid ? "<cmd>cclose<cr>" : "<cmd>lua require'vimrc.diagnostic'.load_qf()<cr><cmd>botright copen<cr>"
-nnoremap <expr> <silent> <leader>od (&diff ? '<cmd>diffoff' : '<cmd>diffthis') . ' <bar> set diff?<cr>'
 
 " file ctl
 nnoremap <leader>w <cmd>up<cr>
@@ -325,16 +268,6 @@ nnoremap <leader>ee <cmd>call OpenCorresponding()<cr>
 " cleanup
 nnoremap <silent> <leader>k <nop>
 nnoremap <silent> <leader>kw :KillWhitespace<cr>
-
-" Splits
-nnoremap <leader>s <nop>
-nnoremap <silent> <leader>ss <c-w>s
-nnoremap <silent> <leader>sv <c-w>v
-nnoremap <silent> <leader>sh :aboveleft vertical new<cr>
-nnoremap <silent> <leader>sk :aboveleft new<cr>
-nnoremap <silent> <leader>sj :belowright new<cr>
-nnoremap <silent> <leader>sl :belowright vertical new<cr>
-nnoremap <leader>t :tab new<cr>
 
 " Other Features {{{1
 
