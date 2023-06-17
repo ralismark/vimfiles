@@ -7,6 +7,12 @@ If you're interested in how I do things, see:
 - [How I Use Vim #1: Core Editor Functionality](https://www.ralismark.xyz/posts/how-i-use-vim-1)
 - [How I Use Vim #2: Plugins](https://www.ralismark.xyz/posts/how-i-use-vim-2)
 
+## "Where is the vimrc"
+
+I'm trying something a bit different with it.
+Instead of a monolithic file, I've split the init bits over several files in `init/` for organisation.
+The `init.lua` simply runs them all in order.
+
 ## Regular (Hosted) Installation
 
 For this, clone/symlink the repository to `~/.config/nvim`.
