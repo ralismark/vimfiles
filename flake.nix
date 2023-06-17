@@ -146,7 +146,7 @@
 
           " hosted: bootstrap into actual vimrc
           let &rtp = stdpath("config") .. "," .. &rtp .. "," .. stdpath("config") .. "/after"
-          let $MYVIMRC = stdpath("config") .. "/init.vim"
+          let $MYVIMRC = stdpath("config") .. "/init.lua"
           source $MYVIMRC
         '');
 
@@ -154,7 +154,7 @@
           type = "app";
           program = "${packages.freestanding}/bin/nvim";
         };
-        # we need to use ${./.} here instead of e.g. ${./init.vim} to ensure
+        # we need to use ${./.} here instead of e.g. ${./init.lua} to ensure
         # the whole directory is copied over
         packages.freestanding = neovim-with-bootstrapper ''
           ${common-rc}
@@ -162,7 +162,7 @@
           " freestanding: bootstrap into packaged vimrc
           let g:freestanding = 1
           let &rtp = "${./.}," .. &rtp .. ",${./.}/after"
-          let $MYVIMRC = "${./.}/init.vim"
+          let $MYVIMRC = "${./.}/init.lua"
           source $MYVIMRC
         '';
 
