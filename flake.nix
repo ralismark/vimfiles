@@ -41,7 +41,7 @@
     "plugin:guess-indent.nvim" = { url = "github:NMAC427/guess-indent.nvim"; flake = false; };
     "plugin:editorconfig-vim" = { url = "github:editorconfig/editorconfig-vim"; flake = false; };
     "plugin:vim-pandoc-syntax" = { url = "github:vim-pandoc/vim-pandoc-syntax"; flake = false; };
-    # "plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
+    "plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
     "plugin:vim-easy-align" = { url = "github:junegunn/vim-easy-align"; flake = false; };
     "plugin:vim-textobj-user" = { url = "github:kana/vim-textobj-user"; flake = false; };
     "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };

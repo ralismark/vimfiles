@@ -502,6 +502,22 @@
         "type": "github"
       }
     },
+    "plugin:vim-polyglot": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1665762010,
+        "narHash": "sha256-w36n9Oeyac7zxp5sA0J+6A4f8PWtPLlYsmThKXdpNRg=",
+        "owner": "sheerun",
+        "repo": "vim-polyglot",
+        "rev": "bc8a81d3592dab86334f27d1d43c080ebf680d42",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sheerun",
+        "repo": "vim-polyglot",
+        "type": "github"
+      }
+    },
     "plugin:vim-recover": {
       "flake": false,
       "locked": {
@@ -646,6 +662,7 @@
         "plugin:vim-eunuch": "plugin:vim-eunuch",
         "plugin:vim-nix": "plugin:vim-nix",
         "plugin:vim-pandoc-syntax": "plugin:vim-pandoc-syntax",
+        "plugin:vim-polyglot": "plugin:vim-polyglot",
         "plugin:vim-recover": "plugin:vim-recover",
         "plugin:vim-repeat": "plugin:vim-repeat",
         "plugin:vim-replacewithregister": "plugin:vim-replacewithregister",
