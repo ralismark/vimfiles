@@ -193,7 +193,8 @@ local skels = {
 	-- shebangs
 	["*.py"] = s("", t({ "#!/usr/bin/env python3", "" })),
 	["*.sh"] = s("", t({ "#!/bin/sh", "set -eu", "" })),
-	["*.sed"] = s("", t({ "#!/bin/env -S sed -Ef", "" })),
+	["*.sed"] = s("", t({ "#!/usr/bin/env -S sed -Ef", "" })),
+	["CACHEDIR.TAG"] = s("", t({ "Signature: 8a477f597d28d172789f06886806bc55", "" })),
 }
 
 -------------------------------------------------------------------------------

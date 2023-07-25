@@ -98,6 +98,7 @@ nnoremap <leader>q <cmd>q<cr>
 
 nnoremap <leader>ev <cmd>e $MYVIMRC<cr>
 nnoremap <leader>ee <cmd>call OpenCorresponding()<cr>
+nnoremap <leader>ef <cmd>e ~/src/github.com/ralismark/nixfiles/assets/fortunes<cr>
 
 " cleanup
 nnoremap <silent> <leader>k <nop>
