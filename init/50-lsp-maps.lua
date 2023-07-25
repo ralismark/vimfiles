@@ -1,6 +1,9 @@
-vim.api.nvim_create_user_command("LspFormat", function() vim.lsp.buf.formatting_sync() end, {
+vim.api.nvim_create_user_command("LspFormat", function()
+	vim.lsp.buf.format {
+	}
+end, {
 	nargs = 0,
-	desc = "vim.lsp.buf.formatting_sync()",
+	desc = "vim.lsp.buf.format()",
 })
 
 vim.api.nvim_create_user_command("LspRename", function(params)

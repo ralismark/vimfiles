@@ -21,14 +21,42 @@ end, {
 	desc = "vim.lsp.set_log_level(vim.log.levels.DEBUG)",
 })
 
+local has_nix = vim.fn.executable("nix")
+local function setup(lsp)
+	return function(cfg)
+		-- extract cfg.nix
+		local nix = cfg.nix
+		cfg.nix = nil
+
+		local nix_run = cfg.nix_run
+		cfg.nix_run = nil
+
+		local cmd = (cfg.cmd or lsp.document_config.default_config.cmd)
+
+		-- replace cmd
+		if vim.fn.executable(cmd[1]) ~= 0 then
+			-- don't do anything, cmd is fine as is
+		elseif has_nix then
+			if nix ~= nil then
+				nix = table.append(table.append({ "nix", "shell" }, nix), { "-c" })
+				cfg.cmd = table.append(nix, cmd)
+			elseif nix_run ~= nil then
+				cfg.cmd = table.append({ "nix", "run", nix_run, "--" }, table.slice(cmd, 1))
+			else
+				return
+			end
+		else
+			return
+		end
+
+		return lsp.setup(cfg)
+	end
+end
 
 -------------------------------------------------------------------------------
 
-lspconfig.pylsp.setup {
-	cmd = {
-		"nix", "shell", "nixpkgs#python3Packages.python-lsp-server", "-c",
-		"pylsp",
-	},
+setup(lspconfig.pylsp) {
+	nix = { "nixpkgs#python3Packages.python-lsp-server" },
 	settings = {
 		pyls = {
 			plugins = {
@@ -39,13 +67,13 @@ lspconfig.pylsp.setup {
 	},
 }
 
-lspconfig.rust_analyzer.setup {
+setup(lspconfig.rust_analyzer) {
 }
 
-lspconfig.clangd.setup {
+setup(lspconfig.clangd) {
 }
 
-lspconfig.jdtls.setup {
+setup(lspconfig.jdtls) {
 	cmd = {
 		"nix", "run", "nixpkgs#jdt-language-server", "--",
 		"-Xms512M",
@@ -61,14 +89,13 @@ lspconfig.jdtls.setup {
 	end,
 }
 
-lspconfig.gopls.setup {
+setup(lspconfig.gopls) {
+	nix = { "nixpkgs#gopls" },
 	cmd = { "gopls", "-remote=auto" },
 }
 
-lspconfig.lua_ls.setup {
-	cmd = {
-		"nix", "run", "nixpkgs#lua-language-server", "--",
-	},
+setup(lspconfig.lua_ls) {
+	nix = { "nixpkgs#lua-language-server" },
 	settings = {
 		Lua = {
 			runtime = {
@@ -88,10 +115,21 @@ lspconfig.lua_ls.setup {
 	},
 }
 
-lspconfig.nil_ls.setup {
-	cmd = {
-		"nix", "run", "nixpkgs#nil", "--",
+setup(lspconfig.nil_ls) {
+	nix = { "nixpkgs#nil" },
+	settings = {
+		["nil"] = {
+			nix = {
+				flake = {
+					autoArchive = true,
+				},
+			},
+		},
 	},
+}
+
+setup(lspconfig.tsserver) {
+	nix = { "nixpkgs#nodePackages.typescript-language-server" },
 }
 
 local null_ls = require "null-ls"
