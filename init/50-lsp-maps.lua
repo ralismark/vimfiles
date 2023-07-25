@@ -18,6 +18,6 @@ vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "vim.lsp.buf.declara
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "vim.lsp.buf.definition" })
 vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "vim.lsp.buf.implementation" })
 vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "vim.lsp.buf.references" })
+vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, { desc = "vim.lsp.buf.type_definition" })
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "vim.lsp.buf.hover" })
 vim.keymap.set("n", "H", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })
-vim.keymap.set("x", "H", vim.lsp.buf.range_code_action, { desc = "vim.lsp.buf.range_code_action" })
