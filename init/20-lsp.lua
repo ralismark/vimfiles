@@ -3,7 +3,8 @@ lspconfig.util.default_config = vim.tbl_extend(
 	"force",
 	lspconfig.util.default_config,
 	{
-		capabilities = require "cmp_nvim_lsp".default_capabilities(),
+		capabilities = require "cmp_nvim_lsp".default_capabilities{
+		},
 		handlers = {
 			["textDocument/hover"] = vim.lsp.with(
 				vim.lsp.handlers.hover, {
@@ -11,6 +12,9 @@ lspconfig.util.default_config = vim.tbl_extend(
 				}
 			)
 		},
+		on_attach = function(client, bufnr)
+			client.server_capabilities.semanticTokensProvider = nil
+		end,
 	}
 )
 

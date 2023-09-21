@@ -10,6 +10,7 @@ function M.blame_data()
 			"-M",
 			vim.fn.expand("%"),
 		}, vim.fn.bufnr("%"))
+	print(vim.inspect(result))
 	local commit, origline, finalline = result[1]:match("([0-9a-f]*) ([0-9]*) ([0-9]*)")
 	local props = {
 		commit = commit,
@@ -18,7 +19,7 @@ function M.blame_data()
 	}
 	for i = 2, #result do
 		local key, value = result[i]:match("^([^ \t]*)%s(.*)$")
-		if key ~= "" then
+		if key ~= "" and key ~= nil then
 			props[key] = value
 		end
 	end
