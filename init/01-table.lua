@@ -10,7 +10,7 @@ _G.table.slice = function(list, from, to)
 		to = #list
 	end
 	if from == nil then
-		from = 0
+		from = 1
 	end
 	local out = {}
 	for i = from, to, 1 do

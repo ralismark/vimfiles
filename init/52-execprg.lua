@@ -61,7 +61,7 @@ local execprg = {
 	mermaid = open_pdf_out,
 }
 
-function _G.exec_current()
+local function exec_current()
 	for ft in string.gmatch(vim.bo.ft, "[^.]+") do
 		local com = execprg[ft]
 		if com ~= nil and com ~= vim.NIL then
@@ -74,3 +74,5 @@ function _G.exec_current()
 		{ "No execprg found for ft='" .. vim.bo.ft .. "'", "ErrorMsg" }
 	}, false, {})
 end
+
+vim.keymap.set("n", "<leader>x", exec_current)

@@ -1,15 +1,4 @@
-" Commands {{{1
-
-command! -nargs=0 W exec "w !pkexec tee %:p >/dev/null" | setl nomod
-" This, for some reason, doesn't work if you put it in a function
-command! -nargs=+ Keepview let s:view_save = winsaveview() | exec <q-args> | call winrestview(s:view_save)
-
 " Misc {{{1
-
-" better binds
-command! -nargs=0 -range=% KillWhitespace Keepview <line1>,<line2>s/[\x0d[:space:]]\+$//e | nohl
-noremap <s-return> @w
-nnoremap g= 1z=
 
 " Select pasted text
 nnoremap <expr> gp '`[' . getregtype()[0] . '`]'
@@ -38,9 +27,6 @@ xnoremap <c-f> "xy
 inoremap <c-f> <cmd>lua require("luasnip.extras.otf").on_the_fly("x")<cr>
 
 " Insert mode {{{1
-
-" Insert ISO 8601 date
-noremap! <c-r><c-d> <c-r>=strftime("%Y-%m-%d")<cr>
 
 inoremap <c-r><c-r> <c-r>"
 cnoremap <c-r><c-r> <c-r>"
@@ -75,32 +61,3 @@ nnoremap <c-h> <c-w>h
 nnoremap <c-j> <c-w>j
 nnoremap <c-k> <c-w>k
 nnoremap <c-l> <c-w>l
-
-" Leaders " {{{1
-
-let mapleader = "\<Space>"
-
-" more leaders
-nnoremap <leader>x <cmd>call v:lua.exec_current()<cr>
-nnoremap <leader>m <cmd>Dispatch<cr>
-
-" misc
-
-nnoremap <silent> <leader>P <cmd>belowright vertical new<cr><c-w>W80<c-w><bar><cmd>set wfw<cr>
-nnoremap <expr><silent> <leader>p (v:count == 0 ? '80' : '') . "<c-w><bar>"
-
-" toggles
-nnoremap <silent><expr> <leader>oL getqflist({"winid":0}).winid ? "<cmd>cclose<cr>" : "<cmd>lua require'vimrc.diagnostic'.load_qf()<cr><cmd>botright copen<cr>"
-
-" file ctl
-nnoremap <leader>w <cmd>up<cr>
-nnoremap <leader>q <cmd>q<cr>
-
-nnoremap <leader>ev <cmd>e $MYVIMRC<cr>
-nnoremap <leader>ee <cmd>call OpenCorresponding()<cr>
-nnoremap <leader>ef <cmd>e ~/src/github.com/ralismark/nixfiles/assets/fortunes<cr>
-
-" cleanup
-nnoremap <silent> <leader>k <nop>
-nnoremap <silent> <leader>kw :KillWhitespace<cr>
-
