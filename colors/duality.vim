@@ -35,21 +35,6 @@ hi StatusLine   ctermfg=white           ctermbg=black           cterm=NONE
 hi StatusLineNC ctermfg=darkgrey        ctermbg=black           cterm=NONE
 hi VertSplit    ctermfg=darkgrey        ctermbg=NONE            cterm=NONE
 
-" User-defined
-
-" Main bar
-hi User1    ctermfg=black ctermbg=white
-hi User6    ctermfg=black ctermbg=darkgrey
-" Main -> Secondary
-hi User2    ctermfg=white
-hi User7    ctermfg=darkgrey
-" Secondary
-hi User3    ctermfg=white
-hi User8    ctermfg=darkgrey
-" Middle
-hi User4    ctermfg=blue
-hi User9    ctermfg=darkgrey
-
 " Ex Messages {{{2
 hi WarningMsg   ctermfg=black           ctermbg=yellow
 hi ErrorMsg     ctermfg=black           ctermbg=red

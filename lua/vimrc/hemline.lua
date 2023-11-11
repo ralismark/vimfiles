@@ -74,32 +74,36 @@ end
 
 ---@alias Bar SegmentSpec
 
----@class Config
+---Render a bar spec
+---@param bar Bar
+function M.render(bar)
+	return render_segments(expand_spec(bar, {
+		hl = { bg = "none" },
+		sep = nil,
+	}))
+end
+
+---@class StatuslineConfig
 ---@field bars { active: Bar, inactive: Bar, [string]: Bar }
 ---@field pick_bar? fun(active: boolean): string?
 
----@param config Config
-function M.setup(config)
+---@param config StatuslineConfig
+---@return fun(): string
+function M.make_statusline(config)
 	local function pick_bar(active)
 		return (config.pick_bar and config.pick_bar(active))
 			or (active and "active" or "inactive")
 	end
 
-	M.statusline = function()
+	return function()
 		local active = vim.g.statusline_winid == vim.fn.win_getid()
 		local which = vim.api.nvim_win_call(vim.g.statusline_winid, function() return pick_bar(active) end)
 
 		local bar = config.bars[which]
 		return vim.api.nvim_win_call(vim.g.statusline_winid, function()
-			return render_segments(expand_spec(bar, {
-				hl = { bg = "none", },
-				sep = nil,
-			}))
+			return M.render(bar)
 		end)
 	end
-
-	vim.g.qf_disable_statusline = true
-	vim.go.statusline = [[%!luaeval("require'vimrc.hemline'.statusline()")]]
 end
 
 return M
