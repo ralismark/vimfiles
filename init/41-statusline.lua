@@ -1,52 +1,50 @@
 local hemline = require "vimrc.hemline"
 
--------------------------------------------------------------------------------
-
 -- TODO more comprehensive special-casing of "" segments
 
-local function powerline_right(l, r, props)
+function _G.powerline_right(l, r, props)
 	local rpad = r.content ~= "" and " " or ""
 	if r.hl.bg == l.hl.bg then
 		return {
-			{ content = " " .. unicode.powerline_light_right .. rpad, hl = { fg = props.hl.fg, bg = l.hl.bg } },
+			{ content = " " .. require"unicode".powerline_light_right .. rpad, hl = { fg = props.hl.fg, bg = l.hl.bg } },
 		}
 	else
 		return {
 			{ content = " ", hl = { bg = l.hl.bg } },
-			{ content = unicode.powerline_heavy_right .. rpad, hl = { bg = r.hl.bg, fg = l.hl.bg } },
+			{ content = require"unicode".powerline_heavy_right .. rpad, hl = { bg = r.hl.bg, fg = l.hl.bg } },
 		}
 	end
 end
 
-local function powerline_left(l, r, props)
+function _G.powerline_left(l, r, props)
 	local lpad = l.content ~= "" and " " or ""
 	if r.hl.bg == l.hl.bg then
 		return {
-			{ content = lpad .. unicode.powerline_light_left .. " ", hl = { fg = props.hl.fg, bg = l.hl.bg } },
+			{ content = lpad .. require"unicode".powerline_light_left .. " ", hl = { fg = props.hl.fg, bg = l.hl.bg } },
 		}
 	else
 		return {
-			{ content = lpad .. unicode.powerline_heavy_left, hl = { bg = l.hl.bg, fg = r.hl.bg } },
+			{ content = lpad .. require"unicode".powerline_heavy_left, hl = { bg = l.hl.bg, fg = r.hl.bg } },
 			{ content = " ", hl = { bg = r.hl.bg } },
 		}
 	end
 end
 
-local function lcap(ch)
+function _G.lcap(ch)
 	return {
 		"",
 		ch,
 		sep = function(_, r, props)
 			if r.hl.bg == props.hl.bg then return {} end
 			return {
-				{ content = unicode.powerline_heavy_left, hl = { fg = r.hl.bg, bg = props.hl.bg } },
+				{ content = require"unicode".powerline_heavy_left, hl = { fg = r.hl.bg, bg = props.hl.bg } },
 				{ content = " ", hl = r.hl },
 			}
 		end,
 	}
 end
 
-local function rcap(ch)
+function _G.rcap(ch)
 	return {
 		ch,
 		"",
@@ -54,13 +52,13 @@ local function rcap(ch)
 				if l.hl.bg == props.hl.bg then return {} end
 				return {
 					{ content = " ", hl = l.hl },
-					{ content = unicode.powerline_heavy_right, hl = { fg = l.hl.bg, bg = props.hl.bg } },
+					{ content = require"unicode".powerline_heavy_right, hl = { fg = l.hl.bg, bg = props.hl.bg } },
 				}
 			end,
 	}
 end
 
-local function lrcap(x)
+function _G.lrcap(x)
 	return lcap(rcap(x))
 end
 
@@ -156,11 +154,11 @@ local function mainbar(is_active)
 		},
 
 		function()
-			local ch = is_active and unicode.heavy_horizontal or unicode.light_horizontal
+			local ch = is_active and require"unicode".heavy_horizontal or require"unicode".light_horizontal
 			local hr = " %<" .. ch:rep(vim.api.nvim_win_get_width(vim.g.statusline_winid)) .. "> "
 			return {
 				hr,
-				hl = { fg = is_active and 134 or "darkgrey" },
+				hl = { fg = is_active and (vim.api.nvim_tabpage_get_number(0)%6)+9 or "darkgrey" },
 			}
 		end,
 
@@ -213,9 +211,14 @@ local function mainbar(is_active)
 	}
 end
 
-hemline.setup {
+rc.statusline = hemline.make_statusline {
 	bars = {
 		active = mainbar(true),
 		inactive = mainbar(false),
 	},
 }
+
+-------------------------------------------------------------------------------
+
+vim.g.qf_disable_statusline = true
+vim.go.statusline = [[%!v:lua.rc.statusline()]]

@@ -1,4 +1,4 @@
-_G.unicode = {
+return {
 	light_horizontal = "─",
 	heavy_horizontal = "━",
 	powerline_heavy_left = "",
