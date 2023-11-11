@@ -1,3 +1,5 @@
+-- vim: set foldmethod=marker:
+
 local function interp(x) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false) end
 
 local function ifwrap(a, b)
@@ -9,6 +11,16 @@ local function ifwrap(a, b)
 		end
 	end
 end
+
+vim.api.nvim_create_user_command("W", function()
+	vim.cmd [[
+		w !pkexec tee %:p >/dev/null
+		setl nomod
+	]]
+end, {
+	nargs = 0,
+	desc = "sudo write",
+})
 
 -- Multitools {{{1
 
@@ -52,6 +64,7 @@ vim.keymap.set({ "i", "s"}, "<cr>", function()
 	end
 end)
 
+
 vim.keymap.set({ "i", "s" }, "<c-j>", function()
 	if cmp.get_selected_entry() ~= nil then
 		cmp.confirm()
@@ -84,41 +97,14 @@ vim.keymap.set({ "n", "x" }, "<return>", function()
 	end
 end)
 
+vim.keymap.set({ "n", "x" }, "<s-return", "@w")
+
 -- vim.keymap.set("i", "<space>", function()
 -- 	if cmp.visible() then
 -- 		cmp.confirm()
 -- 	end
 -- 	interp("<space>")
 -- end)
-
--- Leader {{{1
-
-vim.g.mapleader = " "
-
-vim.keymap.set("n", "<leader>", "<nop>")
-vim.keymap.set("n", "<leader>r", [[<cmd>mode | syntax sync fromstart<cr>]])
-
--- Toggles
-vim.keymap.set("n", "<leader>o", "<nop>")
-vim.keymap.set("n", "<leader>ou", [[<cmd>UndotreeToggle<cr><c-w>999h]])
-vim.keymap.set("n", "<leader>og", [[<cmd>Goyo<cr>ze]])
-vim.keymap.set("n", "<leader>ow", [[<cmd>set wrap! | set wrap?<cr>]])
-vim.keymap.set("n", "<leader>os", [[<cmd>set spell! | set spell?<cr>]])
-vim.keymap.set("n", "<leader>on", [[<cmd>set relativenumber! | set relativenumber?<cr>]])
-vim.keymap.set("n", "<leader>od", [[<cmd>if &diff | diffoff | else | diffthis | endif | set diff?<cr>]])
-vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclose | else | botright copen | endif<cr>]])
-vim.keymap.set("n", "<leader>ol", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]])
-
--- Splits
-vim.keymap.set("n", "<leader>s", "<nop>")
-vim.keymap.set("n", "<leader>ss", "<c-w>s")
-vim.keymap.set("n", "<leader>sv", "<c-w>v")
-vim.keymap.set("n", "<leader>sh", "<cmd>aboveleft vertical new<cr>")
-vim.keymap.set("n", "<leader>sl", "<cmd>belowright vertical new<cr>")
-vim.keymap.set("n", "<leader>sj", "<cmd>belowright horizontal new<cr>")
-vim.keymap.set("n", "<leader>sk", "<cmd>aboveleft horizontal new<cr>")
-
-vim.keymap.set("n", "<leader>t", "<cmd>tab new<cr>")
 
 -- Better Defaults {{{1
 
@@ -172,6 +158,9 @@ vim.keymap.set({"i", "c"}, "<c-a>", "<Home>")
 -- Misc {{{1
 
 vim.keymap.set({ "i", "s" }, "<c-r>!", [[<c-r>=system(input("!", "", "shellcmd"))<cr>]])
+vim.keymap.set({ "i", "s" }, "<c-r><c-d>", function()
+	vim.api.nvim_put({ vim.fn.strftime("%Y-%m-%d") }, "c", true, true)
+end)
 
 vim.keymap.set("n", "<c-g>", function()
 	local msg = require "vimrc.git_blame".blame()
@@ -185,6 +174,3 @@ vim.keymap.set({"n", "x"}, "<left>", "zh")
 vim.keymap.set({"n", "x"}, "<down>", "<c-e>")
 vim.keymap.set({"n", "x"}, "<up>", "<c-y>")
 vim.keymap.set({"n", "x"}, "<right>", "zl")
-
-
-

@@ -12,9 +12,6 @@ lspconfig.util.default_config = vim.tbl_extend(
 				}
 			)
 		},
-		on_attach = function(client, bufnr)
-			client.server_capabilities.semanticTokensProvider = nil
-		end,
 	}
 )
 
@@ -60,11 +57,38 @@ end
 -------------------------------------------------------------------------------
 
 setup(lspconfig.pylsp) {
-	nix = { "nixpkgs#python3Packages.python-lsp-server" },
+	-- This is a bit of a fuck as a consequence of needing to deal with venvs.
+	-- I'm setting it up to have "globally"-installed tools, rather than
+	-- taking them from the venv.
+
+	nix = {
+		"--impure", "--expr", [[
+			(import <nixpkgs> {}).python3.withPackages (ps: with ps; [
+				python-lsp-server
+				pyflakes
+				pylsp-mypy
+				python-lsp-black
+			])
+		]]
+	},
 	settings = {
-		pyls = {
+		pylsp = {
 			plugins = {
-				pylint = { enabled = true },
+				jedi = {
+					environment = vim.env.VIRTUAL_ENV,
+					_ = true, -- to make this a dict not a list
+				},
+				pylsp_mypy = {
+					enabled = true,
+					overrides = {
+						-- use venv python if exists otherwise global
+						"--python-executable", vim.fn.exepath("python3"), true,
+					}
+				},
+				-- disable default plugins
+				autopep8 = { enabled = false },
+				mccabe = { enabled = false },
+				pycodestyle = { enabled = false },
 				yapf = { enabled = false },
 			},
 		},
@@ -136,10 +160,13 @@ setup(lspconfig.tsserver) {
 	nix = { "nixpkgs#nodePackages.typescript-language-server" },
 }
 
+setup(lspconfig.cssls) {
+	nix = { "nixpkgs#vscode-langservers-extracted" },
+}
+
 local null_ls = require "null-ls"
 null_ls.setup {
 	sources = {
-		null_ls.builtins.formatting.black,
 		null_ls.builtins.diagnostics.shellcheck.with({
 			command = function()
 				if vim.fn.executable("shellcheck") > 0 then

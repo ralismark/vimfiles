@@ -9,12 +9,21 @@ vim.api.nvim_create_autocmd({ "CursorHold" }, {
 require "vimrc.diagnostic".setup {
 }
 
--- TODO: Switch to using numhl when neovim v0.7 gets released <2022-03-18>
---       This is blocked on neovim/neovim#16914 'don't put empty sign text in line number column'
 vim.cmd([[
-sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
-sign define DiagnosticSignWarn  text=▲ texthl=DiagnosticSignWarn  linehl= numhl=
-sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numhl=
 sign define DiagnosticSignHint  text=🞶 texthl=DiagnosticSignHint  linehl= numhl=
+sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numhl=
+sign define DiagnosticSignWarn  text=▲ texthl=DiagnosticSignWarn  linehl= numhl=
+sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
 ]])
 
+
+-- Disable semantic highlights (see :help lsp-semantic-highlight)
+vim.api.nvim_create_autocmd({ "ColorScheme" }, {
+	group = rc.augroup,
+	desc = "disable semantic highlight",
+	callback = function()
+		for _, group in ipairs(vim.fn.getcompletion("@lsp", "highlight")) do
+			vim.api.nvim_set_hl(0, group, {})
+		end
+	end,
+})

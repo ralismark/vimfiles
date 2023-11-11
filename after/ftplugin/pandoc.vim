@@ -3,7 +3,7 @@ setlocal noexpandtab tabstop=4
 " We let dashed lists be comments so they work better with other editing
 " features
 setlocal commentstring=<!--%s-->
-let &l:comments = 'b:-,b:*,b:+,s:<!--,m:    ,e:-->'
+let &l:comments = 'b:-,b:*,b:+,s:<!--,m:    ,e:-->,b:>'
 setlocal formatoptions=roqnlj
 
 setlocal spell
