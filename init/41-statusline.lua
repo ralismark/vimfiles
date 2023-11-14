@@ -85,12 +85,13 @@ end
 local filename = function(is_active) return {
 	function()
 		if vim.bo.buftype == "" then
-			if vim.api.nvim_buf_get_name(0) == "" then
-				return { { "(untitled)", hl={fg="grey", italic=true} }, vim.bo.modified and "*" }
-			end
+			local untitled = vim.api.nvim_buf_get_name(0) == ""
+			local displayname = untitled and "(untitled)" or shortname():gsub("%%", "%%%%")
+			local exists = not untitled and vim.fn.filereadable(vim.api.nvim_buf_get_name(0)) > 0
 			return {
-				{ shortname():gsub("%%", "%%%%"), hl={italic=not vim.fn.filereadable(vim.api.nvim_buf_get_name(0))} },
+				{ displayname, hl={fg=not exists and "grey" or nil} },
 				vim.bo.modified and "*",
+				hl={italic=vim.bo.modified},
 			}
 		elseif vim.bo.buftype == "terminal" then
 			return { ">_", hl={bg="magenta"} }
@@ -154,7 +155,12 @@ local function mainbar(is_active)
 		},
 
 		function()
-			local ch = is_active and require"unicode".heavy_horizontal or require"unicode".light_horizontal
+			local u = require "unicode"
+			local ch = u[
+				(is_active and "heavy" or "light")
+				.. (vim.bo.modified and "_dashed" or "")
+				.. "_horizontal"
+			]
 			local hr = " %<" .. ch:rep(vim.api.nvim_win_get_width(vim.g.statusline_winid)) .. "> "
 			return {
 				hr,

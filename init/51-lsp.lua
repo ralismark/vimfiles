@@ -13,6 +13,13 @@ end, {
 	desc = "vim.lsp.buf.rename(...)",
 })
 
+vim.api.nvim_create_user_command("LspDebug", function()
+	vim.lsp.set_log_level(vim.log.levels.DEBUG)
+end, {
+	nargs = 0,
+	desc = "vim.lsp.set_log_level(vim.log.levels.DEBUG)",
+})
+
 -- TODO add a timeout to these <2022-07-10>
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "vim.lsp.buf.declaration" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "vim.lsp.buf.definition" })

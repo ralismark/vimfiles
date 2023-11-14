@@ -12,6 +12,11 @@ local tabline = {
 		local o = {}
 		table.insert(o, "")
 		for i, handle in ipairs(vim.api.nvim_list_tabpages()) do
+			local bufs = vim.tbl_map(vim.api.nvim_win_get_buf, vim.api.nvim_tabpage_list_wins(handle))
+			local any_modified = vim.tbl_contains(
+				vim.tbl_map(function(b) return vim.api.nvim_buf_get_option(b, "modified") end, bufs),
+				true
+			)
 			-- local win = vim.api.nvim_tabpage_get_win(handle)
 			-- local buf = vim.api.nvim_win_get_buf(win)
 			-- local bufname = vim.fn.expand("#" .. buf .. ":t")
@@ -19,7 +24,9 @@ local tabline = {
 			local active = handle == vim.api.nvim_get_current_tabpage()
 
 			table.insert(o, {
-				"%" .. i .. "T  " .. i .. "  %0T",
+				"%" .. i .. "T",
+				("  %d%s "):format(i, any_modified and "*" or " "),
+				"%0T",
 				hl=active and {fg="black",bg=(i%6)+9} or {fg=(i%6)+9,bg=237},
 			})
 		end
