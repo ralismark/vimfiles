@@ -15,13 +15,6 @@ lspconfig.util.default_config = vim.tbl_extend(
 	}
 )
 
-vim.api.nvim_create_user_command("LspDebug", function()
-	vim.lsp.set_log_level(vim.log.levels.DEBUG)
-end, {
-	nargs = 0,
-	desc = "vim.lsp.set_log_level(vim.log.levels.DEBUG)",
-})
-
 local has_nix = vim.fn.executable("nix")
 local function setup(lsp)
 	return function(cfg)
@@ -129,6 +122,7 @@ setup(lspconfig.lua_ls) {
 			runtime = {
 				version = "LuaJIT",
 				path = vim.list_extend({ "lua/?.lua", "lua/?/init.lua", }, vim.split(package.path, ";")),
+				pathStrict = true,
 			},
 			diagnostics = {
 				-- Get the language server to recognize the `vim` global
