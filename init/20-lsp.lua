@@ -52,6 +52,9 @@ end
 setup(lspconfig.pylsp) {
 	-- We wanna have the tools/etc be "globally" installed, as opposed to
 	-- requiring them to be installed in each individual venv.
+	--
+	-- To make them recognise packages installed just for the project, we pass
+	-- them the python executable
 
 	nix = {
 		"--impure", "--expr", [[
@@ -67,8 +70,13 @@ setup(lspconfig.pylsp) {
 		pylsp = {
 			plugins = {
 				jedi = {
-					environment = vim.env.VIRTUAL_ENV,
-					_ = true, -- to make this a dict not a list
+					-- environment is either the path to the binary, or a folder
+					-- that has ./bin/python
+					environment = vim.fn.exepath("python3"),
+					-- environment = vim.env.VIRTUAL_ENV,
+
+					-- extra paths are effectively added to PYTHONPATH
+					-- extra_paths = vim.fn.systemlist({ "python3", "-c", [[import site; print('\n'.join(site.getsitepackages()))]] }),
 				},
 				pylsp_mypy = {
 					enabled = true,
