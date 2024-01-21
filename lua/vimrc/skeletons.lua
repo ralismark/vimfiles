@@ -119,7 +119,7 @@ local skels = {
 			"#ifndef L",
 			"\tfreopen(\"___in.txt\", \"r\", stdin);",
 			"\tfreopen(\"___out.txt\", \"w\", stdout);",
-			"#endif L",
+			"#endif",
 			"",
 			"" }), i(0), t({ "",
 			"}" })

@@ -50,15 +50,14 @@ end
 -------------------------------------------------------------------------------
 
 setup(lspconfig.pylsp) {
-	-- This is a bit of a fuck as a consequence of needing to deal with venvs.
-	-- I'm setting it up to have "globally"-installed tools, rather than
-	-- taking them from the venv.
+	-- We wanna have the tools/etc be "globally" installed, as opposed to
+	-- requiring them to be installed in each individual venv.
 
 	nix = {
 		"--impure", "--expr", [[
 			(import <nixpkgs> {}).python3.withPackages (ps: with ps; [
 				python-lsp-server
-				pyflakes
+				flake8
 				pylsp-mypy
 				python-lsp-black
 			])
@@ -78,10 +77,21 @@ setup(lspconfig.pylsp) {
 						"--python-executable", vim.fn.exepath("python3"), true,
 					}
 				},
+				flake8 = {
+					enabled = true,
+					maxLineLength = 999, -- i never want this error
+					perFileIgnores = {
+						-- F401: unused import
+						-- F403: star import
+						"__init__.py:F401,F403",
+					},
+				},
+				-- disable for flake8
+				pycodestyle = { enabled = false },
+				mccabe = { enabled = false },
+				pyflakes = { enabled = false },
 				-- disable default plugins
 				autopep8 = { enabled = false },
-				mccabe = { enabled = false },
-				pycodestyle = { enabled = false },
 				yapf = { enabled = false },
 			},
 		},

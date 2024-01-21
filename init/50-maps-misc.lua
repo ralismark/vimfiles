@@ -97,7 +97,7 @@ vim.keymap.set({ "n", "x" }, "<return>", function()
 	end
 end)
 
-vim.keymap.set({ "n", "x" }, "<s-return", "@w")
+vim.keymap.set({ "n", "x" }, "<s-return>", "@w")
 
 -- vim.keymap.set("i", "<space>", function()
 -- 	if cmp.visible() then

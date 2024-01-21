@@ -48,7 +48,6 @@
     "plugin:vim-textobj-between" = { url = "github:thinca/vim-textobj-between"; flake = false; };
     "plugin:tcomment_vim" = { url = "github:tomtom/tcomment_vim"; flake = false; };
     "plugin:opsort.vim" = { url = "github:ralismark/opsort.vim"; flake = false; };
-    "plugin:vim-replacewithregister" = { url = "github:inkarkat/vim-ReplaceWithRegister"; flake = false; };
     "plugin:vim-nix" = { url = "github:LnL7/vim-nix"; flake = false; };
   };
 

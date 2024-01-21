@@ -537,22 +537,6 @@
         "type": "github"
       }
     },
-    "plugin:vim-replacewithregister": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1625513407,
-        "narHash": "sha256-9dGcOFmbkBwVvPdqP30V3IzDZ5BKLdFLuYtXXXCPz7E=",
-        "owner": "inkarkat",
-        "repo": "vim-ReplaceWithRegister",
-        "rev": "aad1e8fa31cb4722f20fe40679caa56e25120032",
-        "type": "github"
-      },
-      "original": {
-        "owner": "inkarkat",
-        "repo": "vim-ReplaceWithRegister",
-        "type": "github"
-      }
-    },
     "plugin:vim-textobj-between": {
       "flake": false,
       "locked": {
@@ -651,7 +635,6 @@
         "plugin:vim-polyglot": "plugin:vim-polyglot",
         "plugin:vim-recover": "plugin:vim-recover",
         "plugin:vim-repeat": "plugin:vim-repeat",
-        "plugin:vim-replacewithregister": "plugin:vim-replacewithregister",
         "plugin:vim-textobj-between": "plugin:vim-textobj-between",
         "plugin:vim-textobj-indent": "plugin:vim-textobj-indent",
         "plugin:vim-textobj-parameter": "plugin:vim-textobj-parameter",
