@@ -11,7 +11,7 @@
     };
 
     neovim = {
-      url = "github:neovim/neovim?dir=contrib&ref=v0.9.1";
+      url = "github:neovim/neovim?dir=contrib&ref=v0.9.4";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -19,7 +19,7 @@
     "plugin:vim-repeat" = { url = "github:tpope/vim-repeat"; flake = false; };
     "plugin:plenary.nvim" = { url = "github:nvim-lua/plenary.nvim"; flake = false; };
     "plugin:nvim-lspconfig" = { url = "github:neovim/nvim-lspconfig"; flake = false; };
-    "plugin:null-ls.nvim" = { url = "github:jose-elias-alvarez/null-ls.nvim"; flake = false; };
+    "plugin:none-ls.nvim" = { url = "github:nvimtools/none-ls.nvim"; flake = false; };
     "plugin:lsp_signature.nvim" = { url = "github:ray-x/lsp_signature.nvim"; flake = false; };
     "plugin:nvim-lightbulb" = { url = "github:kosayoda/nvim-lightbulb"; flake = false; };
     "plugin:nvim-cmp" = { url = "github:hrsh7th/nvim-cmp"; flake = false; };
@@ -67,7 +67,7 @@
                 (builtins.stringLength input)
                 input;
 
-            buildPlug = name: pkgs.vimUtils.buildVimPluginFrom2Nix {
+            buildPlug = name: pkgs.vimUtils.buildVimPlugin {
               pname = plugName name;
               version = "master";
               src = builtins.getAttr name inputs;
