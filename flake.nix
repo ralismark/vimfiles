@@ -150,7 +150,7 @@
 
         apps.freestanding = {
           type = "app";
-          program = "${packages.freestanding}/bin/nvim";
+          program = "${packages.freestanding}/bin/vim";
         };
         # we need to use ${./.} here instead of e.g. ${./init.lua} to ensure
         # the whole directory is copied over
