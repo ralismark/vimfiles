@@ -59,10 +59,12 @@ setup(lspconfig.pylsp) {
 	nix = {
 		"--impure", "--expr", [[
 			(import <nixpkgs> {}).python3.withPackages (ps: with ps; [
-				python-lsp-server
 				flake8
+				pyls-isort
 				pylsp-mypy
+				rope
 				python-lsp-black
+				python-lsp-server
 			])
 		]]
 	},
@@ -94,6 +96,7 @@ setup(lspconfig.pylsp) {
 						"__init__.py:F401,F403",
 					},
 				},
+
 				-- disable for flake8
 				pycodestyle = { enabled = false },
 				mccabe = { enabled = false },
@@ -110,6 +113,7 @@ setup(lspconfig.rust_analyzer) {
 }
 
 setup(lspconfig.clangd) {
+	nix = { "nixpkgs#clang-tools" },
 }
 
 setup(lspconfig.jdtls) {
