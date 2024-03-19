@@ -4,6 +4,15 @@
 nnoremap <expr> gp '`[' . getregtype()[0] . '`]'
 
 " operatorfunc tester
+function! OperatorFuncTest(motion)
+	if a:motion ==# "line"
+		normal! `[V`]
+	elseif a:motion ==# "char"
+		normal! `[v`]
+	elseif a:motion ==# "block"
+		exec "normal! `[\<c-v>`]"
+	endif
+endfunction
 nnoremap go <cmd>set operatorfunc=OperatorFuncTest<cr>g@
 
 " find/replace tools
