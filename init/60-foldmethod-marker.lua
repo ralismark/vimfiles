@@ -1,12 +1,11 @@
 vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
 	group = rc.augroup,
-	desc = "auto foldmethod=marker",
+	desc = "set foldmethod=marker if foldmarker in document",
 	callback = function()
 		-- check if foldmethod has already been set here
 		local verbose = vim.api.nvim_exec2("verbose set foldmethod?", { output = true }).output
 		local reason = vim.split(verbose, "\n")[2]
-		if type(reason) == "string" then reason = vim.trim(reason) end
-		if reason ~= nil and reason ~= "Last set from Lua" then
+		if reason ~= nil and vim.trim(reason) ~= "Last set from Lua" then
 			return
 		end
 
