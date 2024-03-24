@@ -10,7 +10,7 @@ for ordering:
 30 -- Options
 40 -- UI configuration
 50 -- Mappings & editing configuration
-60 -- (unused)
+60 -- Autocmds
 70 -- Misc
 80 -- (unused)
 90 -- after init

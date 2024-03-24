@@ -179,31 +179,3 @@ setup(lspconfig.tsserver) {
 setup(lspconfig.cssls) {
 	nix = { "nixpkgs#vscode-langservers-extracted" },
 }
-
-local null_ls = require "null-ls"
-null_ls.setup {
-	sources = {
-		null_ls.builtins.diagnostics.shellcheck.with({
-			command = function()
-				if vim.fn.executable("shellcheck") > 0 then
-					return "shellcheck"
-				end
-
-				local drv = nil
-				local jobid = vim.fn.jobstart(
-					{"nix", "build", "--no-link", "--json", "nixpkgs#shellcheck" },
-					{
-						stdout_buffered = true,
-						on_stdout = function(chan_id, data, name)
-							drv = vim.fn.json_decode(data)
-						end,
-					}
-				)
-				vim.fn.jobwait({ jobid })
-
-				return drv[1].outputs.bin .. "/bin/shellcheck"
-			end,
-		}),
-	},
-}
-
