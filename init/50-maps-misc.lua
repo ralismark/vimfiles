@@ -174,3 +174,79 @@ vim.keymap.set({"n", "x"}, "<left>", "zh")
 vim.keymap.set({"n", "x"}, "<down>", "<c-e>")
 vim.keymap.set({"n", "x"}, "<up>", "<c-y>")
 vim.keymap.set({"n", "x"}, "<right>", "zl")
+
+-- skip over punctuation for w/e/b/ge
+--
+-- these don't apply to operator-pending mode, to make e.g. "dw" still delete to
+-- end of word
+--
+-- TODO handle iskeyword/isident?
+vim.keymap.set({"n", "x"}, "w", function() vim.fn.search([[\<\k\|\s\zs\S\|^]], "Wz") end)
+vim.keymap.set({"n", "x"}, "e", function() vim.fn.search([[\k\>\|\S\s\|$]], "Wz") end)
+vim.keymap.set({"n", "x"}, "b", function() vim.fn.search([[\<\k\|\s\zs\S\]], "bW") end)
+vim.keymap.set({"n", "x"}, "ge", function() vim.fn.search([[\k\>\|\S\s\|$]], "bW") end)
+
+vim.keymap.set({"n", "x", "o"}, "(", function()
+	if vim.fn.virtcol(".") == 1 then
+		vim.fn.search([[^\n\zs.\|\%^]], "bsWz")
+	else
+		local line = vim.fn.search([[\_$\%<.v\n.*\%.v\zs.]], "bsWz")
+		if line == 0 then
+			-- can't do this in the search since virtualedit
+			return interp("gg")
+		end
+	end
+end)
+
+vim.keymap.set({"n", "x", "o"}, ")", function()
+	if vim.fn.virtcol(".") == 1 then
+		vim.fn.search([[.\+\n$]], "sWz")
+	else
+		local line = vim.fn.search([[\%.v..*\n.*\_$\%<.v]], "sWz")
+		if line == 0 then
+			-- can't do this in the search since virtualedit
+			return interp("G")
+		end
+	end
+end)
+
+-- make cursor go to column of other end by default
+vim.keymap.set("v", "|", function()
+	if vim.v.count == 0 then
+		return interp(vim.fn.virtcol("v") .. "|")
+	else
+		return interp(vim.v.count .. "|")
+	end
+end)
+
+local segment_regex = "\\C" .. table.concat({
+	[[[A-Z]\@<![A-Z]\([A-Z]*[a-z]\@!\|[a-z]*\)]], -- UPPERCASE segment (also accounting for acronym within camelcase e.g. ABCFoo)
+	[[[A-Za-z]\@<![a-z]\+]], -- lowercase segment
+	[[[A-Z][a-z]*]], -- Capitalised segment
+	[[\d\@<!\d\+]], -- numbers
+}, "\\|")
+
+local segment_end_regex = "\\C" .. table.concat({
+	"$", -- end of line
+	"[A-Z]\\zs[^A-Za-z]", -- UPPERCASE segment
+	"[A-Z]\zs[A-Z][a-z]", -- UPPERCASE acryonym in camelCase
+	"[a-z]\\zs[^a-z]", -- lowercase segment
+	[[\d\zs\D]], -- numbers
+}, "\\|")
+
+-- TODO behave more sensibly when not within a segment
+-- TODO operator is/as
+
+vim.keymap.set({"n", "x"}, "s", function()
+	vim.fn.search(segment_regex, "zW")
+end)
+vim.keymap.set({"n", "x"}, "S", function()
+	vim.fn.search(segment_regex, "bW")
+end)
+
+vim.keymap.set("o", "s", function()
+	vim.fn.search(segment_end_regex, "zW")
+end)
+vim.keymap.set("o", "S", function()
+	vim.fn.search(segment_regex, "bW")
+end)
