@@ -1,5 +1,8 @@
 " Misc {{{1
 
+" blackhole register
+noremap <bs> "_
+
 " Select pasted text
 nnoremap <expr> gp '`[' . getregtype()[0] . '`]'
 
