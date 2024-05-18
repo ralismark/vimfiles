@@ -11,7 +11,7 @@
     };
 
     neovim = {
-      url = "github:neovim/neovim?dir=contrib&ref=v0.9.5";
+      url = "github:neovim/neovim?dir=contrib&ref=v0.10.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -45,7 +45,6 @@
     "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };
     "plugin:vim-textobj-parameter" = { url = "github:sgur/vim-textobj-parameter"; flake = false; };
     "plugin:vim-textobj-between" = { url = "github:thinca/vim-textobj-between"; flake = false; };
-    "plugin:tcomment_vim" = { url = "github:tomtom/tcomment_vim"; flake = false; };
     "plugin:opsort.vim" = { url = "github:ralismark/opsort.vim"; flake = false; };
     "plugin:vim-nix" = { url = "github:LnL7/vim-nix"; flake = false; };
   };

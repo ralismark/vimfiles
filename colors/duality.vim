@@ -32,7 +32,7 @@ hi Directory    ctermfg=blue
 " Statusline/Tabline {{{2
 hi StatusLine   ctermfg=white           ctermbg=black           cterm=NONE
 hi StatusLineNC ctermfg=darkgrey        ctermbg=black           cterm=NONE
-hi VertSplit    ctermfg=darkgrey        ctermbg=NONE            cterm=NONE
+hi WinSeparator ctermfg=darkgrey        ctermbg=NONE            cterm=NONE
 
 " Ex Messages {{{2
 hi WarningMsg   ctermfg=black           ctermbg=yellow
@@ -72,8 +72,9 @@ hi DiffText     ctermfg=lightyellow     ctermbg=NONE
 
 " Popup Menu {{{2
 hi Pmenu        ctermfg=grey            ctermbg=black
-hi PmenuSel     ctermfg=fg
+hi PmenuSel     ctermfg=fg              ctermbg=black           cterm=NONE
 hi PmenuSbar    ctermfg=fg              ctermbg=NONE
+hi NormalFloat  ctermfg=fg              ctermbg=black
 
 "  █▓▒░ Syntax colors {{{1
 
@@ -111,7 +112,8 @@ hi Structure    ctermfg=green
 hi link Typedef Structure
 
 hi Special      ctermfg=lightgrey
-hi Tag          ctermfg=cyan
+hi Tag          ctermfg=cyan                                    cterm=underline
+hi link @markup.link Tag
 hi SpecialComment ctermfg=lightgrey
 hi Delimiter    ctermfg=fg
 hi link @tag.delimiter Delimiter
