@@ -58,17 +58,17 @@
       },
       "locked": {
         "dir": "contrib",
-        "lastModified": 1703942320,
-        "narHash": "sha256-CcaBqA0yFCffNPmXOJTo8c9v1jrEBiqAl8CG5Dj5YxE=",
+        "lastModified": 1715862872,
+        "narHash": "sha256-FCOipXHkAbkuFw9JjEpOIJ8BkyMkjkI0Dp+SzZ4yZlw=",
         "owner": "neovim",
         "repo": "neovim",
-        "rev": "8744ee8783a8597f9fce4a573ae05aca2f412120",
+        "rev": "27fb62988e922c2739035f477f93cc052a4fee1e",
         "type": "github"
       },
       "original": {
         "dir": "contrib",
         "owner": "neovim",
-        "ref": "v0.9.5",
+        "ref": "v0.10.0",
         "repo": "neovim",
         "type": "github"
       }
@@ -265,38 +265,6 @@
         "type": "github"
       }
     },
-    "plugin:none-ls-shellcheck.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1710845791,
-        "narHash": "sha256-t06Nu7wVEGoJtaaZh/psvuC9kdYhwh6JeOd0cg3WVHY=",
-        "owner": "gbprod",
-        "repo": "none-ls-shellcheck.nvim",
-        "rev": "0f84461241e76e376a95fb7391deac82dc3efdbf",
-        "type": "github"
-      },
-      "original": {
-        "owner": "gbprod",
-        "repo": "none-ls-shellcheck.nvim",
-        "type": "github"
-      }
-    },
-    "plugin:none-ls.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1711021139,
-        "narHash": "sha256-FjDb53SNILxP9N9l5cJVBocj1ro/9eE8VKgR0Mv5+gs=",
-        "owner": "nvimtools",
-        "repo": "none-ls.nvim",
-        "rev": "18910d09d21d7df339805343bfe4a2b2e41c057b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nvimtools",
-        "repo": "none-ls.nvim",
-        "type": "github"
-      }
-    },
     "plugin:nvim-cmp": {
       "flake": false,
       "locked": {
@@ -374,22 +342,6 @@
       "original": {
         "owner": "nvim-lua",
         "repo": "plenary.nvim",
-        "type": "github"
-      }
-    },
-    "plugin:tcomment_vim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1696327903,
-        "narHash": "sha256-Ut23G/31wgsc7KtiWvej7EYCzSU5itR16oblskgaNZk=",
-        "owner": "tomtom",
-        "repo": "tcomment_vim",
-        "rev": "90eaf759099bcd47aa0471f974109d7fd78e4eea",
-        "type": "github"
-      },
-      "original": {
-        "owner": "tomtom",
-        "repo": "tcomment_vim",
         "type": "github"
       }
     },
@@ -618,14 +570,11 @@
         "plugin:goyo.vim": "plugin:goyo.vim",
         "plugin:guess-indent.nvim": "plugin:guess-indent.nvim",
         "plugin:lsp_signature.nvim": "plugin:lsp_signature.nvim",
-        "plugin:none-ls-shellcheck.nvim": "plugin:none-ls-shellcheck.nvim",
-        "plugin:none-ls.nvim": "plugin:none-ls.nvim",
         "plugin:nvim-cmp": "plugin:nvim-cmp",
         "plugin:nvim-lightbulb": "plugin:nvim-lightbulb",
         "plugin:nvim-lspconfig": "plugin:nvim-lspconfig",
         "plugin:opsort.vim": "plugin:opsort.vim",
         "plugin:plenary.nvim": "plugin:plenary.nvim",
-        "plugin:tcomment_vim": "plugin:tcomment_vim",
         "plugin:telescope.nvim": "plugin:telescope.nvim",
         "plugin:undotree": "plugin:undotree",
         "plugin:vim-dispatch": "plugin:vim-dispatch",

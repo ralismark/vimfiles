@@ -4,7 +4,7 @@ local function open_pdf_out()
 	if vim.g.pdf_out == nil then
 		error("g:pdf_out is not defined")
 	end
-	vim.fn.jobstart({ "xdg-open", vim.g.pdf_out })
+	vim.ui.open(vim.g.pdf_out)
 end
 
 -- Try to convert an absolute path into its corresponding module name.
@@ -48,7 +48,7 @@ local execprg = {
 
 	tex = function()
 		local stem = vim.fn.expand("%:r")
-		vim.fn.jobstart({ "xdg-open", stem .. ".pdf" })
+		vim.ui.open(stem .. ".pdf")
 	end,
 	java = function()
 		vim.cmd("botright split")

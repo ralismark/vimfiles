@@ -1,3 +1,4 @@
+vim.opt.termguicolors = false
 vim.cmd("colorscheme duality")
 
 vim.api.nvim_create_autocmd({ "ColorScheme" }, {
