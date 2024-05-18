@@ -43,7 +43,7 @@ local execprg = {
 
 	html = function()
 		local path = vim.fn.expand("%:p")
-		vim.fn.jobstart({ "firefox", "--new-window", "file://" .. path })
+		vim.fn.jobstart({ "firefox-devedition", "--new-window", "file://" .. path })
 	end,
 
 	tex = function()

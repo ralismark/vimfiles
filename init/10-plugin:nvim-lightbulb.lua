@@ -1,6 +1,9 @@
 require "nvim-lightbulb".setup {
-	sign = {
+	virtual_text = {
 		enabled = true,
+	},
+	sign = {
+		enabled = false,
 		priority = 20,
 	},
 	autocmd = {

@@ -1,61 +1,9 @@
 local lspconfig = require "lspconfig"
-lspconfig.util.default_config = vim.tbl_extend(
-	"force",
-	lspconfig.util.default_config,
-	{
-		capabilities = require "cmp_nvim_lsp".default_capabilities{
-		},
-		handlers = {
-			["textDocument/hover"] = vim.lsp.with(
-				vim.lsp.handlers.hover, {
-					focusable = false
-				}
-			)
-		},
-	}
-)
 
-local has_nix = vim.fn.executable("nix")
-local function setup(lsp)
-	return function(cfg)
-		-- extract cfg.nix
-		local nix = cfg.nix
-		cfg.nix = nil
-
-		local nix_run = cfg.nix_run
-		cfg.nix_run = nil
-
-		local cmd = (cfg.cmd or lsp.document_config.default_config.cmd)
-
-		-- replace cmd
-		if vim.fn.executable(cmd[1]) ~= 0 then
-			-- don't do anything, cmd is fine as is
-		elseif has_nix then
-			if nix ~= nil then
-				nix = table.append(table.append({ "nix", "shell" }, nix), { "-c" })
-				cfg.cmd = table.append(nix, cmd)
-			elseif nix_run ~= nil then
-				cfg.cmd = table.append({ "nix", "run", nix_run, "--" }, table.slice(cmd, 1))
-			else
-				return
-			end
-		else
-			return
-		end
-
-		return lsp.setup(cfg)
-	end
-end
-
--------------------------------------------------------------------------------
-
-setup(lspconfig.pylsp) {
+lspconfig.pylsp.setup {
 	-- We wanna have the tools/etc be "globally" installed, as opposed to
-	-- requiring them to be installed in each individual venv.
-	--
-	-- To make them recognise packages installed just for the project, we pass
-	-- them the python executable
-
+	-- requiring them to be installed in each individual venv. We can still use
+	-- venvs by passing the venv python3 to pylsp.
 	nix = {
 		"--impure", "--expr", [[
 			(import <nixpkgs> {}).python3.withPackages (ps: with ps; [
@@ -68,6 +16,9 @@ setup(lspconfig.pylsp) {
 			])
 		]]
 	},
+
+	autostart = false,
+
 	settings = {
 		pylsp = {
 			plugins = {
@@ -109,14 +60,18 @@ setup(lspconfig.pylsp) {
 	},
 }
 
-setup(lspconfig.rust_analyzer) {
+lspconfig.rust_analyzer.setup {
 }
 
-setup(lspconfig.clangd) {
+lspconfig.clangd.setup {
 	nix = { "nixpkgs#clang-tools" },
+	cmd = {
+		"clangd", "--log=verbose",
+	},
+	single_file_support = true,
 }
 
-setup(lspconfig.jdtls) {
+lspconfig.jdtls.setup {
 	cmd = {
 		"nix", "run", "nixpkgs#jdt-language-server", "--",
 		"-Xms512M",
@@ -132,12 +87,12 @@ setup(lspconfig.jdtls) {
 	end,
 }
 
-setup(lspconfig.gopls) {
+lspconfig.gopls.setup {
 	nix = { "nixpkgs#gopls" },
 	cmd = { "gopls", "-remote=auto" },
 }
 
-setup(lspconfig.lua_ls) {
+lspconfig.lua_ls.setup {
 	nix = { "nixpkgs#lua-language-server" },
 	settings = {
 		Lua = {
@@ -159,23 +114,12 @@ setup(lspconfig.lua_ls) {
 	},
 }
 
-setup(lspconfig.nil_ls) {
-	nix = { "nixpkgs#nil" },
-	settings = {
-		["nil"] = {
-			nix = {
-				flake = {
-					autoArchive = true,
-				},
-			},
-		},
-	},
-}
-
-setup(lspconfig.tsserver) {
+lspconfig.tsserver.setup {
 	nix = { "nixpkgs#nodePackages.typescript-language-server" },
+	settings = {
+	}
 }
 
-setup(lspconfig.cssls) {
+lspconfig.cssls.setup {
 	nix = { "nixpkgs#vscode-langservers-extracted" },
 }

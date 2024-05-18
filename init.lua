@@ -30,16 +30,16 @@ q  | record         | code action             | ?
 w  | word           | WORD                    | multi (window)
 e  | end            | END                     | scroll down
 r  | replace char   | replace mode            | redo
-t  | til            | TIL                     | ?
+t  | til            | til prev                | ?
 y  | yank           | y$                      | scroll up
 u  | undo           | ?                       | up 1/2 page
 i  | insert         | insert at start         | (=tab) fold
 o  | new line after | new line before         | older pos
 p  | paste after    | past before             | newer pos
 a  | append         | append at end           | increment
-s  | segment        | ?0C                     | ?
+s  | segment        | change line             | ?
 d  | delete         | d$                      | down 1/2 page
-f  | find           | FIND                    | down page
+f  | find           | find prev               | down page
 g  | many           | last line               | ?git info
 h  | left           | ?high                   | win left
 j  | down           | join                    | win down
@@ -63,5 +63,8 @@ end
 local files = vim.fn.globpath(vim.fn.stdpath("config"), "init/*", false, true)
 table.sort(files)
 for _, file in ipairs(files) do
-	vim.cmd.source(file)
+	local ok, err = pcall(vim.cmd.source, file)
+	if not ok then
+		vim.api.nvim_err_write(err)
+	end
 end
