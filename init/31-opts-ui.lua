@@ -69,5 +69,5 @@ vim.opt.virtualedit = "block"
 
 -- Gutter
 vim.opt.number = true
-vim.opt.relativenumber = false
+vim.opt.relativenumber = true
 vim.opt.signcolumn = "number"

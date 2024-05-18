@@ -89,7 +89,7 @@ vim.keymap.set("n", "<leader>P", function()
 		set winfixwidth
 	]]
 end)
-vim.keymap.set("n", "<leader>P", function()
+vim.keymap.set("n", "<leader>p", function()
 	local count = 80
 	if vim.v.count ~= 0 then
 		count = vim.v.count

@@ -11,7 +11,7 @@
     };
 
     neovim = {
-      url = "github:neovim/neovim?dir=contrib&ref=v0.9.4";
+      url = "github:neovim/neovim?dir=contrib&ref=v0.9.5";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -19,7 +19,6 @@
     "plugin:vim-repeat" = { url = "github:tpope/vim-repeat"; flake = false; };
     "plugin:plenary.nvim" = { url = "github:nvim-lua/plenary.nvim"; flake = false; };
     "plugin:nvim-lspconfig" = { url = "github:neovim/nvim-lspconfig"; flake = false; };
-    "plugin:none-ls.nvim" = { url = "github:nvimtools/none-ls.nvim"; flake = false; };
     "plugin:lsp_signature.nvim" = { url = "github:ray-x/lsp_signature.nvim"; flake = false; };
     "plugin:nvim-lightbulb" = { url = "github:kosayoda/nvim-lightbulb"; flake = false; };
     "plugin:nvim-cmp" = { url = "github:hrsh7th/nvim-cmp"; flake = false; };
@@ -40,7 +39,7 @@
     "plugin:Colorizer" = { url = "github:chrisbra/Colorizer"; flake = false; };
     "plugin:guess-indent.nvim" = { url = "github:NMAC427/guess-indent.nvim"; flake = false; };
     "plugin:vim-pandoc-syntax" = { url = "github:vim-pandoc/vim-pandoc-syntax"; flake = false; };
-    "plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
+    #"plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
     "plugin:vim-easy-align" = { url = "github:junegunn/vim-easy-align"; flake = false; };
     "plugin:vim-textobj-user" = { url = "github:kana/vim-textobj-user"; flake = false; };
     "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };
@@ -84,7 +83,9 @@
           configure = {
             inherit customRC;
             packages.main = {
-              start = vimPlugins;
+              start = vimPlugins ++ [
+                pkgs.vimPlugins.nvim-treesitter.withAllGrammars
+              ];
             };
           };
         };

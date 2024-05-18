@@ -8,7 +8,6 @@
 "  ░░██████░░██████░░████████ ███░██  ░░██   ██
 "   ░░░░░░  ░░░░░░  ░░░░░░░░ ░░░ ░░    ░░   ░░
 
-set background=dark
 hi clear
 
 if exists("syntax_on")
@@ -20,7 +19,7 @@ let g:colors_name = "duality"
 "  █▓▒░ GUI colors {{{1
 
 " General Text Styling {{{2
-hi Normal       ctermfg=NONE
+hi Normal       ctermfg=white
 hi Conceal      ctermfg=NONE            ctermbg=black
 hi NonText      ctermfg=darkgrey
 hi SpecialKey   ctermfg=darkblue
@@ -62,7 +61,7 @@ hi SignColumn   ctermfg=white           ctermbg=NONE
 " Lines {{{2
 hi ColorColumn                          ctermbg=darkgrey
 hi CursorColumn                         ctermbg=darkgrey
-hi CursorLine                           ctermbg=NONE            cterm=underline
+hi CursorLine                           ctermbg=black cterm=NONE
 hi Folded       ctermfg=green           ctermbg=black
 
 " Diff {{{2
@@ -73,33 +72,51 @@ hi DiffText     ctermfg=lightyellow     ctermbg=NONE
 
 " Popup Menu {{{2
 hi Pmenu        ctermfg=grey            ctermbg=black
-hi PmenuSel     ctermfg=white
-hi PmenuSbar    ctermfg=NONE            ctermbg=NONE
+hi PmenuSel     ctermfg=fg
+hi PmenuSbar    ctermfg=fg              ctermbg=NONE
 
 "  █▓▒░ Syntax colors {{{1
 
 hi Comment      ctermfg=darkgrey
 
 hi Constant     ctermfg=darkmagenta
+hi link @constant.builtin Constant
+hi link @variable.css Constant
+
 hi String       ctermfg=green
 hi link Character String
 
-hi Identifier   ctermfg=cyan                                    cterm=NONE
+hi Identifier   ctermfg=fg                                      cterm=NONE
+hi @variable.builtin cterm=italic
+
+hi @function ctermfg=cyan
+hi link @function.builtin NONE
 
 hi Statement    ctermfg=red
 hi Operator     ctermfg=white
 
+hi @attribute ctermfg=yellow
+hi link @property.css @attribute
+
 hi PreProc      ctermfg=yellow
+hi link @keyword.directive PreProc
+hi link @keyword.import PreProc
 
 hi Type         ctermfg=darkblue
 hi StorageClass ctermfg=yellow
+hi link @keyword.storage StorageClass
+hi link @type.qualifier StorageClass
+
 hi Structure    ctermfg=green
 hi link Typedef Structure
 
 hi Special      ctermfg=lightgrey
-hi Tag          ctermfg=cyan                                    cterm=underline
+hi Tag          ctermfg=cyan
 hi SpecialComment ctermfg=lightgrey
+hi Delimiter    ctermfg=fg
+hi link @tag.delimiter Delimiter
 
 hi Error        ctermfg=white           ctermbg=darkred
 
 hi Todo         ctermfg=yellow          ctermbg=NONE            cterm=italic
+hi link @comment.todo Todo

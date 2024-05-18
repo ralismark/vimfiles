@@ -9,7 +9,7 @@ setlocal formatoptions=roqnlj
 setlocal spell
 setlocal wrap
 
-let &l:makeprg = 'nix shell nixpkgs\#pandoc nixpkgs\#tectonic -c pandoc "%" -o ' . g:pdf_out . ' --pdf-engine=tectonic --citeproc $*'
+let &l:makeprg = 'nix shell -f "<nixpkgs>" pandoc tectonic librsvg haskellPackages.pandoc-crossref -c pandoc "%" -o ' . g:pdf_out . ' --pdf-engine=tectonic -Fpandoc-crossref --citeproc $*'
 
 function! PandocFold()
 	let depth = match(getline(v:lnum), '\(^#\+\)\@<=\( .*$\)\@=')
