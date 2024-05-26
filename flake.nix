@@ -2,7 +2,7 @@
   description = "Neovim";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "nixpkgs"; # I pin nixpkgs on my systems, so this gets updated to match that
     flake-utils.url = "github:numtide/flake-utils";
 
     flake-compat = {
@@ -11,6 +11,7 @@
     };
 
     neovim = {
+      # TODO this is moving to https://github.com/nix-community/neovim-nightly-overlay
       url = "github:neovim/neovim?dir=contrib&ref=v0.10.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };

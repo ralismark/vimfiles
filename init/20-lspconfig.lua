@@ -8,8 +8,12 @@ lspconfig.util.default_config = vim.tbl_extend(
 	"force",
 	lspconfig.util.default_config,
 	{
-		capabilities = require "cmp_nvim_lsp".default_capabilities{
-		},
+		capabilities = vim.tbl_deep_extend(
+			"force",
+			vim.lsp.protocol.make_client_capabilities(),
+			-- https://github.com/hrsh7th/cmp-nvim-lsp/issues/38#issuecomment-1815265121
+			require "cmp_nvim_lsp".default_capabilities()
+		),
 		handlers = {
 			["textDocument/hover"] = vim.lsp.with(
 				vim.lsp.handlers.hover, {
@@ -29,7 +33,7 @@ if vim.fn.executable("nix") then
 		end
 
 		if cfg.nix ~= nil then
-			cfg.cmd = vim.tbl_flatten({ "nix", "shell", cfg.nix, "-c", cfg.cmd })
+			cfg.cmd = vim.iter({ "nix", "shell", cfg.nix, "-c", cfg.cmd }):flatten():totable()
 		end
 	end)
 end
