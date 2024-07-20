@@ -39,7 +39,7 @@
     "plugin:vim-recover" = { url = "github:ralismark/vim-recover"; flake = false; };
     "plugin:Colorizer" = { url = "github:chrisbra/Colorizer"; flake = false; };
     "plugin:guess-indent.nvim" = { url = "github:NMAC427/guess-indent.nvim"; flake = false; };
-    "plugin:vim-pandoc-syntax" = { url = "github:vim-pandoc/vim-pandoc-syntax"; flake = false; };
+    # "plugin:vim-pandoc-syntax" = { url = "github:vim-pandoc/vim-pandoc-syntax"; flake = false; };
     #"plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
     "plugin:vim-easy-align" = { url = "github:junegunn/vim-easy-align"; flake = false; };
     "plugin:vim-textobj-user" = { url = "github:kana/vim-textobj-user"; flake = false; };
@@ -54,36 +54,28 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
+        lib = pkgs.lib;
         neovim-unwrapped = neovim.packages.${system}.neovim;
 
         # parse inputs to extract everything beginning with plugin:
-        vimPlugins =
-          let
-            plugName = input:
-              builtins.substring
-                (builtins.stringLength "plugin:")
-                (builtins.stringLength input)
-                input;
+        plugins = let
+          buildPlug = name: src: pkgs.vimUtils.buildVimPlugin {
+            pname = lib.removePrefix "plugin:" name;
+            version = src.shortRev;
+            inherit src;
+          };
+        in
+          lib.mapAttrsToList buildPlug
+            (lib.filterAttrs (k: _: lib.hasPrefix "plugin:" k) inputs);
 
-            buildPlug = name: pkgs.vimUtils.buildVimPlugin {
-              pname = plugName name;
-              version = "master";
-              src = builtins.getAttr name inputs;
-            };
-          in
-          builtins.map buildPlug
-            (builtins.attrNames
-              (pkgs.lib.attrsets.filterAttrs
-                (k: v: (builtins.match "plugin:.*" k) != null)
-                inputs));
-
-        neovim-with-bootstrapper = customRC: pkgs.wrapNeovim neovim-unwrapped {
+        # create a neovim package with a given RC
+        neovim-with-rc = customRC: pkgs.wrapNeovim neovim-unwrapped {
           withRuby = false;
           withPython3 = false;
           configure = {
             inherit customRC;
             packages.main = {
-              start = vimPlugins ++ [
+              start = plugins ++ [
                 pkgs.vimPlugins.nvim-treesitter.withAllGrammars
               ];
             };
@@ -91,7 +83,7 @@
         };
 
         # wrap neovim+vimrc in a script that runs nvr/nvim as appropriate
-        with-nvim = final-neovim:
+        with-extra-scripts = final-neovim:
           let
             # The dependency on neovim-remote is mainly because --remote-wait is unsupported
             vim = pkgs.writeScriptBin "vim" ''
@@ -140,7 +132,7 @@
           type = "app";
           program = "${packages.hosted}/bin/vim";
         };
-        packages.hosted = with-nvim (neovim-with-bootstrapper ''
+        packages.hosted = with-extra-scripts (neovim-with-rc ''
           ${common-rc}
 
           " hosted: bootstrap into actual vimrc
@@ -151,11 +143,11 @@
 
         apps.freestanding = {
           type = "app";
-          program = "${packages.freestanding}/bin/vim";
+          program = "${packages.freestanding}/bin/nvim";
         };
         # we need to use ${./.} here instead of e.g. ${./init.lua} to ensure
         # the whole directory is copied over
-        packages.freestanding = neovim-with-bootstrapper ''
+        packages.freestanding = neovim-with-rc ''
           ${common-rc}
 
           " freestanding: bootstrap into packaged vimrc
