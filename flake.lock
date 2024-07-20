@@ -442,22 +442,6 @@
         "type": "github"
       }
     },
-    "plugin:vim-pandoc-syntax": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1700985518,
-        "narHash": "sha256-6j4ZyBbxH4tjvucbHRkWUDg6TKw5bPtxiDZP9jGOY+Y=",
-        "owner": "vim-pandoc",
-        "repo": "vim-pandoc-syntax",
-        "rev": "16939cda184ff555938cc895cc62477c172997f9",
-        "type": "github"
-      },
-      "original": {
-        "owner": "vim-pandoc",
-        "repo": "vim-pandoc-syntax",
-        "type": "github"
-      }
-    },
     "plugin:vim-recover": {
       "flake": false,
       "locked": {
@@ -582,7 +566,6 @@
         "plugin:vim-easy-align": "plugin:vim-easy-align",
         "plugin:vim-eunuch": "plugin:vim-eunuch",
         "plugin:vim-nix": "plugin:vim-nix",
-        "plugin:vim-pandoc-syntax": "plugin:vim-pandoc-syntax",
         "plugin:vim-recover": "plugin:vim-recover",
         "plugin:vim-repeat": "plugin:vim-repeat",
         "plugin:vim-textobj-between": "plugin:vim-textobj-between",
