@@ -1,23 +1,19 @@
-require "telescope".setup {
-	defaults = {
-		vimgrep_arguments = {
-			"grep",
-			"--extended-regexp",
-			"--color=never",
-			"--with-filename",
-			"--line-number",
-			"-b", -- grep doesn't support a `--column` option :(
-			"--ignore-case",
-			"--recursive",
-			"--no-messages",
-			"--exclude-dir=*cache*",
-			"--exclude-dir=*.git",
-			"--exclude=.*",
-			--"--binary-files=without-match",
-		},
-		-- sorting_strategy = "ascending",
-	},
-}
+-- add rg to path if nix available
+if vim.fn.executable("nix") == 1 and vim.fn.executable("rg") == 0 then
+	vim.system(
+		{ "nix", "build", "-f", "<nixpkgs>", "ripgrep", "--no-link", "--print-out-paths"},
+		{ },
+		function(obj)
+			vim.schedule(function()
+				if obj.code ~= 0 then
+					vim.api.nvim_err_writeln("nix build exited with status " .. obj.code .. "\n" .. obj.stderr)
+				else
+					vim.env.PATH = obj.stdout:gsub("\n", "/bin:") .. vim.env.PATH
+				end
+			end)
+		end
+	)
+end
 
 vim.keymap.set("n", "<leader><leader>b", function()
 	require "telescope.builtin".buffers {
@@ -29,32 +25,6 @@ vim.keymap.set("n", "<leader><leader>f", function()
 	require "telescope.builtin".find_files {
 		cwd = require "lspconfig".util.find_git_ancestor(vim.fn.getcwd()),
 	}
-	--[[
-	local conf = require("telescope.config").values
-	local opts = {
-		cwd = require "lspconfig".util.find_git_ancestor(vim.fn.getcwd()),
-		sorter = require "telescope.sorters".get_fuzzy_file(),
-		entry_maker = require "telescope.make_entry".gen_from_file({})
-	}
-
-	local finder = require "telescope.finders".new_oneshot_job(
-		{
-			"find", ".",
-			-- "-L", -- follow symlinks
-			"-name", ".?*", "-prune", "-o", -- ignore hidden files
-			"-type", "f",
-			"-print",
-		},
-		opts
-	)
-
-	require "telescope.pickers".new(opts, {
-		prompt_title = "Find Files",
-		finder = finder,
-		previewer = conf.file_previewer(opts),
-		sorter = conf.generic_sorter(opts)
-	}):find()
-	]]
 end)
 
 vim.keymap.set("n", "<leader><leader>g", function()
