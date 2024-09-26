@@ -114,7 +114,7 @@ lspconfig.lua_ls.setup {
 	},
 }
 
-lspconfig.tsserver.setup {
+lspconfig.ts_ls.setup {
 	nix = { "nixpkgs#nodePackages.typescript-language-server" },
 	settings = {
 	}

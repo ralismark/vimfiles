@@ -25,7 +25,7 @@ lspconfig.util.default_config = vim.tbl_extend(
 )
 
 -- add nix= support, for wrapping cmd in nix shell/nix run
-if vim.fn.executable("nix") then
+if vim.fn.executable("nix") == 1 then
 	lspconfig.util.on_setup = lspconfig.util.add_hook_before(lspconfig.util.on_setup, function(cfg)
 		if vim.fn.executable(cfg.cmd[1]) ~= 0 then
 			-- cmd is runnable already, don't need to add nix
