@@ -10,12 +10,6 @@
       flake = false;
     };
 
-    neovim = {
-      # TODO this is moving to https://github.com/nix-community/neovim-nightly-overlay
-      url = "github:neovim/neovim?dir=contrib&ref=v0.10.0";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     # plugins
     "plugin:vim-repeat" = { url = "github:tpope/vim-repeat"; flake = false; };
     "plugin:plenary.nvim" = { url = "github:nvim-lua/plenary.nvim"; flake = false; };
@@ -50,12 +44,11 @@
     "plugin:vim-nix" = { url = "github:LnL7/vim-nix"; flake = false; };
   };
 
-  outputs = { self, nixpkgs, flake-utils, neovim, ... }@inputs:
+  outputs = { self, nixpkgs, flake-utils, ... }@inputs:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
         lib = pkgs.lib;
-        neovim-unwrapped = neovim.packages.${system}.neovim;
 
         # parse inputs to extract everything beginning with plugin:
         plugins = let
@@ -69,7 +62,7 @@
             (lib.filterAttrs (k: _: lib.hasPrefix "plugin:" k) inputs);
 
         # create a neovim package with a given RC
-        neovim-with-rc = customRC: pkgs.wrapNeovim neovim-unwrapped {
+        neovim-with-rc = customRC: pkgs.wrapNeovim pkgs.neovim-unwrapped {
           withRuby = false;
           withPython3 = false;
           configure = {
@@ -123,8 +116,6 @@
         '';
       in
       rec {
-        packages.unwrapped = neovim-unwrapped;
-
         apps.default = apps.hosted;
         packages.default = packages.hosted;
 
