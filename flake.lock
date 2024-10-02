@@ -528,7 +528,8 @@
         "plugin:vim-textobj-between": "plugin:vim-textobj-between",
         "plugin:vim-textobj-indent": "plugin:vim-textobj-indent",
         "plugin:vim-textobj-parameter": "plugin:vim-textobj-parameter",
-        "plugin:vim-textobj-user": "plugin:vim-textobj-user"
+        "plugin:vim-textobj-user": "plugin:vim-textobj-user",
+        "telescope-fzf-native.nvim": "telescope-fzf-native.nvim"
       }
     },
     "systems": {
@@ -543,6 +544,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "telescope-fzf-native.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1719928246,
+        "narHash": "sha256-GEhPf1f0jkEuDlHNuxVko0ChvuF/zoQroLNUlk8N5EA=",
+        "owner": "nvim-telescope",
+        "repo": "telescope-fzf-native.nvim",
+        "rev": "cf48d4dfce44e0b9a2e19a008d6ec6ea6f01a83b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nvim-telescope",
+        "repo": "telescope-fzf-native.nvim",
         "type": "github"
       }
     }
