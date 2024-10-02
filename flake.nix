@@ -42,6 +42,9 @@
     "plugin:vim-textobj-between" = { url = "github:thinca/vim-textobj-between"; flake = false; };
     "plugin:opsort.vim" = { url = "github:ralismark/opsort.vim"; flake = false; };
     "plugin:vim-nix" = { url = "github:LnL7/vim-nix"; flake = false; };
+
+    # plugins with custom steps
+    "telescope-fzf-native.nvim" = { url = "github:nvim-telescope/telescope-fzf-native.nvim"; flake = false; };
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }@inputs:
@@ -51,7 +54,7 @@
         lib = pkgs.lib;
 
         # parse inputs to extract everything beginning with plugin:
-        plugins = let
+        autoPlugins = let
           buildPlug = name: src: pkgs.vimUtils.buildVimPlugin {
             pname = lib.removePrefix "plugin:" name;
             version = src.shortRev;
@@ -60,6 +63,19 @@
         in
           lib.mapAttrsToList buildPlug
             (lib.filterAttrs (k: _: lib.hasPrefix "plugin:" k) inputs);
+
+        # full list of plugins
+        plugins = [
+          (pkgs.vimUtils.buildVimPlugin rec {
+            pname = "telescope-fzf-native.nvim";
+            src = inputs."${pname}";
+            version = src.shortRev;
+
+            buildPhase = ''
+              make
+            '';
+          })
+        ] ++ autoPlugins;
 
         # create a neovim package with a given RC
         neovim-with-rc = customRC: pkgs.wrapNeovim pkgs.neovim-unwrapped {

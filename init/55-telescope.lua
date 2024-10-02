@@ -1,3 +1,5 @@
+local telescope = require "telescope"
+
 -- add rg to path if nix available
 if vim.fn.executable("nix") == 1 and vim.fn.executable("rg") == 0 then
 	vim.system(
@@ -14,6 +16,15 @@ if vim.fn.executable("nix") == 1 and vim.fn.executable("rg") == 0 then
 		end
 	)
 end
+
+telescope.setup {
+	extensions = {
+		fzf = {
+			fuzzy = false,
+		}
+	}
+}
+telescope.load_extension("fzf")
 
 vim.keymap.set("n", "<leader><leader>b", function()
 	require "telescope.builtin".buffers {
