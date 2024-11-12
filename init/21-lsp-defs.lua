@@ -17,8 +17,6 @@ lspconfig.pylsp.setup {
 		]]
 	},
 
-	autostart = false,
-
 	settings = {
 		pylsp = {
 			plugins = {
@@ -122,4 +120,8 @@ lspconfig.ts_ls.setup {
 
 lspconfig.cssls.setup {
 	nix = { "nixpkgs#vscode-langservers-extracted" },
+}
+
+lspconfig.jsonnet_ls.setup {
+	nix = { "nixpkgs#jsonnet-language-server" },
 }

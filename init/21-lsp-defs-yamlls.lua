@@ -16,7 +16,7 @@ local function match_k8s(bufnr)
 
 	local resource = {}
 
-	for _, line in pairs(vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)) do
+	for _, line in pairs(vim.api.nvim_buf_get_lines(bufnr, 0, 2, false)) do
 		local _, _, group, version = line:find([[^apiVersion:%s*["']?([^%s"'/]*)/?([^%s"']*)]])
 		local _, _, kind = line:find([[^kind:%s*["']?([^%s"'/]*)]])
 
@@ -92,7 +92,6 @@ lspconfig.yamlls.setup {
 
 	on_attach = function (client, bufnr)
 		local function set_schema(schema)
-			print("set schema to", schema)
 			client.settings = vim.tbl_deep_extend("force", client.settings, {
 				yaml = {
 					schemas = {
