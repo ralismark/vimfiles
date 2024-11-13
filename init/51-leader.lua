@@ -46,6 +46,27 @@ end)
 vim.keymap.set("n", "<leader>fl", function()
 	vim.lsp.buf.format()
 end)
+vim.keymap.set("n", "<leader>fu", function()
+	local reps = {
+		["\\%x0d"] = "",
+		["’"] = "'",
+		["‘"] = "'",
+		["“"] = '"',
+		["”"] = '"',
+	}
+	for k, v in pairs(reps) do
+		vim.cmd("keepjumps keeppatterns %s/" .. k .. "/" .. v "/ge")
+	end
+end)
+
+-- Git
+vim.keymap.set("n", "<leader>gb", function()
+	local msg = require "vimrc.git".blame()
+	if msg ~= nil then
+		print(msg)
+	end
+end)
+
 
 -- Open Files
 vim.keymap.set("n", "<leader>e", "<nop>")

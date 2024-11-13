@@ -1,5 +1,20 @@
 local M = {}
 
+--- Get information about the repo host
+function M.host()
+	local remote = vim.fn.system({ "git", "remote", "get-url", "origin" }):gsub("\n$", "")
+	local commit_or_branch = vim.fn.system("git symbolic-ref -q --short HEAD 2>/dev/null || git rev-parse HEAD"):gsub("\n$", "")
+
+	local m_github = remote:match("%S*@github.com:(.*)") or remote:match("https?://github.com/(.*)")
+	if m_github ~= nil then
+		local url_base = "https://github.com/" .. m_github:gsub(".git$", "")
+		return {
+			commit_url_format = url_base .. "/commit/%s",
+			file_url_format = url_base .. "/blob/" .. commit_or_branch .. "/%s",
+		}
+	end
+end
+
 function M.blame_data()
 	local result = vim.fn.systemlist({
 			"git",
@@ -10,7 +25,6 @@ function M.blame_data()
 			"-M",
 			vim.fn.expand("%"),
 		}, vim.fn.bufnr("%"))
-	print(vim.inspect(result))
 	local commit, origline, finalline = result[1]:match("([0-9a-f]*) ([0-9]*) ([0-9]*)")
 	local props = {
 		commit = commit,
@@ -35,6 +49,9 @@ function M.blame()
 	else
 		return data.commit:sub(0, 7) .. " ∙ " .. os.date("%d %b %Y", data["author-time"]) .. " ∙ " .. data.summary .. " ∙ " .. data.author
 	end
+end
+
+function M.link()
 end
 
 return M
