@@ -251,13 +251,6 @@ vim.keymap.set({ "i", "s" }, "<c-r><c-d>", function()
 	vim.api.nvim_put({ vim.fn.strftime("%Y-%m-%d") }, "c", false, true)
 end)
 
-vim.keymap.set("n", "<c-g>", function()
-	local msg = require "vimrc.git_blame".blame()
-	if msg ~= nil then
-		print(msg)
-	end
-end)
-
 -- scroll window
 vim.keymap.set({"n", "x"}, "<left>", "zh")
 vim.keymap.set({"n", "x"}, "<down>", "<c-e>")

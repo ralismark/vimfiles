@@ -1,3 +1,7 @@
+vim.opt.comments = {
+	"s1:/*,mb:*,ex:*/,://,b:#,:%,:XCOMM,n:>,fb:-,fb:•"
+}
+
 -- word formatting
 vim.opt.textwidth = 80 -- non-zero so that it's not dependent on window width
 vim.opt.formatoptions = "ro/qnj" -- no tc to not wrap in insert mode

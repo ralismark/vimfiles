@@ -85,7 +85,6 @@ lspconfig.yamlls.setup {
 			},
 			schemas = {
 				["https://json.schemastore.org/kustomization.json"] = "kustomization.yaml",
-				["https://example.com"] = "example.yaml",
 			},
 		},
 	},

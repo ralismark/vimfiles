@@ -122,6 +122,23 @@ lspconfig.cssls.setup {
 	nix = { "nixpkgs#vscode-langservers-extracted" },
 }
 
+lspconfig.jsonls.setup {
+	nix = { "nixpkgs#vscode-langservers-extracted" },
+	settings = {
+		json = {
+			schemas = {
+			}
+		}
+	}
+}
+
+
+lspconfig.bashls.setup {
+	nix = {
+		"nixpkgs#bash-language-server", "nixpkgs#shellcheck",
+	},
+}
+
 lspconfig.jsonnet_ls.setup {
 	nix = { "nixpkgs#jsonnet-language-server" },
 }
