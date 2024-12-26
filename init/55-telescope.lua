@@ -1,22 +1,5 @@
 local telescope = require "telescope"
 
--- add rg to path if nix available
-if vim.fn.executable("nix") == 1 and vim.fn.executable("rg") == 0 then
-	vim.system(
-		{ "nix", "build", "-f", "<nixpkgs>", "ripgrep", "--no-link", "--print-out-paths"},
-		{ },
-		function(obj)
-			vim.schedule(function()
-				if obj.code ~= 0 then
-					vim.api.nvim_err_writeln("nix build exited with status " .. obj.code .. "\n" .. obj.stderr)
-				else
-					vim.env.PATH = obj.stdout:gsub("\n", "/bin:") .. vim.env.PATH
-				end
-			end)
-		end
-	)
-end
-
 telescope.setup {
 	extensions = {
 		fzf = {

@@ -16,14 +16,14 @@ vim.keymap.set("n", "<leader>on", [[<cmd>set relativenumber! | set relativenumbe
 vim.keymap.set("n", "<leader>od", [[<cmd>if &diff | diffoff | else | diffthis | endif | set diff?<cr>]])
 vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclose | else | botright copen | endif<cr>]])
 vim.keymap.set("n", "<leader>oc", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]])
-vim.keymap.set("n", "<leader>ol", function()
-	if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then
-		vim.cmd("cclose")
-	else
-		require "vimrc.diagnostic".load_qf()
-		vim.cmd("botright copen")
-	end
-end)
+-- vim.keymap.set("n", "<leader>ol", function()
+-- 	if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then
+-- 		vim.cmd("cclose")
+-- 	else
+-- 		require "vimrc.diagnostic".load_qf()
+-- 		vim.cmd("botright copen")
+-- 	end
+-- end)
 
 -- Splits
 vim.keymap.set("n", "<leader>s", "<nop>")
@@ -101,7 +101,6 @@ vim.keymap.set("n", "<leader>ee", function()
 end)
 
 -- misc
-vim.keymap.set("n", "<leader>m", "<cmd>Dispatch<cr>")
 vim.keymap.set("n", "<leader>P", function()
 	vim.cmd [[
 		belowright vertical new
