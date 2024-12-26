@@ -18,7 +18,6 @@ for ordering:
 -- Notes ----------------------------------------------------------------------
 
 more motions would be nice:
-- w/W that skips punctuation
 - H/M/L aren't really that useful by default
 
 -- Mapping Chart --------------------------------------------------------------
@@ -53,6 +52,8 @@ b  | back           | BACK                    | up page
 n  | next match     | prev match              | ?
 m  | mark           | ?mid                    | ?
 ---|----------------|-------------------------|----------------
+
+other keys
 
 --]]
 

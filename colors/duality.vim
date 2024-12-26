@@ -19,7 +19,7 @@ let g:colors_name = "duality"
 "  █▓▒░ GUI colors {{{1
 
 " General Text Styling {{{2
-hi Normal       ctermfg=white
+hi Normal       ctermfg=white           guibg=NONE
 hi Conceal      ctermfg=NONE            ctermbg=black
 hi NonText      ctermfg=darkgrey
 hi SpecialKey   ctermfg=darkblue

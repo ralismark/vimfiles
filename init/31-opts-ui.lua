@@ -15,6 +15,7 @@ vim.opt.showcmd = true
 -- Scrolling
 vim.opt.scrolloff = 5
 vim.opt.sidescrolloff = 8
+vim.opt.smoothscroll = true
 
 -- Completion
 vim.opt.wildmenu = true

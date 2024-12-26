@@ -6,8 +6,8 @@ vim.api.nvim_create_autocmd({ "CursorHold" }, {
 	end,
 })
 
-require "vimrc.diagnostic".setup {
-}
+-- require "vimrc.diagnostic".setup {
+-- }
 
 vim.cmd([[
 sign define DiagnosticSignHint  text=🞶 texthl=DiagnosticSignHint  linehl= numhl=

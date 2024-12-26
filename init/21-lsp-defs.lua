@@ -142,3 +142,15 @@ lspconfig.bashls.setup {
 lspconfig.jsonnet_ls.setup {
 	nix = { "nixpkgs#jsonnet-language-server" },
 }
+
+lspconfig.nil_ls.setup {
+	nix = { "nixpkgs#nil" },
+
+	settings = {
+		["nil"] = {
+			nix = {
+				maxMemoryMB = 512,
+			},
+		}
+	}
+}

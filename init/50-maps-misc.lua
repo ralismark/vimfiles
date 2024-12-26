@@ -268,6 +268,7 @@ end)
 
 vim.keymap.set({"n"}, "zJ", function()
 	vim.cmd [[
+		s/^\s*//
 		s/$/,
 		nohl
 		join
