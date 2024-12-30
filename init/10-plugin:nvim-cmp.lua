@@ -61,6 +61,7 @@ cmp.setup {
 	},
 	sources = cmp.config.sources({
 		{ name = "hr" },
+		{ name = "cody" },
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
 		{ name = "path" },

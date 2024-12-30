@@ -45,6 +45,7 @@
 
     # plugins with custom steps
     "telescope-fzf-native.nvim" = { url = "github:nvim-telescope/telescope-fzf-native.nvim"; flake = false; };
+    "sg.nvim" = { url = "github:sourcegraph/sg.nvim"; flake = false; }; # no flake; they pull in too many dependencies
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }@inputs:
@@ -73,6 +74,37 @@
 
             buildPhase = ''
               make
+            '';
+          })
+          (pkgs.vimUtils.buildVimPlugin rec {
+            pname = "sg.nvim";
+            src = inputs."${pname}";
+            version = src.shortRev;
+
+            postInstall = let
+              # copied from https://github.com/NixOS/nixpkgs/blob/37e24536ec7a4e1afeb74a632fd2ae47a05ce3a9/pkgs/applications/editors/vim/plugins/non-generated/sg-nvim/default.nix
+              sg-nvim-rust = pkgs.rustPlatform.buildRustPackage {
+                inherit pname src version;
+                cargoHash = "sha256-zD2QvAXu2z3Q5H7n53P0xiKW9gYVu+I4SZMYLdL3L1Q=";
+
+                nativeBuildInputs = [ pkgs.pkg-config ];
+
+                buildInputs = [ pkgs.openssl ];
+
+                prePatch = ''
+                  rm .cargo/config.toml
+                '';
+
+                env.OPENSSL_NO_VENDOR = true;
+
+                cargoBuildFlags = [ "--workspace" ];
+
+                # tests are broken
+                doCheck = false;
+              };
+            in ''
+              mkdir -p $out/dist
+              ln -s ${sg-nvim-rust}/{bin,lib}/* $out/dist
             '';
           })
         ] ++ autoPlugins;
@@ -130,7 +162,7 @@
           " shared init
           let g:flake_lock = "${./.}/flake.lock"
 
-          let $PATH .= ":${pkgs.ripgrep}/bin"
+          let $PATH .= ":${pkgs.ripgrep}/bin:${pkgs.nodejs}/bin"
         '';
       in
       rec {
