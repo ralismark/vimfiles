@@ -250,6 +250,9 @@ end)
 vim.keymap.set({ "i", "s" }, "<c-r><c-d>", function()
 	vim.api.nvim_put({ vim.fn.strftime("%Y-%m-%d") }, "c", false, true)
 end)
+vim.keymap.set({ "i", "s" }, "<c-r><c-p>", function()
+	vim.api.nvim_put({ vim.fn.expand("%:p") }, "c", false, true)
+end)
 
 -- scroll window
 vim.keymap.set({"n", "x"}, "<left>", "zh")
