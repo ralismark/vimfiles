@@ -546,7 +546,24 @@
         "plugin:vim-textobj-indent": "plugin:vim-textobj-indent",
         "plugin:vim-textobj-parameter": "plugin:vim-textobj-parameter",
         "plugin:vim-textobj-user": "plugin:vim-textobj-user",
+        "sg.nvim": "sg.nvim",
         "telescope-fzf-native.nvim": "telescope-fzf-native.nvim"
+      }
+    },
+    "sg.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1734294335,
+        "narHash": "sha256-ALAYX/1MTk0fCA8THunoHz8QTlWkg+pgiSp2n3B4KrU=",
+        "owner": "sourcegraph",
+        "repo": "sg.nvim",
+        "rev": "7c423ebeb028b3534eb20fe54972825384dbe7d6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sourcegraph",
+        "repo": "sg.nvim",
+        "type": "github"
       }
     },
     "systems": {
