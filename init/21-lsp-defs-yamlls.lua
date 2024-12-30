@@ -11,6 +11,10 @@ local builtin_resource_regex = {
 }
 
 local function match_k8s(bufnr)
+	-- specially hardcode out Kustomize
+	if vim.fn.expand("%:t") == "kustomization.yaml" then
+		return nil
+	end
 
 	-- adapted from https://github.com/cenk1cenk2/schema-companion.nvim/blob/3c4ae9c1b1a87c54f9ffdb1717fb6cfe909fed84/lua/schema-companion/matchers/kubernetes.lua
 
