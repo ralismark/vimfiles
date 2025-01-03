@@ -4,6 +4,9 @@ if vim.env.SRC_ENDPOINT == nil or vim.env.SRC_ACCESS_TOKEN == nil then
 	return
 end
 
+vim.g.sg_provider = "fireworks"
+vim.g.sg_model = "starcoder"
+
 require "sg".setup {
 	enable_cody = true,
 	accept_tos = true,

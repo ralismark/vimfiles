@@ -81,6 +81,24 @@
             src = inputs."${pname}";
             version = src.shortRev;
 
+            patches = [
+              (builtins.toFile "set-model.patch" ''
+                --- a/lua/sg/cody/rpc.lua
+                +++ b/lua/sg/cody/rpc.lua
+                @@ -62,8 +62,9 @@ local get_server_config = function(creds, remote_url)
+                         source = "IDEEXTENSION",
+                       },
+                       customConfiguration = {
+                +        ["cody.autocomplete.advanced.provider"] = vim.g.sg_provider,
+                +        ["cody.autocomplete.advanced.model"] = vim.g.sg_model,
+                         -- ["cody.useContext"] = "keyword",
+                -        ["cody.experimental.symfContext"] = true,
+                         -- ["cody.debug.enable"] = true,
+                         -- ["cody.debug.verbose"] = true,
+                       },
+              '')
+            ];
+
             postInstall = let
               # copied from https://github.com/NixOS/nixpkgs/blob/37e24536ec7a4e1afeb74a632fd2ae47a05ce3a9/pkgs/applications/editors/vim/plugins/non-generated/sg-nvim/default.nix
               sg-nvim-rust = pkgs.rustPlatform.buildRustPackage {
