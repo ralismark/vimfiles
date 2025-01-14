@@ -61,7 +61,7 @@ if vim.g.vscode ~= nil then
 	return -- config is wholly incompatible
 end
 
-local files = vim.fn.globpath(vim.fn.stdpath("config"), "init/*", false, true)
+local files = vim.fn.globpath(vim.fn.expand("<script>:p:h"), "init/*", false, true)
 table.sort(files)
 for _, file in ipairs(files) do
 	local ok, err = pcall(vim.cmd.source, file)
