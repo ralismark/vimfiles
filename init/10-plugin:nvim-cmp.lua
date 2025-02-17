@@ -21,6 +21,8 @@ cmp.register_source("hr", {
 	end,
 })
 
+cmp.register_source("cmp", require"vimrc.sg".cmp)
+
 local kind_icons = {
 	--  ⮺ ⎆⎗⎘⎌
 	Text          = "𝐓",
@@ -49,6 +51,7 @@ local kind_icons = {
 	Operator      = "◯",
 	TypeParameter = "◇",
 }
+
 
 cmp.setup {
 	preselect = cmp.PreselectMode.None,

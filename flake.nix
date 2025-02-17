@@ -76,55 +76,6 @@
               make
             '';
           })
-          (pkgs.vimUtils.buildVimPlugin rec {
-            pname = "sg.nvim";
-            src = inputs."${pname}";
-            version = src.shortRev;
-
-            patches = [
-              (builtins.toFile "set-model.patch" ''
-                --- a/lua/sg/cody/rpc.lua
-                +++ b/lua/sg/cody/rpc.lua
-                @@ -62,8 +62,9 @@ local get_server_config = function(creds, remote_url)
-                         source = "IDEEXTENSION",
-                       },
-                       customConfiguration = {
-                +        ["cody.autocomplete.advanced.provider"] = vim.g.sg_provider,
-                +        ["cody.autocomplete.advanced.model"] = vim.g.sg_model,
-                         -- ["cody.useContext"] = "keyword",
-                -        ["cody.experimental.symfContext"] = true,
-                         -- ["cody.debug.enable"] = true,
-                         -- ["cody.debug.verbose"] = true,
-                       },
-              '')
-            ];
-
-            postInstall = let
-              # copied from https://github.com/NixOS/nixpkgs/blob/37e24536ec7a4e1afeb74a632fd2ae47a05ce3a9/pkgs/applications/editors/vim/plugins/non-generated/sg-nvim/default.nix
-              sg-nvim-rust = pkgs.rustPlatform.buildRustPackage {
-                inherit pname src version;
-                cargoHash = "sha256-zD2QvAXu2z3Q5H7n53P0xiKW9gYVu+I4SZMYLdL3L1Q=";
-
-                nativeBuildInputs = [ pkgs.pkg-config ];
-
-                buildInputs = [ pkgs.openssl ];
-
-                prePatch = ''
-                  rm .cargo/config.toml
-                '';
-
-                env.OPENSSL_NO_VENDOR = true;
-
-                cargoBuildFlags = [ "--workspace" ];
-
-                # tests are broken
-                doCheck = false;
-              };
-            in ''
-              mkdir -p $out/dist
-              ln -s ${sg-nvim-rust}/{bin,lib}/* $out/dist
-            '';
-          })
         ] ++ autoPlugins;
 
         # create a neovim package with a given RC

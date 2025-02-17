@@ -8,15 +8,15 @@ local function open_pdf_out()
 end
 
 -- Try to convert an absolute path into its corresponding module name.
--- @param path string Path to resolve into a module
--- @return string|nil
-local function lua_module_from_path(path)
+---@param path string Path to resolve into a module
+---@return string|nil
+function _G.lua_module_from_path(path)
 	if path:sub(-4) ~= ".lua" then
 		return nil
 	end
 
 	for _, rtp in ipairs(vim.api.nvim_list_runtime_paths()) do
-		local root = rtp .. "/lua/"
+		local root = vim.uv.fs_realpath(rtp) .. "/lua/"
 		if path:sub(1, #root) == root then
 			local rel = path:sub(#root + 1, -5):gsub("/", ".")
 			return rel
