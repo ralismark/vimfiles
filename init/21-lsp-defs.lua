@@ -64,7 +64,7 @@ lspconfig.rust_analyzer.setup {
 lspconfig.clangd.setup {
 	nix = { "nixpkgs#clang-tools" },
 	cmd = {
-		"clangd", "--log=verbose",
+		"clangd",
 	},
 	single_file_support = true,
 }
@@ -132,7 +132,6 @@ lspconfig.jsonls.setup {
 	}
 }
 
-
 lspconfig.bashls.setup {
 	nix = {
 		"nixpkgs#bash-language-server", "nixpkgs#shellcheck",
@@ -148,8 +147,14 @@ lspconfig.nil_ls.setup {
 
 	settings = {
 		["nil"] = {
+			formatting = {
+				command = {"nix", "run", "-f", "<nixpkgs>", "nixfmt-rfc-style"},
+			},
 			nix = {
 				maxMemoryMB = 512,
+				flake = {
+					autoArchive = true,
+				},
 			},
 		}
 	}

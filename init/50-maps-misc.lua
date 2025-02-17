@@ -277,3 +277,29 @@ vim.keymap.set({"n"}, "zJ", function()
 		join
 	]]
 end)
+
+-- Git stuff
+vim.keymap.set("n", "<c-g><c-g>", function()
+	local msg = require "vimrc.git".blame()
+	if msg ~= nil then
+		print(msg)
+	end
+end)
+
+vim.keymap.set("n", "<c-g><c-l>", function()
+	local repo = require "vimrc.git".Repo()
+	local url = repo:file_url()
+	if url then
+		print("Copied: " .. url)
+		vim.fn.setreg("+", url)
+	end
+end)
+
+vim.keymap.set("v", "<c-g><c-l>", function()
+	local repo = require "vimrc.git".Repo()
+	local url = repo:file_url()
+	if url then
+		print("Copied: " .. url)
+		vim.fn.setreg("+", url)
+	end
+end)
