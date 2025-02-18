@@ -21,7 +21,7 @@ cmp.register_source("hr", {
 	end,
 })
 
-cmp.register_source("cmp", require"vimrc.sg".cmp)
+cmp.register_source("cody", require"cody".cmp)
 
 local kind_icons = {
 	--  ⮺ ⎆⎗⎘⎌
