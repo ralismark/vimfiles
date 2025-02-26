@@ -45,7 +45,6 @@
 
     # plugins with custom steps
     "telescope-fzf-native.nvim" = { url = "github:nvim-telescope/telescope-fzf-native.nvim"; flake = false; };
-    "sg.nvim" = { url = "github:sourcegraph/sg.nvim"; flake = false; }; # no flake; they pull in too many dependencies
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }@inputs:
