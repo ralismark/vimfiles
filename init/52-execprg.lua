@@ -34,7 +34,7 @@ local execprg = {
 		local mod = lua_module_from_path(vim.fn.expand("%:p"))
 		if mod ~= nil then
 			print("Reloading " .. mod)
-			require "plenary.reload".reload_module(mod, false)
+			require "plenary.reload".reload_module(mod)
 			require(mod)
 		else
 			vim.cmd.luafile("%")

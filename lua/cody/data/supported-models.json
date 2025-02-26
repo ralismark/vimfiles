@@ -1,0 +1,676 @@
+{
+  "models": [
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "Claude 3.5 Sonnet",
+      "modelName": "claude-3-5-sonnet-latest",
+      "modelRef": "anthropic::2024-10-22::claude-3-5-sonnet-latest",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 300,
+        "outputTokenPennies": 1500
+      },
+      "category": "accuracy",
+      "status": "stable"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "Claude 3 Opus",
+      "modelName": "claude-3-opus-20240229",
+      "modelRef": "anthropic::2023-06-01::claude-3-opus",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 1500,
+        "outputTokenPennies": 7500
+      },
+      "category": "other",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "autocomplete",
+        "edit",
+        "chat",
+        "tools"
+      ],
+      "displayName": "Claude 3.5 Haiku",
+      "modelName": "claude-3-5-haiku-latest",
+      "modelRef": "anthropic::2024-10-22::claude-3-5-haiku-latest",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 80,
+        "outputTokenPennies": 400
+      },
+      "category": "speed",
+      "status": "stable"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 7000
+      },
+      "capabilities": [
+        "autocomplete",
+        "edit",
+        "chat"
+      ],
+      "displayName": "Claude 3 Haiku",
+      "modelName": "claude-3-haiku-20240307",
+      "modelRef": "anthropic::2023-06-01::claude-3-haiku",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 25,
+        "outputTokenPennies": 125
+      },
+      "category": "speed",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "Claude 3.5 Sonnet",
+      "modelName": "claude-3-5-sonnet-latest",
+      "modelRef": "anthropic::2023-06-01::claude-3.5-sonnet",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 300,
+        "outputTokenPennies": 1500
+      },
+      "category": "accuracy",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "Claude 3.5 Sonnet",
+      "modelName": "claude-3-5-sonnet-20240620",
+      "modelRef": "anthropic::2023-06-01::claude-3-5-sonnet-20240620",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 300,
+        "outputTokenPennies": 1500
+      },
+      "category": "accuracy",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "Claude 3 Sonnet",
+      "modelName": "claude-3-sonnet-20240229",
+      "modelRef": "anthropic::2023-06-01::claude-3-sonnet",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 300,
+        "outputTokenPennies": 1500
+      },
+      "category": "other",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 7000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "Claude 2.1",
+      "modelName": "claude-2.1",
+      "modelRef": "anthropic::2023-01-01::claude-2.1",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 800,
+        "outputTokenPennies": 2400
+      },
+      "category": "other",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 7000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "Claude 2.0",
+      "modelName": "claude-2.0",
+      "modelRef": "anthropic::2023-01-01::claude-2.0",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 800,
+        "outputTokenPennies": 2400
+      },
+      "category": "other",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 256,
+        "maxInputTokens": 2048
+      },
+      "capabilities": [
+        "autocomplete"
+      ],
+      "displayName": "StarCoder",
+      "modelName": "starcoder",
+      "modelRef": "fireworks::v1::starcoder",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 20,
+        "outputTokenPennies": 20
+      },
+      "category": "speed",
+      "status": "stable"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 256,
+        "maxInputTokens": 2048
+      },
+      "capabilities": [
+        "autocomplete"
+      ],
+      "displayName": "DeepSeek V2 Lite Base",
+      "modelName": "accounts/sourcegraph/models/deepseek-coder-v2-lite-base",
+      "modelRef": "fireworks::v1::deepseek-coder-v2-lite-base",
+      "estimatedModelCost": {
+        "unit": "",
+        "inputTokenPennies": 0,
+        "outputTokenPennies": 0
+      },
+      "category": "speed",
+      "status": "stable"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "chat"
+      ],
+      "displayName": "DeepSeek V3",
+      "modelName": "accounts/fireworks/models/deepseek-v3",
+      "modelRef": "fireworks::v1::deepseek-v3",
+      "estimatedModelCost": {
+        "unit": "",
+        "inputTokenPennies": 0,
+        "outputTokenPennies": 0
+      },
+      "category": "accuracy",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 12000
+      },
+      "capabilities": [
+        "autocomplete"
+      ],
+      "displayName": "AutoEdits Fireworks Default",
+      "modelName": "cody-model-auto-edits-fireworks-default",
+      "modelRef": "fireworks::v1::autoedits-default",
+      "estimatedModelCost": {
+        "unit": "",
+        "inputTokenPennies": 0,
+        "outputTokenPennies": 0
+      },
+      "category": "speed",
+      "status": "experimental"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 12000
+      },
+      "capabilities": [
+        "autocomplete"
+      ],
+      "displayName": "Autoedits DeepSeek Coder V2",
+      "modelName": "autoedits-deepseek-lite-default",
+      "modelRef": "fireworks::v1::autoedits-deepseek-lite-default",
+      "estimatedModelCost": {
+        "unit": "",
+        "inputTokenPennies": 0,
+        "outputTokenPennies": 0
+      },
+      "category": "speed",
+      "status": "beta"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 12000
+      },
+      "capabilities": [
+        "autocomplete"
+      ],
+      "displayName": "Autoedits DeepSeek Coder V2",
+      "modelName": "accounts/sourcegraph/models/autoedits-v3-line-level-long-term-unified-ds-v2-base-e-1p5",
+      "modelRef": "fireworks::v1::autoedits-deepseek-unified-granular-diff",
+      "estimatedModelCost": {
+        "unit": "",
+        "inputTokenPennies": 0,
+        "outputTokenPennies": 0
+      },
+      "category": "speed",
+      "status": "beta"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "Gemini 1.5 Pro",
+      "modelName": "gemini-1.5-pro",
+      "modelRef": "google::v1::gemini-1.5-pro",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 125,
+        "outputTokenPennies": 500
+      },
+      "category": "balanced",
+      "status": "stable"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "Gemini 2.0 Flash Experimental",
+      "modelName": "gemini-2.0-flash-exp",
+      "modelRef": "google::v1::gemini-2.0-flash-exp",
+      "estimatedModelCost": {
+        "unit": "btok",
+        "inputTokenPennies": 10000,
+        "outputTokenPennies": 40000
+      },
+      "category": "speed",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "Gemini 2.0 Flash",
+      "modelName": "gemini-2.0-flash",
+      "modelRef": "google::v1::gemini-2.0-flash",
+      "estimatedModelCost": {
+        "unit": "btok",
+        "inputTokenPennies": 10000,
+        "outputTokenPennies": 40000
+      },
+      "category": "speed",
+      "status": "stable"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "Gemini 2.0 Flash-Lite Preview",
+      "modelName": "gemini-2.0-flash-lite-preview-02-05",
+      "modelRef": "google::v1::gemini-2.0-flash-lite-preview-02-05",
+      "estimatedModelCost": {
+        "unit": "btok",
+        "inputTokenPennies": 7500,
+        "outputTokenPennies": 30000
+      },
+      "category": "speed",
+      "status": "experimental"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "Gemini 2.0 Pro",
+      "modelName": "gemini-2.0-pro-exp-02-05",
+      "modelRef": "google::v1::gemini-2.0-pro-exp-02-05",
+      "estimatedModelCost": {
+        "unit": "",
+        "inputTokenPennies": 0,
+        "outputTokenPennies": 0
+      },
+      "category": "balanced",
+      "status": "experimental"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "Gemini 1.5 Flash",
+      "modelName": "gemini-1.5-flash",
+      "modelRef": "google::v1::gemini-1.5-flash",
+      "estimatedModelCost": {
+        "unit": "btok",
+        "inputTokenPennies": 7500,
+        "outputTokenPennies": 30000
+      },
+      "category": "speed",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 7000
+      },
+      "capabilities": [
+        "chat"
+      ],
+      "displayName": "Mixtral 8x7B",
+      "modelName": "accounts/fireworks/models/mixtral-8x7b-instruct",
+      "modelRef": "mistral::v1::mixtral-8x7b-instruct",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 50,
+        "outputTokenPennies": 50
+      },
+      "category": "speed",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 7000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "Mixtral 8x22B",
+      "modelName": "accounts/fireworks/models/mixtral-8x22b-instruct",
+      "modelRef": "mistral::v1::mixtral-8x22b-instruct",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 120,
+        "outputTokenPennies": 120
+      },
+      "category": "other",
+      "status": "deprecated"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 12000
+      },
+      "capabilities": [
+        "autocomplete"
+      ],
+      "displayName": "AutoEdits Mixtral V2",
+      "modelName": "accounts/sourcegraph/models/autoedits-neg-0p12f-combined-mixtral-v2",
+      "modelRef": "mistral::v1::autoedits-mixtral-v2",
+      "estimatedModelCost": {
+        "unit": "",
+        "inputTokenPennies": 0,
+        "outputTokenPennies": 0
+      },
+      "category": "speed",
+      "status": "experimental"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "GPT-4o",
+      "modelName": "gpt-4o",
+      "modelRef": "openai::2024-02-01::gpt-4o",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 250,
+        "outputTokenPennies": 1000
+      },
+      "category": "accuracy",
+      "status": "stable"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "edit",
+        "chat",
+        "vision",
+        "tools"
+      ],
+      "displayName": "GPT-4o-mini",
+      "modelName": "gpt-4o-mini",
+      "modelRef": "openai::2024-02-01::gpt-4o-mini",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 15,
+        "outputTokenPennies": 60
+      },
+      "category": "speed",
+      "status": "stable"
+    },
+    {
+      "tier": "free",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "chat",
+        "reasoning"
+      ],
+      "displayName": "o3-mini medium",
+      "modelName": "o3-mini",
+      "modelRef": "openai::2024-02-01::o3-mini-medium",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 110,
+        "outputTokenPennies": 440
+      },
+      "category": "accuracy",
+      "status": "experimental"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 45000
+      },
+      "capabilities": [
+        "chat",
+        "reasoning"
+      ],
+      "displayName": "o1",
+      "modelName": "o1-2024-12-17",
+      "modelRef": "openai::2024-02-01::o1",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 1500,
+        "outputTokenPennies": 6000
+      },
+      "category": "accuracy",
+      "status": "experimental"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 7000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "GPT-4 Turbo",
+      "modelName": "gpt-4-turbo",
+      "modelRef": "openai::2024-02-01::gpt-4-turbo",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 1000,
+        "outputTokenPennies": 3000
+      },
+      "category": "other",
+      "status": "deprecated"
+    },
+    {
+      "tier": "pro",
+      "contextWindow": {
+        "maxOutputTokens": 4000,
+        "maxInputTokens": 7000
+      },
+      "capabilities": [
+        "edit",
+        "chat"
+      ],
+      "displayName": "GPT-3.5 Turbo",
+      "modelName": "gpt-3.5-turbo",
+      "modelRef": "openai::2024-02-01::gpt-3.5-turbo",
+      "estimatedModelCost": {
+        "unit": "mtok",
+        "inputTokenPennies": 300,
+        "outputTokenPennies": 400
+      },
+      "category": "speed",
+      "status": "deprecated"
+    }
+  ],
+  "defaultModels": {
+    "fastChat": "anthropic::2023-06-01::claude-3-haiku",
+    "codeCompletion": "fireworks::v1::deepseek-coder-v2-lite-base",
+    "chat": "anthropic::2023-06-01::claude-3.5-sonnet"
+  },
+  "providers": [
+    {
+      "id": "anthropic",
+      "displayName": "Anthropic"
+    },
+    {
+      "id": "fireworks",
+      "displayName": "Fireworks"
+    },
+    {
+      "id": "google",
+      "displayName": "Google"
+    },
+    {
+      "id": "openai",
+      "displayName": "OpenAI"
+    },
+    {
+      "id": "mistral",
+      "displayName": "Mistral"
+    }
+  ],
+  "schemaVersion": "1.0",
+  "revision": "0.0.0+dev"
+}

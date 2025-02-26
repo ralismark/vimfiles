@@ -1,4 +1,3 @@
----@type ModelConfig
 local M = {}
 
 M.stopSequences = {
@@ -22,7 +21,7 @@ M.contextSizeHintSuffixCharacters = context_bytes
 
 function M.format_prompt(params)
 	return table.concat({
-		"<filename>", params.filename,
+		"<filename>", params.path,
 		"<fim_prefix>", params.prefix,
 		"<fim_suffix>", params.suffix,
 		"<fim_middle>",
