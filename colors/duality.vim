@@ -65,10 +65,10 @@ hi CursorLine                           ctermbg=black cterm=NONE
 hi Folded       ctermfg=green           ctermbg=black
 
 " Diff {{{2
-hi DiffAdd      ctermfg=green           ctermbg=NONE
-hi DiffDelete   ctermfg=red             ctermbg=NONE
-hi DiffChange   ctermfg=yellow          ctermbg=NONE
-hi DiffText     ctermfg=lightyellow     ctermbg=NONE
+hi DiffAdd                              ctermbg=22
+hi DiffDelete                           ctermbg=52
+hi DiffChange                           ctermbg=94
+hi DiffText     ctermfg=lightyellow     ctermbg=94
 
 " Popup Menu {{{2
 hi Pmenu        ctermfg=grey            ctermbg=black

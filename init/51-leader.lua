@@ -72,6 +72,7 @@ end)
 vim.keymap.set("n", "<leader>e", "<nop>")
 vim.keymap.set("n", "<leader>ev", "<cmd>e $MYVIMRC<cr>")
 vim.keymap.set("n", "<leader>ef", "<cmd>e ~/src/github.com/ralismark/nixfiles/assets/fortunes<cr>")
+vim.keymap.set("n", "<leader>et", "<cmd>term<cr>")
 
 -- sometimes files come in pairs/groups, so this opens the "other" one
 vim.keymap.set("n", "<leader>ee", function()

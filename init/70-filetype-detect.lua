@@ -7,7 +7,10 @@ detect.tf = function (_, _)
 end
 
 vim.filetype.add {
+	extension = {
+		tfstate = "json",
+	},
 	filename = {
-		[".envrc"] = "sh"
+		[".envrc"] = "sh",
 	},
 }
