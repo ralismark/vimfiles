@@ -150,6 +150,8 @@ vim.keymap.set("x", ">", ">gv")
 
 -- don't dirty registers
 vim.keymap.set({"n", "x"}, "x", "\"_x")
+vim.keymap.set({"n", "x"}, "X", "\"_d")
+vim.keymap.set({"n", "x"}, "XX", "\"_dd")
 
 vim.keymap.set("i", "<c-e>", "<c-o><c-e>")
 vim.keymap.set("i", "<c-y>", "<c-o><c-y>")

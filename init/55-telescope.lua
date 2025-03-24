@@ -15,14 +15,22 @@ vim.keymap.set("n", "<leader><leader>b", function()
 	}
 end)
 
+local function search_root()
+	local search = vim.fs.find({".git", ".project"}, { upward = true })
+	if #search > 0 then
+		return vim.fs.dirname(search[1])
+	end
+	return vim.fn.getcwd()
+end
+
 vim.keymap.set("n", "<leader><leader>f", function()
 	require "telescope.builtin".find_files {
-		cwd = require "lspconfig".util.find_git_ancestor(vim.fn.getcwd()),
+		cwd = search_root(),
 	}
 end)
 
 vim.keymap.set("n", "<leader><leader>g", function()
 	require "telescope.builtin".live_grep {
-		cwd = require "lspconfig".util.find_git_ancestor(vim.fn.getcwd()),
+		cwd = search_root(),
 	}
 end)

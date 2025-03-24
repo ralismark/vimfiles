@@ -43,7 +43,7 @@ vim.opt.concealcursor = ""
 -- Hidden chars
 vim.opt.list = true
 vim.opt.listchars = "tab:│ ,extends:›,precedes:‹,nbsp:⎵,trail:∙"
-vim.opt.fillchars = "eob: ,fold:─,stl: ,stlnc: ,diff:-,foldopen:╒,foldclose:═"
+vim.opt.fillchars = "eob: ,fold:─,stl: ,stlnc: ,diff:╱,foldopen:╒,foldclose:═"
 
 -- Line wrapping
 vim.opt.wrap = false -- toggle with <leader>ow
