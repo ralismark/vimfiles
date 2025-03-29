@@ -6,7 +6,7 @@ local M = {}
 ---@return cody.PromptParams
 local function gather_context(buf, linenr, colnr, tokens)
 	local path = vim.api.nvim_buf_get_name(buf)
-	local context_bytes = tokens * config.chars_per_token * config.context_proportion
+	local context_bytes = tokens * config.chars_per_token * config.autocomplete.context_proportion
 
 	-- Context around the cursor
 	local affix_size = math.floor(context_bytes / 2)
@@ -30,16 +30,34 @@ local function gather_context(buf, linenr, colnr, tokens)
 	}
 end
 
-local function current_model_config()
-	if not (vim.env.SRC_ENDPOINT and vim.env.SRC_ACCESS_TOKEN) then
-		return nil
+---@return string|nil name
+---@return cody.ModelConfig|nil mc
+function M.get_model(setdefault)
+	if not (vim.env.SRC_ENDPOINT and vim.env.SRC_ACCESS_TOKEN and config.autocomplete.enable) then
+		return nil, nil
 	end
-	local cody_models = require "cody.models"
-	return cody_models.models[config.autocomplete_model]
+
+	if setdefault and config.autocomplete.model == nil then
+		local req = api.request("GET", "/.api/modelconfig/supported-models.json")
+		local ok, response = pcall(req.wait, req)
+		if ok and response.defaultModels and response.defaultModels.codeCompletion then
+			config.autocomplete.model = response.defaultModels.codeCompletion
+		else
+			config.autocomplete.model = "(could not load default)"
+		end
+	end
+
+	local mc = (require "cody.models").models[config.autocomplete.model]
+	if not mc then
+		return nil, nil
+	end
+
+	return config.autocomplete.model, mc
 end
 
 function M:is_available()
-	return not not current_model_config()
+	local name, mc = M.get_model(false)
+	return mc ~= nil
 end
 
 function M:get_trigger_characters()
@@ -57,8 +75,8 @@ function M:complete(params, callback)
 	local linenr = params.context.cursor.row
 	local colnr = params.context.cursor.col
 
+	local name, mc = M.get_model(true)
 	---@type cody.ModelConfig|nil
-	local mc = current_model_config()
 	if not mc then
 		return
 	end
@@ -66,7 +84,7 @@ function M:complete(params, callback)
 	-- Generate request body
 	local prompt_params = gather_context(params.context.bufnr, linenr, colnr, mc.contextTokens)
 	local body = {
-		model = config.autocomplete_model,
+		model = name,
 
 		stopSequences = mc.stopSequences,
 		maxTokensToSample = mc.autoCompleteMultilineMaxTokens,

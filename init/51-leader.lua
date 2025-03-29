@@ -15,15 +15,12 @@ vim.keymap.set("n", "<leader>os", [[<cmd>set spell! | set spell?<cr>]])
 vim.keymap.set("n", "<leader>on", [[<cmd>set relativenumber! | set relativenumber?<cr>]])
 vim.keymap.set("n", "<leader>od", [[<cmd>if &diff | diffoff | else | diffthis | endif | set diff?<cr>]])
 vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclose | else | botright copen | endif<cr>]])
-vim.keymap.set("n", "<leader>oc", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]])
--- vim.keymap.set("n", "<leader>ol", function()
--- 	if vim.fn.getqflist({ winid = 0 }).winid ~= 0 then
--- 		vim.cmd("cclose")
--- 	else
--- 		require "vimrc.diagnostic".load_qf()
--- 		vim.cmd("botright copen")
--- 	end
--- end)
+vim.keymap.set("n", "<leader>ol", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]])
+vim.keymap.set("n", "<leader>oa", function()
+	local cody = require "cody"
+	cody.config.autocomplete.enable = not cody.config.autocomplete.enable
+	print((cody.config.autocomplete.enable and "  " or "no") .. "aicomplete")
+end)
 
 -- Splits
 vim.keymap.set("n", "<leader>s", "<nop>")
@@ -55,7 +52,7 @@ vim.keymap.set("n", "<leader>fu", function()
 		["”"] = '"',
 	}
 	for k, v in pairs(reps) do
-		vim.cmd("keepjumps keeppatterns %s/" .. k .. "/" .. v "/ge")
+		vim.cmd("keepjumps keeppatterns %s/" .. k .. "/" .. v .. "/ge")
 	end
 end)
 

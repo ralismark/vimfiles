@@ -58,7 +58,11 @@ local function handle_syscomplete(context, results)
 	end
 end
 
--- See https://github.com/sourcegraph/openapi for docs
+---@class cody.ApiResponse
+---@field wait fun(): table
+
+--- See https://github.com/sourcegraph/openapi for docs
+---@return cody.ApiResponse
 function M.request(method, path, data, cb)
 	if vim.env.SRC_ENDPOINT == nil or vim.env.SRC_ACCESS_TOKEN == nil then
 		error("SRC_ENDPOINT and SRC_ACCESS_TOKEN must be set")
