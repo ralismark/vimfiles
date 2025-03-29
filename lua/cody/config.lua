@@ -1,12 +1,19 @@
-local M = {}
+return {
 
-M.autocomplete_model = "fireworks::v1::deepseek-coder-v2-lite-base" --[[@as cody.ModelName]]
+	-- For Claude, a token approximately represents 3.5 English characters.
+	-- see: https://docs.anthropic.com/claude/docs/glossary#tokens
+	chars_per_token = 3.5,
 
--- For Claude, a token approximately represents 3.5 English characters.
--- see: https://docs.anthropic.com/claude/docs/glossary#tokens
-M.chars_per_token = 3.5
+	-- Settings for autocomplete
+	autocomplete = {
+		enable = true,
 
--- The proportion of the token limit that should used for context.
-M.context_proportion = 0.9
+		-- cody.ModelName, or nil to fetch the default complete model from
+		-- sourcegraph
+		model = "fireworks::v1::deepseek-coder-v2-lite-base",
 
-return M
+		-- The proportion of the token limit that should used for context.
+		context_proportion = 0.9,
+	},
+
+}

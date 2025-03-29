@@ -61,8 +61,8 @@ nnoremap <silent> [T <cmd>tabmove -1<cr>
 nnoremap <silent> ]T <cmd>tabmove +1<cr>
 
 " quickfix browse
-nnoremap <silent> [c <cmd>cprev<cr>
-nnoremap <silent> ]c <cmd>cnext<cr>
+nnoremap <silent> [q <cmd>cprev<cr>
+nnoremap <silent> ]q <cmd>cnext<cr>
 nnoremap <silent> [l <cmd>lprev<cr>
 nnoremap <silent> ]l <cmd>lnext<cr>
 nnoremap <silent> ]d <cmd>lua vim.diagnostic.goto_next()<cr>

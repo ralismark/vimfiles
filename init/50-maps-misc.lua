@@ -158,6 +158,7 @@ vim.keymap.set("i", "<c-y>", "<c-o><c-y>")
 
 -- readline
 vim.keymap.set({"i", "c"}, "<c-a>", "<Home>")
+vim.keymap.set({"i", "c"}, "", "<c-w>")
 
 -- Motions & Text Objects {{{1
 
