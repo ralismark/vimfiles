@@ -30,8 +30,8 @@ hi MatchParen   ctermfg=yellow          ctermbg=black           cterm=bold
 hi Directory    ctermfg=blue
 
 " Statusline/Tabline {{{2
-hi StatusLine   ctermfg=white           ctermbg=black           cterm=NONE
-hi StatusLineNC ctermfg=darkgrey        ctermbg=black           cterm=NONE
+hi StatusLine   ctermfg=white           ctermbg=NONE            cterm=NONE
+hi StatusLineNC ctermfg=darkgrey        ctermbg=NONE            cterm=NONE
 hi WinSeparator ctermfg=darkgrey        ctermbg=NONE            cterm=NONE
 
 " Ex Messages {{{2

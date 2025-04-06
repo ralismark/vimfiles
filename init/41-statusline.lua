@@ -184,7 +184,7 @@ local function mainbar(is_active)
 
 				-- lsp clients
 				function()
-					local clients = vim.tbl_values(vim.tbl_map(function(x) return x.name end, vim.lsp.buf_get_clients()))
+					local clients = vim.tbl_values(vim.tbl_map(function(x) return x.name end, vim.lsp.get_clients{bufnr=0}))
 					if #clients == 0 then
 						return nil
 					end

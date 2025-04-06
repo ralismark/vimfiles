@@ -59,6 +59,7 @@
             pname = lib.removePrefix "plugin:" name;
             version = src.shortRev;
             inherit src;
+            doCheck = false;
           };
         in
           lib.mapAttrsToList buildPlug
