@@ -9,12 +9,21 @@ vim.api.nvim_create_autocmd({ "CursorHold" }, {
 -- require "vimrc.diagnostic".setup {
 -- }
 
-vim.cmd([[
-sign define DiagnosticSignHint  text=🞶 texthl=DiagnosticSignHint  linehl= numhl=
-sign define DiagnosticSignInfo  text=◆ texthl=DiagnosticSignInfo  linehl= numhl=
-sign define DiagnosticSignWarn  text=▲ texthl=DiagnosticSignWarn  linehl= numhl=
-sign define DiagnosticSignError text=✕ texthl=DiagnosticSignError linehl= numhl=
-]])
+vim.diagnostic.config {
+	severity_sort = true,
+
+	underline = true,
+	signs = {
+		text = {
+			[vim.diagnostic.severity.HINT] = "🞶",
+			[vim.diagnostic.severity.INFO] = "◆",
+			[vim.diagnostic.severity.WARN] = "▲",
+			[vim.diagnostic.severity.ERROR] = "✕",
+		},
+	},
+	virtual_text = {
+	},
+}
 
 
 -- Disable semantic highlights (see :help lsp-semantic-highlight)
