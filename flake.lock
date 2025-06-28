@@ -80,22 +80,6 @@
         "type": "github"
       }
     },
-    "plugin:base16-nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1740184667,
-        "narHash": "sha256-r7JPksjINhisViWIAXZJphDQKoPtFBB/vVnkA45r1/w=",
-        "owner": "RRethy",
-        "repo": "base16-nvim",
-        "rev": "3f13e15c53ea2aaf79c24ceab725309d87f0619c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "RRethy",
-        "repo": "base16-nvim",
-        "type": "github"
-      }
-    },
     "plugin:cmp-buffer": {
       "flake": false,
       "locked": {
@@ -237,6 +221,22 @@
       "original": {
         "owner": "ray-x",
         "repo": "lsp_signature.nvim",
+        "type": "github"
+      }
+    },
+    "plugin:nui.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1749392788,
+        "narHash": "sha256-41slmnvt1z7sCxvpiVuFmQ9g7eCaxQi1dDCL3AxSL1A=",
+        "owner": "MunifTanjim",
+        "repo": "nui.nvim",
+        "rev": "de740991c12411b663994b2860f1a4fd0937c130",
+        "type": "github"
+      },
+      "original": {
+        "owner": "MunifTanjim",
+        "repo": "nui.nvim",
         "type": "github"
       }
     },
@@ -519,7 +519,6 @@
         "nixpkgs": "nixpkgs",
         "plugin:Colorizer": "plugin:Colorizer",
         "plugin:LuaSnip": "plugin:LuaSnip",
-        "plugin:base16-nvim": "plugin:base16-nvim",
         "plugin:cmp-buffer": "plugin:cmp-buffer",
         "plugin:cmp-cmdline": "plugin:cmp-cmdline",
         "plugin:cmp-nvim-lsp": "plugin:cmp-nvim-lsp",
@@ -529,6 +528,7 @@
         "plugin:guess-indent.nvim": "plugin:guess-indent.nvim",
         "plugin:indent-blankline.nvim": "plugin:indent-blankline.nvim",
         "plugin:lsp_signature.nvim": "plugin:lsp_signature.nvim",
+        "plugin:nui.nvim": "plugin:nui.nvim",
         "plugin:nvim-cmp": "plugin:nvim-cmp",
         "plugin:nvim-lightbulb": "plugin:nvim-lightbulb",
         "plugin:nvim-lspconfig": "plugin:nvim-lspconfig",

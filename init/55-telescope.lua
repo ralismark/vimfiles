@@ -4,8 +4,8 @@ telescope.setup {
 	extensions = {
 		fzf = {
 			fuzzy = false,
-		}
-	}
+		},
+	},
 }
 telescope.load_extension("fzf")
 

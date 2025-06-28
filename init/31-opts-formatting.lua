@@ -22,13 +22,16 @@ vim.g.vim_indent_cont = 0
 
 -- c indent
 vim.opt.cinoptions = {
-	"(s", -- Contents of unclosed parentheses
 	":0", -- Case labels
 	"Ls", -- Jump labels
-	"u0",
-	"U0", -- Do not ignore when parens are first char in line
 	"b0", -- Align break with case
 	"g0", -- Scope labels
 	"l1", -- No align with label
 	"t0", -- Function return type declarations
+	-- indenting after unclosed parentheses
+	"(s", -- Contents of unclosed parentheses
+	"us",
+	"Ws", -- contents of (...) are indented
+	"U0", -- Do not ignore when parens are first char in line
+	"m1", -- Closing ) lines up with start of line, not (
 }

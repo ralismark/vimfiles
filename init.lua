@@ -66,6 +66,6 @@ table.sort(files)
 for _, file in ipairs(files) do
 	local ok, err = pcall(vim.cmd.source, file)
 	if not ok then
-		vim.api.nvim_err_write(err)
+		vim.api.nvim_echo({{ err }}, true, { err = true })
 	end
 end

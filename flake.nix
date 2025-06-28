@@ -34,14 +34,15 @@
     #"plugin:vim-polyglot" = { url = "github:sheerun/vim-polyglot"; flake = false; };
     "plugin:vim-easy-align" = { url = "github:junegunn/vim-easy-align"; flake = false; };
     "plugin:vim-textobj-user" = { url = "github:kana/vim-textobj-user"; flake = false; };
-    "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };
     "plugin:vim-textobj-parameter" = { url = "github:sgur/vim-textobj-parameter"; flake = false; };
-    "plugin:vim-textobj-between" = { url = "github:thinca/vim-textobj-between"; flake = false; };
     "plugin:opsort.vim" = { url = "github:ralismark/opsort.vim"; flake = false; };
     "plugin:vim-nix" = { url = "github:LnL7/vim-nix"; flake = false; };
     "plugin:rainbow-delimiters.nvim" = { url = "github:hiphish/rainbow-delimiters.nvim"; flake = false; };
+    "plugin:nui.nvim" = { url = "github:MunifTanjim/nui.nvim"; flake = false; };
+    # i still need to setup these...
+    "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };
+    "plugin:vim-textobj-between" = { url = "github:thinca/vim-textobj-between"; flake = false; };
     "plugin:indent-blankline.nvim" = { url = "github:lukas-reineke/indent-blankline.nvim"; flake = false; };
-    "plugin:base16-nvim" = { url = "github:RRethy/base16-nvim"; flake = false; };
 
     # plugins with custom steps
     "telescope-fzf-native.nvim" = { url = "github:nvim-telescope/telescope-fzf-native.nvim"; flake = false; };
