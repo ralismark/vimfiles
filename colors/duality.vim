@@ -81,8 +81,6 @@ hi NormalFloat  ctermfg=fg              ctermbg=black
 hi Comment      ctermfg=darkgrey
 
 hi Constant     ctermfg=darkmagenta
-hi link @constant.builtin Constant
-hi link @variable.css Constant
 
 hi String       ctermfg=green
 hi link Character String
@@ -91,34 +89,25 @@ hi Identifier   ctermfg=fg                                      cterm=NONE
 hi @variable.builtin cterm=italic
 
 hi @function ctermfg=cyan
-hi link @function.builtin NONE
 
 hi Statement    ctermfg=red
 hi Operator     ctermfg=white
 
 hi @attribute ctermfg=yellow
-hi link @property.css @attribute
 
 hi PreProc      ctermfg=yellow
-hi link @keyword.directive PreProc
-hi link @keyword.import PreProc
 
 hi Type         ctermfg=darkblue
 hi StorageClass ctermfg=yellow
-hi link @keyword.storage StorageClass
-hi link @type.qualifier StorageClass
 
 hi Structure    ctermfg=green
 hi link Typedef Structure
 
 hi Special      ctermfg=lightgrey
 hi Tag          ctermfg=cyan                                    cterm=underline
-hi link @markup.link Tag
 hi SpecialComment ctermfg=lightgrey
 hi Delimiter    ctermfg=fg
-hi link @tag.delimiter Delimiter
 
 hi Error        ctermfg=white           ctermbg=darkred
 
 hi Todo         ctermfg=yellow          ctermbg=NONE            cterm=italic
-hi link @comment.todo Todo

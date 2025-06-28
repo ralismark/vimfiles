@@ -5,13 +5,30 @@ require "nvim-treesitter.configs".setup {
 		enable = true,
 		disable = {"nix", "help", "markdown", "pandoc"},
 		custom_captures = {
+			-- essentally, hi link @<key> = <value>
+			["property.css"]      = "@attribute",
+
+			["constant.builtin"]  = "Constant",
+			["variable.css"]      = "Constant",
+
+			["tag.delimiter"]     = "Delimiter",
+
+			["function.builtin"]  = "NONE", -- nothing special
+
+			["keyword.directive"] = "PreProc",
+			["keyword.import"]    = "PreProc",
+
+			["keyword.storage"]   = "StorageClass",
+			["type.qualifier"]    = "StorageClass",
+
+			["markup.link"]       = "Tag",
+
+			["comment.todo"]      = "Todo",
 		},
 		additional_vim_regex_highlighting = {},
 	},
 
-	-- TODO
-
 	indent = {
-		enable = false,
+		enable = true,
 	},
 }

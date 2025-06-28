@@ -44,6 +44,10 @@ lspconfig.pylsp.setup {
 						-- F403: star import
 						"__init__.py:F401,F403",
 					},
+
+					exclude = {
+						"/nix/store/*"
+					}
 				},
 
 				-- disable for flake8
@@ -101,7 +105,7 @@ lspconfig.lua_ls.setup {
 			},
 			diagnostics = {
 				-- Get the language server to recognize the `vim` global
-				globals = {'vim'},
+				globals = { 'vim' },
 			},
 			workspace = {
 				-- Make the server aware of Neovim runtime files
@@ -148,7 +152,7 @@ lspconfig.nil_ls.setup {
 	settings = {
 		["nil"] = {
 			formatting = {
-				command = {"nix", "run", "-f", "<nixpkgs>", "nixfmt-rfc-style"},
+				command = { "nix", "run", "-f", "<nixpkgs>", "nixfmt-rfc-style" },
 			},
 			nix = {
 				maxMemoryMB = 512,

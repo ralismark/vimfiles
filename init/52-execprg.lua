@@ -10,7 +10,7 @@ end
 -- Try to convert an absolute path into its corresponding module name.
 ---@param path string Path to resolve into a module
 ---@return string|nil
-function _G.lua_module_from_path(path)
+local function lua_module_from_path(path)
 	if path:sub(-4) ~= ".lua" then
 		return nil
 	end
@@ -24,6 +24,16 @@ function _G.lua_module_from_path(path)
 	end
 
 	return nil
+end
+
+local function open_browser()
+	local path = vim.fn.expand("%:p")
+	local browser = vim.env.BROWSER
+	if not vim.fn.executable(browser or "") then
+		vim.api.nvim_echo({ {"BROWSER="}, {vim.inspect(browser)}, {" is not executable"} }, true, { err = true })
+	else
+		vim.fn.jobstart({ browser, "--new-window", "file://" .. path })
+	end
 end
 
 local execprg = {
@@ -41,10 +51,8 @@ local execprg = {
 		end
 	end,
 
-	html = function()
-		local path = vim.fn.expand("%:p")
-		vim.fn.jobstart({ "firefox-devedition", "--new-window", "file://" .. path })
-	end,
+	html = open_browser,
+	svg = open_browser,
 
 	tex = function()
 		local stem = vim.fn.expand("%:r")
@@ -52,7 +60,9 @@ local execprg = {
 	end,
 	java = function()
 		vim.cmd("botright split")
-		vim.fn.termopen({"java", vim.fn.expand("%")})
+		vim.fn.jobstart({"java", vim.fn.expand("%")}, {
+			term = true,
+		})
 	end,
 
 	rmd = open_pdf_out,
