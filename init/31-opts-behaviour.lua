@@ -37,3 +37,15 @@ vim.opt.complete = ".,w,b,t"
 
 -- Clipboard
 vim.opt.clipboard = "unnamed,unnamedplus"
+
+-- bazel files
+rc.includeexpr = function ()
+	local fname = vim.v.fname
+	if fname:match("^//") then
+		local root = vim.fs.root(0, {"WORKSPACE", "MODULE.bazel"})
+		if root then
+			return fname:gsub("^/", root)
+		end
+	end
+end
+vim.opt.includeexpr = "v:lua.rc.includeexpr()"
