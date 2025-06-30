@@ -28,9 +28,3 @@ vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "vim.lsp.buf.referenc
 vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, { desc = "vim.lsp.buf.type_definition" })
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "vim.lsp.buf.hover" })
 vim.keymap.set("n", "Q", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })
-
--- remove defaults
-vim.keymap.del("n", "grn")
-vim.keymap.del({ "n", "x" }, "gra")
-vim.keymap.del("n", "grr")
-vim.keymap.del("n", "gri")
