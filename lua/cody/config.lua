@@ -6,8 +6,6 @@ return {
 
 	-- Settings for autocomplete
 	autocomplete = {
-		enable = true,
-
 		-- cody.ModelName, or nil to fetch the default complete model from
 		-- sourcegraph
 		model = "fireworks::v1::deepseek-coder-v2-lite-base",

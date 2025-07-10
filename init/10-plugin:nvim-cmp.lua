@@ -62,7 +62,7 @@ cmp.setup {
 	},
 	sources = cmp.config.sources({
 		{ name = "hr" },
-		{ name = "cody" },
+		{ name = "DISABLED_cody" },
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
 		{ name = "path" },
@@ -79,6 +79,10 @@ cmp.setup {
 				local snip = require "luasnip".get_id_snippet(entry:get_completion_item().data.snip_id)
 				vim_item.menu = snip.name or vim_item.abbr
 			end
+
+			if entry.source.name == "cody" then
+				vim_item.kind = "AI"
+			end
 			-- vim_item.kind = kind_icons[vim_item.kind]
 			return vim_item
 		end,
@@ -86,4 +90,3 @@ cmp.setup {
 	completion = {
 	},
 }
-

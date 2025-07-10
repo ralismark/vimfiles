@@ -1,5 +1,8 @@
 -- vim: set foldmethod=marker:
 
+local luasnip = require "luasnip"
+local cmp = require "cmp"
+
 local function interp(x) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false) end
 
 local function ifwrap(a, b)
@@ -24,8 +27,6 @@ end, {
 
 -- Multitools {{{1
 
-local luasnip = require "luasnip"
-local cmp = require "cmp"
 
 local function has_words_before()
 	local line, col = unpack(vim.api.nvim_win_get_cursor(0))
@@ -61,28 +62,6 @@ vim.keymap.set({ "i", "s"}, "<cr>", function()
 		cmp.confirm()
 	else
 		interp("<cr>")
-	end
-end)
-
-
-vim.keymap.set({ "i", "s" }, "<c-j>", function()
-	if cmp.get_selected_entry() ~= nil then
-		cmp.confirm()
-		return
-	end
-	if cmp.visible() then
-		cmp.close()
-	end
-	if luasnip.expand_or_locally_jumpable() then
-		luasnip.expand_or_jump()
-	end
-end)
-
-vim.keymap.set({ "i", "s" }, "<c-k>", function()
-	if luasnip.in_snippet() and luasnip.jumpable(-1) then
-		luasnip.jump(-1)
-	else
-		return interp("<c-k>")
 	end
 end)
 
@@ -306,4 +285,14 @@ vim.keymap.set("v", "<c-g><c-l>", function()
 		print("Copied: " .. url)
 		vim.fn.setreg("+", url)
 	end
+end)
+
+vim.keymap.set("i", "<c-x><c-a>", function()
+	cmp.complete {
+		config = {
+			sources = {
+				{ name = "cody" },
+			},
+		}
+	}
 end)

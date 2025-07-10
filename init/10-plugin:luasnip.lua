@@ -266,11 +266,6 @@ ls.add_snippets("java", {
 	})
 })
 
-ls.add_snippets("lua", {
-	ls.parser.parse_snippet("if", "if $1 then\n\t$0\nend"),
-	ls.parser.parse_snippet("fun", "function($1)\n\t$0\nend"),
-})
-
 ls.add_snippets("all", {
 	s({
 		name = "modeline",
@@ -283,5 +278,5 @@ ls.add_snippets("all", {
 		end,
 	}, {
 		t({"vim: set "}), i(0), t({":"}),
-	})
+	}),
 })

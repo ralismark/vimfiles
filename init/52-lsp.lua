@@ -21,10 +21,26 @@ end, {
 })
 
 -- TODO add a timeout to these <2022-07-10>
-vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "vim.lsp.buf.declaration" })
-vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "vim.lsp.buf.definition" })
-vim.keymap.set("n", "gi", vim.lsp.buf.implementation, { desc = "vim.lsp.buf.implementation" })
-vim.keymap.set("n", "gr", vim.lsp.buf.references, { desc = "vim.lsp.buf.references" })
-vim.keymap.set("n", "gt", vim.lsp.buf.type_definition, { desc = "vim.lsp.buf.type_definition" })
+vim.keymap.set("n", "gD", function()
+	require "telescope.builtin".lsp_type_definitions {
+	}
+end, { desc = "vim.lsp.buf.declaration" })
+vim.keymap.set("n", "gd", function()
+	require "telescope.builtin".lsp_definitions {
+	}
+end, { desc = "vim.lsp.buf.definition" })
+vim.keymap.set("n", "gi", function()
+	require "telescope.builtin".lsp_implementations {
+	}
+end, { desc = "vim.lsp.buf.implementation" })
+vim.keymap.set("n", "gr", function()
+	require "telescope.builtin".lsp_references {
+	}
+end, { desc = "vim.lsp.buf.references" })
+vim.keymap.set("n", "gt", function()
+	require "telescope.builtin".lsp_type_definitions {
+	}
+end, { desc = "vim.lsp.buf.type_definition" })
+
 vim.keymap.set("n", "K", vim.lsp.buf.hover, { desc = "vim.lsp.buf.hover" })
 vim.keymap.set("n", "Q", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })

@@ -7,20 +7,32 @@ vim.keymap.set("n", "<leader>w", "<cmd>up<cr>")
 vim.keymap.set("n", "<leader>q", "<cmd>q<cr>")
 
 -- Toggles
+local function cmp_toggle_source(name)
+	-- get config
+	local source = require "cmp.config".global.sources
+
+	for _, v in ipairs(source) do
+		if v.name == "DISABLED_" .. name then
+			v.name = name
+			return true
+		elseif v.name == name then
+			v.name = "DISABLED_" .. name
+			return false
+		end
+	end
+end
 vim.keymap.set("n", "<leader>o", "<nop>")
-vim.keymap.set("n", "<leader>ou", [[<cmd>UndotreeToggle<cr><c-w>999h]])
-vim.keymap.set("n", "<leader>og", [[<cmd>Goyo<cr>ze]])
-vim.keymap.set("n", "<leader>ow", [[<cmd>set wrap! | set wrap?<cr>]])
-vim.keymap.set("n", "<leader>os", [[<cmd>set spell! | set spell?<cr>]])
-vim.keymap.set("n", "<leader>on", [[<cmd>set relativenumber! | set relativenumber?<cr>]])
-vim.keymap.set("n", "<leader>od", [[<cmd>if &diff | diffoff | else | diffthis | endif | set diff?<cr>]])
-vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclose | else | botright copen | endif<cr>]])
-vim.keymap.set("n", "<leader>ol", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]])
+vim.keymap.set("n", "<leader>ou", [[<cmd>UndotreeToggle<cr><c-w>999h]], { desc = "toggle UndoTree" })
+vim.keymap.set("n", "<leader>og", [[<cmd>Goyo<cr>ze]], { desc = "toggle Goyo (focus mode)" })
+vim.keymap.set("n", "<leader>ow", [[<cmd>set wrap! | set wrap?<cr>]], { desc = "toggle 'wrap'" })
+vim.keymap.set("n", "<leader>os", [[<cmd>set spell! | set spell?<cr>]], { desc = "toggle 'spell'" })
+vim.keymap.set("n", "<leader>on", [[<cmd>set relativenumber! | set relativenumber?<cr>]], { desc = "toggle 'relativenumber'" })
+vim.keymap.set("n", "<leader>od", [[<cmd>if &diff | diffoff | else | diffthis | endif | set diff?<cr>]], { desc = "toggle 'diff'" })
+vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclose | else | botright copen | endif<cr>]], { desc = "open/close quickfix" })
+vim.keymap.set("n", "<leader>ol", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]], { desc = "open/close loclist" })
 vim.keymap.set("n", "<leader>oa", function()
-	local cody = require "cody"
-	cody.config.autocomplete.enable = not cody.config.autocomplete.enable
-	print((cody.config.autocomplete.enable and "  " or "no") .. "aicomplete")
-end)
+	print((cmp_toggle_source("cody") and "  " or "no") .. "aicomplete")
+end, { desc = "toggle auto ai completion" })
 
 -- Splits
 vim.keymap.set("n", "<leader>s", "<nop>")
