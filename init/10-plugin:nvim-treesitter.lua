@@ -3,7 +3,13 @@ require "nvim-treesitter.configs".setup {
 
 	highlight = {
 		enable = true,
-		disable = {"nix", "help", "markdown", "pandoc"},
+		disable = {
+			"nix",
+			"help",
+			"markdown",
+			"pandoc",
+			"htmldjango",
+		},
 		custom_captures = {
 			-- essentally, hi link @<key> = <value>
 			["property.css"]      = "@attribute",
@@ -30,5 +36,8 @@ require "nvim-treesitter.configs".setup {
 
 	indent = {
 		enable = true,
+		disable = {
+			"htmldjango",
+		},
 	},
 }

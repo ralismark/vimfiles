@@ -13,27 +13,52 @@ local function gather_context(buf, linenr, colnr, tokens)
 
 	-- Get max number of lines including + before, as long as it is under the prefix limit.
 	local prefix_start_line = math.max(vim.fn.byte2line(vim.fn.line2byte(linenr + 1) - affix_size), 0) + 1
-	local prefix = vim.api.nvim_buf_get_text(buf, prefix_start_line - 1, 0, linenr - 1, colnr - 1, {})
+	local prefix = table.concat(vim.api.nvim_buf_get_text(buf, prefix_start_line - 1, 0, linenr - 1, colnr - 1, {}), "\n")
 
 	-- Get max number of lines including + after, as long as it is under the suffix limit.
 	local suffix_end_line = vim.fn.byte2line(vim.fn.line2byte(linenr) + affix_size)
 	if 0 <= suffix_end_line and suffix_end_line < linenr then
 		suffix_end_line = linenr
 	end
-	local suffix = vim.api.nvim_buf_get_text(buf, linenr - 1, colnr - 1, suffix_end_line, -1, {})
+	local suffix = table.concat(vim.api.nvim_buf_get_text(buf, linenr - 1, colnr - 1, suffix_end_line, -1, {}), "\n")
+
+	context_bytes = context_bytes - prefix:len() - suffix:len()
+	assert(context_bytes >= 0)
+
+	-- add buffers until we run out of context bytes
+	local context = {}
+	for _, buffer in ipairs(vim.split(vim.fn.execute ":buffers! t", "\n")) do
+		local match = tonumber(string.match(buffer, "%s*(%d+)"))
+		local open_by_lsp = string.match(buffer, "line 0$")
+		if match and not open_by_lsp then
+			local filename = vim.api.nvim_buf_get_name(match)
+			if filename ~= "" and match ~= buf then
+				-- get size of file
+				local size = vim.api.nvim_buf_get_offset(match, vim.api.nvim_buf_line_count(match))
+				if size < 0 or size > context_bytes then
+					break
+				end
+
+				table.insert(context, {
+					file = filename,
+					text = table.concat(vim.api.nvim_buf_get_lines(match, 0, -1, false), "\n"),
+				})
+			end
+		end
+	end
 
 	return {
 		path = path,
-		prefix = table.concat(prefix, "\n"),
-		suffix = table.concat(suffix, "\n"),
-		context = {},
+		prefix = prefix,
+		suffix = suffix,
+		context = context,
 	}
 end
 
 ---@return string|nil name
 ---@return cody.ModelConfig|nil mc
 function M.get_model(setdefault)
-	if not (vim.env.SRC_ENDPOINT and vim.env.SRC_ACCESS_TOKEN and config.autocomplete.enable) then
+	if not (vim.env.SRC_ENDPOINT and vim.env.SRC_ACCESS_TOKEN) then
 		return nil, nil
 	end
 
@@ -111,7 +136,14 @@ function M:complete(params, callback)
 				callback({
 					items = {
 						{
-							label = params.context.cursor_before_line:sub(params.offset) .. response.completion,
+							label = response.completion,
+							textEdit = {
+								range = {
+									start = here,
+									["end"] = here,
+								},
+								newText = response.completion,
+							},
 						},
 					},
 					isIncomplete = false,

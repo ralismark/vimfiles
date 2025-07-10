@@ -25,7 +25,7 @@ end
 local skels = {
 
 	-- templates
-	["setup.py"] = s("", {
+	s("setup.py", {
 		t({ "#!/usr/bin/env python3",
 			"",
 			"from setuptools import setup",
@@ -42,20 +42,20 @@ local skels = {
 			"    },",
 			")", }),
 	}),
-	[".editorconfig"] = s("", t({
+	s(".editorconfig", t({
 		"root = true",
 		"",
 		"[*.c]",
 		"indent_style = space",
 		"indent_size = 4",
 	})),
-	["*.dot"] = s("", {
+	s("*.dot", {
 		t({ "digraph {",
 			"\tgraph [layout=" }), i(1, "neato"), t({ "];",
 			"\t" }), i(0), t({ "",
 			"}" })
 	}),
-	["*.tex"] = s("", {
+	s("*.tex", {
 		t({ "\\documentclass{article}",
 			"",
 			"\\usepackage[utf8]{inputenc}",
@@ -67,7 +67,7 @@ local skels = {
 			"",
 			"\\end{document}" })
 	}),
-	["CMakeLists.txt"] = s("", {
+	s("CMakeLists.txt", {
 		t({ "cmake_minimum_required(VERSION 3.5)",
 			"",
 			"project(" }), dirname(), t({ "",
@@ -91,7 +91,7 @@ local skels = {
 			"",
 			"" })
 	}),
-	["*.html"] = s("", {
+	s("*.html", {
 		t({ "<!doctype html>",
 			"<html>",
 			"<head>",
@@ -102,7 +102,7 @@ local skels = {
 			"</body>",
 			"</html>" })
 	}),
-	["*.svg"] = s("", {
+	s("*.svg", {
 		t({ "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
 			"<svg",
 			"\txmlns:xlink=\"http://www.w3.org/1999/xlink\"",
@@ -111,7 +111,7 @@ local skels = {
 			"" }), i(0), t({ "",
 			"</svg>" })
 	}),
-	["*.cpp"] = s("", {
+	s("*.cpp", {
 		t({ "#include <bits/stdc++.h>",
 			"using namespace std;",
 			"",
@@ -133,16 +133,7 @@ local skels = {
 			"" }), i(0), t({ "",
 			"}" })
 	}),
-	["*.md"] = s("", {
-		t({ "---",
-			"geometry: a4paper",
-			"header-includes: |",
-			"  \\newcommand\\R{\\mathbb{R}}",
-			"---",
-			"",
-			"" })
-	}),
-	["flake.nix"] = s("", {
+	s("flake.nix", {
 		t({ "{",
 			"  description = \"A very basic flake\";",
 			"",
@@ -170,7 +161,7 @@ local skels = {
 			"      });",
 			"}" })
 	}),
-	["*.pre-commit-config.yaml"] = s("", {
+	s("*.pre-commit-config.yaml", {
 		-- TODO fetch latest revisions from github
 		t({ "# See https://pre-commit.com for more information",
 			"# See https://pre-commit.com/hooks.html for more hooks",
@@ -188,22 +179,55 @@ local skels = {
 			"      - id: black" })
 	}),
 
+	-- special ones for my blog
+	s("**/ralismark.github.io/**/links/*.md", {
+		t({ "---",
+			"layout: link",
+			"title: ", }), i(1), t({ "",
+			"url: ", }), i(2), t({ "",
+			"date: " }), f(function() return vim.fn.strftime("%Y-%m-%d") end), t({ "",
+			"tags:",
+			"---",
+			"",
+			"" })
+	}),
+	s("**/ralismark.github.io/**/*.md", {
+		t({ "---",
+			"layout: post",
+			"title: ", }), i(1), t({ "",
+			"excerpt:",
+			"date: " }), f(function() return vim.fn.strftime("%Y-%m-%d") end), t({ "",
+			"tags:",
+			"---",
+			"",
+			"" })
+	}),
+	s("*.md", {
+		t({ "---",
+			"geometry: a4paper",
+			"header-includes: |",
+			"  \\newcommand\\R{\\mathbb{R}}",
+			"---",
+			"",
+			"" })
+	}),
+
 	-- preambles
-	["*.go"] = s("", {
+	s("*.go", {
 		t("package "), f(function() return vim.fn.expand("%:p:h:t"):gsub("%W", "_") end), t({ "",
 			"",
 			"",
 		}),
 	}),
-	["*.hpp"] = s("", t({ "#pragma once", "" })),
-	["*.h"] = s("", t({ "#pragma once", "" })),
-	["*.xml"] = s("", t({ "<?xml version=\"1.0\" encoding=\"utf-8\"?>", "" })),
+	s("*.hpp", t({ "#pragma once", "" })),
+	s("*.h", t({ "#pragma once", "" })),
+	s("*.xml", t({ "<?xml version=\"1.0\" encoding=\"utf-8\"?>", "" })),
 
 	-- shebangs
-	["*.py"] = s("", t({ "#!/usr/bin/env python3", "" })),
-	["*.sh"] = s("", t({ "#!/bin/sh", "set -eu", "" })),
-	["*.sed"] = s("", t({ "#!/usr/bin/env -S sed -Ef", "" })),
-	["CACHEDIR.TAG"] = s("", t({ "Signature: 8a477f597d28d172789f06886806bc55", "" })),
+	s("*.py", t({ "#!/usr/bin/env python3", "" })),
+	s("*.sh", t({ "#!/bin/sh", "set -eu", "" })),
+	s("*.sed", t({ "#!/usr/bin/env -S sed -Ef", "" })),
+	s("CACHEDIR.TAG", t({ "Signature: 8a477f597d28d172789f06886806bc55", "" })),
 }
 
 -------------------------------------------------------------------------------
@@ -212,8 +236,11 @@ return {
 	defs = skels,
 	expand = function()
 		local fname = vim.fn.expand("<afile>:t")
-		for pat, snip in pairs(skels) do
-			if vim.fn.match(fname, vim.fn.glob2regpat(pat)) >= 0 then
+		local path = vim.fn.expand("<afile>:p")
+
+		for _, snip in ipairs(skels) do
+			local pat = snip.trigger
+			if vim.fn.match(pat:find("/") and path or fname, vim.fn.glob2regpat(pat)) >= 0 then
 				ls.snip_expand(snip, {})
 				return
 			end
