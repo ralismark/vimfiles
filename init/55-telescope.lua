@@ -157,10 +157,9 @@ local function file_multi_picker(opts)
 end
 
 vim.keymap.set("n", "<space><space>f", function()
-	local root = search_root()
-
 	local opts = {
-		cwd = root,
+		cwd = search_root(),
+		results_title = "File Picker"
 	}
 
 	pickers.new(opts, {
@@ -172,6 +171,7 @@ end)
 
 vim.keymap.set("n", "<leader><leader>g", function()
 	require "telescope.builtin".live_grep {
+		cwd = search_root()
 	}
 end)
 
