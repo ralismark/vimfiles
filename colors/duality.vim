@@ -26,6 +26,7 @@ hi SpecialKey   ctermfg=darkblue
 hi Visual       ctermfg=white           ctermbg=red
 hi link VisualNOS Visual
 hi MatchParen   ctermfg=yellow          ctermbg=black           cterm=bold
+hi SnippetTabStop ctermfg=NONE          ctermbg=black
 
 hi Directory    ctermfg=blue
 

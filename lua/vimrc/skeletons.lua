@@ -24,6 +24,30 @@ end
 
 local skels = {
 
+	-- special ones for my blog
+	s("**/ralismark.github.io/**/links/*.md", {
+		t({ "---",
+			"layout: link",
+			"title: ", }), i(1), t({ "",
+			"url: ", }), i(2), t({ "",
+			"date: " }), f(function() return vim.fn.strftime("%Y-%m-%d") end), t({ "",
+			"tags:",
+			"---",
+			"",
+			"" })
+	}),
+	s("**/ralismark.github.io/**/*.md", {
+		t({ "---",
+			"layout: post",
+			"title: ", }), i(1), t({ "",
+			"excerpt:",
+			"date: " }), f(function() return vim.fn.strftime("%Y-%m-%d") end), t({ "",
+			"tags:",
+			"---",
+			"",
+			"" })
+	}),
+
 	-- templates
 	s("setup.py", {
 		t({ "#!/usr/bin/env python3",
@@ -45,7 +69,7 @@ local skels = {
 	s(".editorconfig", t({
 		"root = true",
 		"",
-		"[*.c]",
+		"[*.{js,ts}]",
 		"indent_style = space",
 		"indent_size = 4",
 	})),
@@ -179,29 +203,7 @@ local skels = {
 			"      - id: black" })
 	}),
 
-	-- special ones for my blog
-	s("**/ralismark.github.io/**/links/*.md", {
-		t({ "---",
-			"layout: link",
-			"title: ", }), i(1), t({ "",
-			"url: ", }), i(2), t({ "",
-			"date: " }), f(function() return vim.fn.strftime("%Y-%m-%d") end), t({ "",
-			"tags:",
-			"---",
-			"",
-			"" })
-	}),
-	s("**/ralismark.github.io/**/*.md", {
-		t({ "---",
-			"layout: post",
-			"title: ", }), i(1), t({ "",
-			"excerpt:",
-			"date: " }), f(function() return vim.fn.strftime("%Y-%m-%d") end), t({ "",
-			"tags:",
-			"---",
-			"",
-			"" })
-	}),
+	-- preambles
 	s("*.md", {
 		t({ "---",
 			"geometry: a4paper",
@@ -211,8 +213,6 @@ local skels = {
 			"",
 			"" })
 	}),
-
-	-- preambles
 	s("*.go", {
 		t("package "), f(function() return vim.fn.expand("%:p:h:t"):gsub("%W", "_") end), t({ "",
 			"",
