@@ -38,8 +38,6 @@ end
 vim.keymap.set({ "i", "s" }, "<tab>", function()
 	if cmp.visible() then
 		cmp.select_next_item()
-	elseif luasnip.expand_or_locally_jumpable() then
-		luasnip.expand_or_jump()
 	elseif has_words_before() then
 		cmp.complete()
 	else
@@ -50,8 +48,6 @@ end)
 vim.keymap.set({ "i", "s" }, "<s-tab>", function()
 	if cmp.visible() then
 		cmp.select_prev_item()
-	elseif luasnip.in_snippet() and luasnip.jumpable(-1) then
-		luasnip.jump(-1)
 	else
 		interp("<Tab>")
 	end
@@ -60,6 +56,18 @@ end)
 vim.keymap.set({ "i", "s"}, "<cr>", function()
 	if cmp.get_selected_entry() ~= nil then
 		cmp.confirm()
+	elseif luasnip.in_snippet() and luasnip.jumpable() then
+		luasnip.jump(1)
+	else
+		interp("<cr>")
+	end
+end)
+
+vim.keymap.set({ "i", "s"}, "<s-cr>", function()
+	if cmp.get_selected_entry() ~= nil then
+		cmp.confirm()
+	elseif luasnip.in_snippet() and luasnip.jumpable(-1) then
+		luasnip.jump(-1)
 	else
 		interp("<cr>")
 	end
@@ -73,6 +81,17 @@ vim.keymap.set({ "n", "x" }, "<return>", function()
 		return interp("<cr>")
 	else
 		return interp("@q")
+	end
+end)
+
+vim.keymap.set({ "i", "s" }, "<c-l>", function()
+	if luasnip.choice_active() then
+		luasnip.change_choice(1)
+	end
+end)
+vim.keymap.set({ "i", "s" }, "<c-h>", function()
+	if luasnip.choice_active() then
+		luasnip.change_choice(-1)
 	end
 end)
 
@@ -99,9 +118,6 @@ vim.keymap.set("x", "&", [[<c-\><c-n><cmd>'<,'>&&<cr>]])
 vim.keymap.set("x", "p", "P")
 
 -- wrapping (logical lines)
-vim.keymap.set({ "n", "x" }, "0", ifwrap("g0", "0"))
-vim.keymap.set({ "n", "x" }, "G", ifwrap("G$g0", "G"))
-vim.keymap.set({ "n", "x" }, "$", ifwrap("g$", "$"))
 vim.keymap.set({ "n", "x" }, "j", function() if vim.v.count == 0 then return "gj" else return "j" end end, { expr = true })
 vim.keymap.set({ "n", "x" }, "k", function() if vim.v.count == 0 then return "gk" else return "k" end end, { expr = true })
 
@@ -250,15 +266,6 @@ vim.keymap.set({"i"}, "<c-l>", function()
 	end
 	vim.api.nvim_put({ parts[1] }, "c", false, true)
 	vim.api.nvim_put({ parts[2] }, "b", false, false) -- <2024-04-05> Using b here is a bit of a hack but c doesn't work
-end)
-
-vim.keymap.set({"n"}, "zJ", function()
-	vim.cmd [[
-		s/^\s*//
-		s/$/,
-		nohl
-		join
-	]]
 end)
 
 -- Git stuff

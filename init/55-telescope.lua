@@ -25,12 +25,6 @@ telescope.setup {
 }
 telescope.load_extension("fzf")
 
-vim.keymap.set("n", "<leader><leader>b", function()
-	require "telescope.builtin".buffers {
-		sort_mru = true,
-	}
-end)
-
 local function search_root()
 	local search = vim.fs.find({".git", ".project"}, { upward = true })
 	if #search > 0 then
@@ -156,22 +150,42 @@ local function file_multi_picker(opts)
 	})
 end
 
-vim.keymap.set("n", "<space><space>f", function()
-	local opts = {
-		cwd = search_root(),
-		results_title = "File Picker"
-	}
+local function tele_files(opts)
+	opts.cwd = opts.cwd or vim.uv.cwd()
+	opts.results_title = opts.results_title or "Files"
 
 	pickers.new(opts, {
 		finder = file_multi_picker(opts),
 		previewer = conf.file_previewer(opts),
 		sorter = conf.file_sorter(opts),
 	}):find()
+end
+
+vim.keymap.set("n", "<leader><leader>b", function()
+	require "telescope.builtin".buffers {
+		sort_mru = true,
+	}
+end)
+
+vim.keymap.set("n", "<space><space>f", function()
+	tele_files {
+		cwd = search_root()
+	}
+end)
+
+vim.keymap.set("n", "<space><space>F", function()
+	tele_files {
+	}
 end)
 
 vim.keymap.set("n", "<leader><leader>g", function()
 	require "telescope.builtin".live_grep {
 		cwd = search_root()
+	}
+end)
+
+vim.keymap.set("n", "<leader><leader>G", function()
+	require "telescope.builtin".live_grep {
 	}
 end)
 

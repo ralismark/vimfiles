@@ -1,7 +1,18 @@
 local ls = require "luasnip"
+local types = require("luasnip.util.types")
+
 require "luasnip.loaders.from_vscode".lazy_load()
 ls.setup {
 	enable_autosnippets = true,
+	ext_opts = {
+		[types.insertNode] = {
+			passive = {
+				virt_text = { { "●", "SpecialKey" } },
+				virt_text_pos = "inline",
+				hl_group = "SnippetTabStop"
+			},
+		},
+	}
 }
 
 -- Luasnip abbreviations
@@ -254,7 +265,7 @@ ls.add_snippets("java", {
 	}),
 	s({
 		trig = "/*s",
-		name = "Generate JavaDoc for getter",
+		name = "Generate JavaDoc for setter",
 	}, {
 		t({ "/**", " * Set the " }),
 		i(2, "attribute"),
