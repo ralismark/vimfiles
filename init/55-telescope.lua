@@ -12,6 +12,8 @@ telescope.setup {
 		},
 	},
 	defaults = {
+		scroll_strategy = "limit",
+
 		path_display = {
 			filename_first = {},
 		},
@@ -33,26 +35,14 @@ local function search_root()
 	return vim.uv.cwd()
 end
 
+---@type { cwd: string, paths: string[] }
+local file_multi_picker_cache = {}
+
 local function file_multi_picker(opts)
 	local found_files = {} -- easy lookup of found files
 	local queue = require "plenary.async.structs".Deque.new()
 
-	local function entry_display(v)
-		return v._display, v._hi
-	end
-	local entry_maker = opts.entry_maker or function(v)
-		local path, hi = require "telescope.utils".transform_path(opts, v.rel)
-
-		return {
-			filename = v.path,
-			ordinal = v.rel,
-			display = entry_display,
-			_display = path,
-			_hi = hi,
-
-			value = v,
-		}
-	end
+	local entry_maker = opts.entry_maker or require "telescope.make_entry".gen_from_file(opts)
 	local submit = function(path, source)
 		if found_files[path] then
 			return
@@ -65,11 +55,7 @@ local function file_multi_picker(opts)
 			return
 		end
 
-		queue:pushleft({
-			path = path,
-			rel = rel,
-			source = source,
-		})
+		queue:pushleft(rel)
 	end
 
 	-- gather open files
@@ -92,12 +78,31 @@ local function file_multi_picker(opts)
 	end
 
 	-- gather all files
-	require "plenary.scandir".scan_dir_async(opts.cwd, {
-		respect_gitignore = true,
-		on_insert = function(file)
-			submit(file, "scan")
-		end,
-	})
+	if file_multi_picker_cache.cwd == opts.cwd then
+		async.void(function()
+			for i, path in ipairs(file_multi_picker_cache.paths) do
+				submit(path, "scan")
+				if i % 1000 == 0 then
+					async.util.scheduler()
+				end
+			end
+		end)()
+	else
+		require "plenary.scandir".scan_dir_async(opts.cwd, {
+			respect_gitignore = true,
+			on_insert = function(file)
+				submit(file, "scan")
+			end,
+			on_exit = function(paths)
+				if opts.cache ~= false then
+					file_multi_picker_cache = {
+						cwd = opts.cwd,
+						paths = paths,
+					}
+				end
+			end
+		})
+	end
 
 	-- extra: if prompt is an existant file, if relative to (actual) cwd or one
 	-- of its parents within opts.cwd, also show it
@@ -152,7 +157,7 @@ end
 
 local function tele_files(opts)
 	opts.cwd = opts.cwd or vim.uv.cwd()
-	opts.results_title = opts.results_title or "Files"
+	opts.prompt_title = opts.results_title or "Files"
 
 	pickers.new(opts, {
 		finder = file_multi_picker(opts),
@@ -175,6 +180,7 @@ end)
 
 vim.keymap.set("n", "<space><space>F", function()
 	tele_files {
+		cache = false,
 	}
 end)
 

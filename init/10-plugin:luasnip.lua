@@ -6,12 +6,24 @@ ls.setup {
 	enable_autosnippets = true,
 	ext_opts = {
 		[types.insertNode] = {
-			passive = {
-				virt_text = { { "●", "SpecialKey" } },
+			unvisited = {
+				virt_text = { { "▶", "SpecialKey" } },
 				virt_text_pos = "inline",
 				hl_group = "SnippetTabStop"
 			},
+			active = {
+				virt_text = { { "▶", "SpecialKey" } },
+				virt_text_pos = "inline",
+				hl_group = "Visual"
+			},
 		},
+		[types.choiceNode] = {
+			active = {
+				virt_text = { { "◉", "SpecialKey" } },
+				virt_text_pos = "inline",
+				hl_group = "Visual"
+			},
+		}
 	}
 }
 

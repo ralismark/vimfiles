@@ -64,10 +64,6 @@ end
 local files = vim.fn.globpath(vim.fn.expand("<script>:p:h"), "init/*", false, true)
 table.sort(files)
 
-if vim.env.DIRENV_EXTRA_VIMRC then
-	table.insert(files, vim.env.DIRENV_EXTRA_VIMRC)
-end
-
 for _, file in ipairs(files) do
 	local ok, err = pcall(vim.cmd.source, file)
 	if not ok then
