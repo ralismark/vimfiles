@@ -36,7 +36,9 @@ end
 -- these can't be <expr> maps since inserting text is forbidden while evaluating the map
 
 vim.keymap.set({ "i", "s" }, "<tab>", function()
-	if cmp.visible() then
+	if luasnip.choice_active() then
+		luasnip.change_choice(1)
+	elseif cmp.visible() then
 		cmp.select_next_item()
 	elseif has_words_before() then
 		cmp.complete()
@@ -46,7 +48,9 @@ vim.keymap.set({ "i", "s" }, "<tab>", function()
 end)
 
 vim.keymap.set({ "i", "s" }, "<s-tab>", function()
-	if cmp.visible() then
+	if luasnip.choice_active() then
+		luasnip.change_choice(-1)
+	elseif cmp.visible() then
 		cmp.select_prev_item()
 	else
 		interp("<Tab>")

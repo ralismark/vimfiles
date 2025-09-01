@@ -163,3 +163,17 @@ lspconfig.nil_ls.setup {
 		}
 	}
 }
+
+--[[
+lspconfig.vale_ls.setup {
+	nix = { "nixpkgs#vale-ls", "nixpkgs#vale" },
+
+	filetypes = {
+		"pandoc",
+	},
+
+	settings = {
+		installVale = false,
+	}
+}
+]]
