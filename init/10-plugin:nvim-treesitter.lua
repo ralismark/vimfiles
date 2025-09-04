@@ -8,6 +8,7 @@ require "nvim-treesitter.configs".setup {
 			"help",
 			"markdown",
 			"pandoc",
+			"django",
 			"htmldjango",
 		},
 		additional_vim_regex_highlighting = {},
