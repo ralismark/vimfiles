@@ -82,7 +82,7 @@ local function file_multi_picker(opts)
 		async.void(function()
 			for i, path in ipairs(file_multi_picker_cache.paths) do
 				submit(path, "scan")
-				if i % 1000 == 0 then
+				if i % 100 == 0 then
 					async.util.scheduler()
 				end
 			end
@@ -108,9 +108,7 @@ local function file_multi_picker(opts)
 	-- of its parents within opts.cwd, also show it
 	local parents = {}
 	for dir in vim.fs.parents(vim.uv.cwd()) do
-		if vim.fs.relpath(opts.cwd, dir) then
-			table.insert(parents, dir)
-		end
+		table.insert(parents, dir)
 	end
 
 	return setmetatable({
@@ -122,20 +120,23 @@ local function file_multi_picker(opts)
 			-- check if prompt exists
 			for _, dir in ipairs(parents) do
 				local path = vim.fs.joinpath(dir, prompt)
+				print(path, vim.fn.filereadable(path))
 				if vim.fn.filereadable(path) == 1 then
 					local rel = vim.fs.relpath(opts.cwd, path)
-					if rel then
-						process_result(entry_maker {
-							path = path,
-							rel = rel,
-							source = "rel",
-						})
-					end
+					process_result(entry_maker {
+						path = path,
+						rel = rel or path,
+						source = "rel",
+					})
 				end
 			end
 
-			for _, v in ipairs(self.results) do
+			for i, v in ipairs(self.results) do
 				process_result(v)
+
+				if i % 100 == 0 then
+					async.util.scheduler()
+				end
 			end
 
 			local count = 0

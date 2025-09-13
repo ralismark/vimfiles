@@ -72,3 +72,6 @@ vim.opt.virtualedit = "block"
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.signcolumn = "number"
+
+-- Jumping
+vim.opt.jumpoptions = { "stack", "clean" }

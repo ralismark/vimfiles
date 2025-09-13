@@ -3,7 +3,7 @@ vim.g.mapleader = " "
 vim.keymap.set("n", "<leader>", "<nop>")
 vim.keymap.set("n", "<leader>r", [[<cmd>mode | syntax sync fromstart<cr>]])
 
-vim.keymap.set("n", "<leader>w", "<cmd>up<cr>")
+vim.keymap.set("n", "<leader>w", "<cmd>w<cr>")
 vim.keymap.set("n", "<leader>q", "<cmd>q<cr>")
 
 -- Toggles
