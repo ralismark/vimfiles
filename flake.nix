@@ -129,8 +129,6 @@
         # common bits of rc init
         common-rc = ''
           " shared init
-          let g:flake_lock = "${./.}/flake.lock"
-
           let $PATH .= ":${pkgs.ripgrep}/bin:${pkgs.nodejs}/bin"
         '';
       in

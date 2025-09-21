@@ -25,6 +25,7 @@ end
 local skels = {
 
 	-- special ones for my blog
+	--[[
 	s("**/ralismark.github.io/**/links/*.md", {
 		t({ "---",
 			"layout: link",
@@ -47,6 +48,7 @@ local skels = {
 			"",
 			"" })
 	}),
+	]]
 
 	-- templates
 	s("setup.py", {
@@ -204,7 +206,7 @@ local skels = {
 	}),
 
 	-- preambles
-	s("*.md", {
+	--[[s("*.md", {
 		t({ "---",
 			"geometry: a4paper",
 			"header-includes: |",
@@ -212,7 +214,7 @@ local skels = {
 			"---",
 			"",
 			"" })
-	}),
+	}),]]
 	s("*.go", {
 		t("package "), f(function() return vim.fn.expand("%:p:h:t"):gsub("%W", "_") end), t({ "",
 			"",

@@ -1,5 +1,7 @@
+local augroup = require"vimrc".augroup()
+
 vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
-	group = rc.augroup,
+	group = augroup,
 	desc = "set foldmethod=marker if foldmarker in document",
 	callback = function()
 		-- check if foldmethod has already been set here
