@@ -1,3 +1,5 @@
+local augroup = require"vimrc".augroup()
+
 require "nvim-lightbulb".setup {
 	virtual_text = {
 		enabled = true,
@@ -12,7 +14,7 @@ require "nvim-lightbulb".setup {
 }
 
 vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-	group = rc.augroup,
+	group = augroup,
 	desc = [[require"nvim-lightbulb".update_lightbulb()]],
 	callback = function()
 		require "nvim-lightbulb".update_lightbulb()

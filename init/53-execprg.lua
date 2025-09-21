@@ -38,7 +38,7 @@ end
 
 local execprg = {
 	vim = function()
-		vim.cmd.source("%")
+		vim.cmd.source("%:p")
 	end,
 	lua = function()
 		local mod = lua_module_from_path(vim.fn.expand("%:p"))
@@ -47,7 +47,7 @@ local execprg = {
 			require "plenary.reload".reload_module(mod)
 			require(mod)
 		else
-			vim.cmd.luafile("%")
+			vim.cmd.luafile("%:p")
 		end
 	end,
 

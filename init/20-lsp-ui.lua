@@ -1,5 +1,7 @@
+local augroup = require"vimrc".augroup()
+
 vim.api.nvim_create_autocmd({ "CursorHold" }, {
-	group = rc.augroup,
+	group = augroup,
 	desc = "vim.diagnostic.open_float",
 	callback = function()
 		vim.diagnostic.open_float(nil, { focusable = false })
@@ -28,7 +30,7 @@ vim.diagnostic.config {
 
 -- Disable semantic highlights (see :help lsp-semantic-highlight)
 vim.api.nvim_create_autocmd({ "ColorScheme" }, {
-	group = rc.augroup,
+	group = augroup,
 	desc = "disable semantic highlight",
 	callback = function()
 		for _, group in ipairs(vim.fn.getcompletion("@lsp", "highlight")) do

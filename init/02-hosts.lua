@@ -4,7 +4,6 @@ rc.host = {
 	-- TODO potentially switch on this for per-system behaviour?
 	whoami = string.format("%s@%s", vim.env.USER, vim.fn.hostname()),
 }
-vim.g.freestanding = rc.host.freestanding
 
 -------------------------------------------------------------------------------
 
