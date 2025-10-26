@@ -30,9 +30,6 @@ vim.keymap.set("n", "<leader>on", [[<cmd>set relativenumber! | set relativenumbe
 vim.keymap.set("n", "<leader>od", [[<cmd>if &diff | diffoff | else | diffthis | endif | set diff?<cr>]], { desc = "toggle 'diff'" })
 vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclose | else | botright copen | endif<cr>]], { desc = "open/close quickfix" })
 vim.keymap.set("n", "<leader>ol", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]], { desc = "open/close loclist" })
-vim.keymap.set("n", "<leader>oa", function()
-	print((cmp_toggle_source("cody") and "  " or "no") .. "aicomplete")
-end, { desc = "toggle auto ai completion" })
 
 -- Splits
 vim.keymap.set("n", "<leader>s", "<nop>")

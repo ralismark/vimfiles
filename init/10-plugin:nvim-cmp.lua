@@ -62,7 +62,6 @@ cmp.setup {
 	},
 	sources = cmp.config.sources({
 		{ name = "hr" },
-		{ name = "DISABLED_cody" },
 		{ name = "nvim_lsp" },
 		{ name = "luasnip" },
 		{ name = "path" },
@@ -80,9 +79,6 @@ cmp.setup {
 				vim_item.menu = snip.name or vim_item.abbr
 			end
 
-			if entry.source.name == "cody" then
-				vim_item.kind = "AI"
-			end
 			-- vim_item.kind = kind_icons[vim_item.kind]
 			return vim_item
 		end,

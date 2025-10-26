@@ -297,13 +297,3 @@ vim.keymap.set("v", "<c-g><c-l>", function()
 		vim.fn.setreg("+", url)
 	end
 end)
-
-vim.keymap.set("i", "<c-x><c-a>", function()
-	cmp.complete {
-		config = {
-			sources = {
-				{ name = "cody" },
-			},
-		}
-	}
-end)
