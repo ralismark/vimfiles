@@ -303,3 +303,19 @@ ls.add_snippets("all", {
 		t({"vim: set "}), i(0), t({":"}),
 	}),
 })
+
+ls.add_snippets("python", {
+	s({
+		name = "nix-shell",
+		trig = "^#!/usr/bin/env nix%-shell",
+		trigEngine = "pattern",
+		snippetType = "autosnippet",
+		condition = function()
+			return vim.fn.line(".") == 1
+		end,
+	}, {
+		t({ "#!/usr/bin/env nix-shell",
+			"#!nix-shell -p \"python3Packages.withPackages (p: with p; [ " }), i(1), t({ " ])\" -i python3",
+			"" })
+	}),
+})

@@ -193,16 +193,25 @@ local skels = {
 			"# See https://pre-commit.com/hooks.html for more hooks",
 			"repos:",
 			"  - repo: https://github.com/pre-commit/pre-commit-hooks",
-			"    rev: v3.2.0",
+			"    rev: v6.0.0",
 			"    hooks:",
 			"      - id: trailing-whitespace",
 			"      - id: end-of-file-fixer",
 			"      - id: check-yaml",
 			"      - id: check-added-large-files",
+			"",
 			"  - repo: https://github.com/psf/black",
-			"    rev: stable",
+			"    rev: 25.9.0",
 			"    hooks:",
-			"      - id: black" })
+			"      - id: black",
+			"",
+			"  - repo: local",
+			"    hooks:",
+			"      - id: gofmt",
+			"        name: gofmt",
+			"        types: [go]",
+			"        entry: gofmt -l -w",
+			"        language: system", })
 	}),
 
 	-- preambles

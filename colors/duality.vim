@@ -55,7 +55,7 @@ hi      IncSearch          ctermfg=black           ctermbg=cyan            cterm
 
 " Gutter {{{2
 hi      LineNr             ctermfg=darkblue
-hi      CursorLineNr       ctermfg=blue            ctermbg=NONE            cterm=bold
+hi      CursorLineNr       ctermfg=blue            ctermbg=black           cterm=bold
 hi      FoldColumn         ctermfg=blue            ctermbg=NONE
 hi      SignColumn         ctermfg=white           ctermbg=NONE
 
