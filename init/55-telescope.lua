@@ -9,7 +9,7 @@ telescope.setup {
 	extensions = {
 		fzf = {
 			fuzzy = false,
-		},
+		}
 	},
 	defaults = {
 		scroll_strategy = "limit",
@@ -35,120 +35,23 @@ local function search_root()
 	return vim.uv.cwd()
 end
 
----@type { cwd: string, paths: string[] }
-local file_multi_picker_cache = {}
-
-local function file_multi_picker(opts)
-	local found_files = {} -- easy lookup of found files
-	local queue = require "plenary.async.structs".Deque.new()
-
-	local entry_maker = opts.entry_maker or require "telescope.make_entry".gen_from_file(opts)
-	local submit = function(path, source)
-		if found_files[path] then
-			return
-		end
-		found_files[path] = true
-
-		-- only submit ones under cwd
-		local rel = vim.fs.relpath(opts.cwd, path)
-		if not rel then
-			return
-		end
-
-		queue:pushleft(rel)
-	end
-
-	-- gather open files
-	for _, buffer in ipairs(vim.split(vim.fn.execute ":buffers! t", "\n")) do
-		local match = tonumber(string.match(buffer, "%s*(%d+)"))
-		local open_by_lsp = string.match(buffer, "line 0$")
-		if match and not open_by_lsp then
-			local file = vim.api.nvim_buf_get_name(match)
-			if vim.fn.filereadable(file) == 1 then
-				submit(file, "open")
-			end
-		end
-	end
-
-	-- gather recent files
-	for _, file in ipairs(vim.v.oldfiles) do
-		if vim.fn.filereadable(file) == 1 then
-			submit(file, "recent")
-		end
-	end
-
-	-- gather all files
-	if file_multi_picker_cache.cwd == opts.cwd then
-		async.void(function()
-			for i, path in ipairs(file_multi_picker_cache.paths) do
-				submit(path, "scan")
-				if i % 100 == 0 then
-					async.util.scheduler()
-				end
-			end
-		end)()
-	else
-		require "plenary.scandir".scan_dir_async(opts.cwd, {
-			respect_gitignore = true,
-			on_insert = function(file)
-				submit(file, "scan")
-			end,
-			on_exit = function(paths)
-				if opts.cache ~= false then
-					file_multi_picker_cache = {
-						cwd = opts.cwd,
-						paths = paths,
-					}
-				end
-			end
-		})
-	end
-
-	-- extra: if prompt is an existant file, if relative to (actual) cwd or one
-	-- of its parents within opts.cwd, also show it
+local function file_jumper_finder(opts)
+	-- if prompt is an existing file, if relative to (actual) cwd or one of its
+	-- parents within opts.cwd, also show it
 	local parents = {}
 	for dir in vim.fs.parents(vim.uv.cwd()) do
 		table.insert(parents, dir)
 	end
 
 	return setmetatable({
-		results = {},
-		close = function() end,
-		entry_maker = entry_maker,
+		entry_maker = opts.entry_maker,
 	}, {
 		__call = function(self, prompt, process_result, process_complete)
-			-- check if prompt exists
 			for _, dir in ipairs(parents) do
 				local path = vim.fs.joinpath(dir, prompt)
-				print(path, vim.fn.filereadable(path))
 				if vim.fn.filereadable(path) == 1 then
 					local rel = vim.fs.relpath(opts.cwd, path)
-					process_result(entry_maker {
-						path = path,
-						rel = rel or path,
-						source = "rel",
-					})
-				end
-			end
-
-			for i, v in ipairs(self.results) do
-				process_result(v)
-
-				if i % 100 == 0 then
-					async.util.scheduler()
-				end
-			end
-
-			local count = 0
-
-			while not queue:is_empty() do
-				local entry = entry_maker(queue:popright())
-				table.insert(self.results, entry)
-				process_result(entry)
-
-				count = count + 1
-				if count % 100 == 0 then
-					async.util.scheduler()
+					process_result(rel)
 				end
 			end
 			process_complete()
@@ -156,14 +59,84 @@ local function file_multi_picker(opts)
 	})
 end
 
-local function tele_files(opts)
+local function recent_files_finder(opts)
+	local results = {}
+
+	local submit = function(path)
+		if vim.fn.filereadable(path) == 1 then
+			local rel = vim.fs.relpath(opts.cwd, path)
+			if rel then
+				results[#results] = rel
+			end
+		end
+	end
+
+	-- gather open files
+	for _, buffer in ipairs(vim.split(vim.fn.execute ":buffers! t", "\n")) do
+		local match = tonumber(string.match(buffer, "%s*(%d+)"))
+		local open_by_lsp = string.match(buffer, "line 0$")
+		if match and not open_by_lsp then
+			submit(vim.api.nvim_buf_get_name(match))
+		end
+	end
+
+	-- gather recent files
+	for _, file in ipairs(vim.v.oldfiles) do
+		submit(file)
+	end
+
+	return setmetatable({
+		entry_maker = opts.entry_maker,
+	}, {
+		__call = function(self, prompt, process_result, process_complete)
+			for _, result in ipairs(results) do
+				process_result(result)
+			end
+			process_complete()
+		end,
+	})
+end
+
+local function merge_finders(finders)
+	return setmetatable({
+		close = function()
+			for _, finder in ipairs(finders) do
+				if finder.close then
+					finder:close()
+				end
+			end
+		end,
+	}, {
+		__call = function(self, prompt, process_result, process_complete)
+			local waiting = #finders
+			for _, finder in ipairs(finders) do
+				finder(prompt, process_result, function()
+					waiting = waiting - 1
+					if waiting == 0 then
+						process_complete()
+					end
+				end)
+			end
+		end,
+	})
+end
+
+local function combo_files(opts)
 	opts.cwd = opts.cwd or vim.uv.cwd()
 	opts.prompt_title = opts.results_title or "Files"
+	opts.entry_maker = opts.entry_maker or require "telescope.make_entry".gen_from_file(opts)
+	print(opts.cwd)
 
 	pickers.new(opts, {
-		finder = file_multi_picker(opts),
+		finder = merge_finders {
+			file_jumper_finder(opts),
+			recent_files_finder(opts),
+			require("telescope.finders").new_oneshot_job({
+				"rg", "--files", "--color=never",
+			}, opts),
+		},
 		previewer = conf.file_previewer(opts),
-		sorter = conf.file_sorter(opts),
+		sorter = conf.generic_sorter(opts),
 	}):find()
 end
 
@@ -174,14 +147,13 @@ vim.keymap.set("n", "<leader><leader>b", function()
 end)
 
 vim.keymap.set("n", "<space><space>f", function()
-	tele_files {
+	combo_files {
 		cwd = search_root()
 	}
 end)
 
 vim.keymap.set("n", "<space><space>F", function()
-	tele_files {
-		cache = false,
+	combo_files {
 	}
 end)
 

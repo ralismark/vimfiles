@@ -1,5 +1,26 @@
 local lspconfig = require "lspconfig"
 
+-- lspconfig.basedpyright.setup {
+-- 	nix = { "nixpkgs#basedpyright" },
+-- 	settings = {
+-- 		python = {
+-- 			pythonPath = vim.fn.exepath("python3"),
+-- 		},
+-- 		basedpyright = {
+-- 			analysis = {
+-- 				diagnosticMode = "openFilesOnly",
+-- 				useLibraryCodeForTypes = true,
+-- 				autoImportCompletions = true,
+--
+-- 				-- default diagnostic levels
+-- 				diagnosticSeverityOverrides = {
+-- 					reportUnusedCallResult = "none",
+-- 				},
+-- 			},
+-- 		},
+-- 	}
+-- }
+
 lspconfig.pylsp.setup {
 	-- We wanna have the tools/etc be "globally" installed, as opposed to
 	-- requiring them to be installed in each individual venv. We can still use
