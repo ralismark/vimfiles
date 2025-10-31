@@ -53,7 +53,7 @@ vim.keymap.set = function(mode, lhs, rhs, opts)
 		if type(rhs) == "function" then
 			return rhs()
 		else
-			print("a", rhs)
+			-- print("a", rhs)
 			return rhs
 		end
 	end, opts)

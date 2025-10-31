@@ -5,6 +5,7 @@ noremap <bs> "_
 
 " Select pasted text
 nnoremap <expr> gp '`[' . getregtype()[0] . '`]'
+nnoremap <expr> P 'P`[' . getregtype()[0] . '`]'
 
 " operatorfunc tester
 function! OperatorFuncTest(motion)
@@ -31,12 +32,11 @@ noremap <c-p> <c-i>
 nnoremap <silent> <esc> <cmd>nohl<cr>
 
 " Select pasted text
-" TODO this doesn't work when pasting from non-default registers
-nnoremap <expr> gp "`[" . getregtype()[0] . "`]"
 
 nnoremap <c-f> "xyy
 xnoremap <c-f> "xy
 inoremap <c-f> <cmd>lua require("luasnip.extras.otf").on_the_fly("x")<cr>
+
 
 " Insert mode {{{1
 

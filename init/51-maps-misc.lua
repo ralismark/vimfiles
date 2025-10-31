@@ -5,16 +5,6 @@ local cmp = require "cmp"
 
 local function interp(x) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(x, true, false, true), "n", false) end
 
-local function ifwrap(a, b)
-	return function()
-		if vim.o.wrap then
-			return interp(a)
-		else
-			return interp(b)
-		end
-	end
-end
-
 vim.api.nvim_create_user_command("W", function()
 	vim.cmd [[
 		w !pkexec tee %:p >/dev/null

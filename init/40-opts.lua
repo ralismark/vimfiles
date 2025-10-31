@@ -4,3 +4,4 @@ vim.opt.guicursor = {
 	"r-cr-o:hor20",
 	"t:block-TermCursor",
 }
+vim.opt.cursorline = true
