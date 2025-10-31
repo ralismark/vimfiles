@@ -165,6 +165,11 @@ lspconfig.bashls.setup {
 
 lspconfig.jsonnet_ls.setup {
 	nix = { "nixpkgs#jsonnet-language-server" },
+	settings = {
+		formatting = {
+			StringStyle = "double",
+		},
+	}
 }
 
 lspconfig.nil_ls.setup {
