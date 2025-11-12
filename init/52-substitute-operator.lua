@@ -1,4 +1,4 @@
-vim.keymap.set("n", "S", function()
+vim.keymap.set("n", "-", function()
 	_G.operatorfunc = function(motion)
 		local replacement = vim.fn.getreg(vim.v.register, 1, true) --[=[@as string[]]=]
 		local left = vim.api.nvim_buf_get_mark(0, "[")
