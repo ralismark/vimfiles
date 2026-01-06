@@ -315,7 +315,7 @@ ls.add_snippets("python", {
 		end,
 	}, {
 		t({ "#!/usr/bin/env nix-shell",
-			"#!nix-shell -p \"python3Packages.withPackages (p: with p; [ " }), i(1), t({ " ])\" -i python3",
+			"#!nix-shell -p \"python3.withPackages (p: with p; [ " }), i(1), t({ " ])\" -i python3",
 			"" })
 	}),
 })

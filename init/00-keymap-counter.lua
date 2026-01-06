@@ -45,6 +45,7 @@ vim.keymap.set = function(mode, lhs, rhs, opts)
 	opts.desc = (opts.desc or "") .. "\nrhs=" .. vim.inspect(rhs) .. "\n(set from " .. caller.source .. ")"
 	if type(rhs) == "string" then
 		opts.expr = true
+		opts.replace_keycodes = true
 	end
 
 	old_keymap_set(mode, lhs, function()

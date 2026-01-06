@@ -38,6 +38,7 @@
     "plugin:vim-nix" = { url = "github:LnL7/vim-nix"; flake = false; };
     "plugin:rainbow-delimiters.nvim" = { url = "github:hiphish/rainbow-delimiters.nvim"; flake = false; };
     "plugin:nui.nvim" = { url = "github:MunifTanjim/nui.nvim"; flake = false; };
+    "plugin:csvview.nvim" = { url = "github:hat0uma/csvview.nvim"; flake = false; };
     # i still need to setup these...
     "plugin:vim-textobj-indent" = { url = "github:kana/vim-textobj-indent"; flake = false; };
     "plugin:vim-textobj-between" = { url = "github:thinca/vim-textobj-between"; flake = false; };

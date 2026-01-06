@@ -5,7 +5,6 @@ noremap <bs> "_
 
 " Select pasted text
 nnoremap <expr> gp '`[' . getregtype()[0] . '`]'
-nnoremap <expr> P 'P`[' . getregtype()[0] . '`]'
 
 " operatorfunc tester
 function! OperatorFuncTest(motion)
