@@ -160,6 +160,22 @@
         "type": "github"
       }
     },
+    "plugin:csvview.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767450936,
+        "narHash": "sha256-Jzpgn0qmuv9f66LngSe00eIBZiG1uIr2m1saVc5ChM8=",
+        "owner": "hat0uma",
+        "repo": "csvview.nvim",
+        "rev": "da4106db5c44bfdccd0f76142c0f2740bcae8e5c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hat0uma",
+        "repo": "csvview.nvim",
+        "type": "github"
+      }
+    },
     "plugin:goyo.vim": {
       "flake": false,
       "locked": {
@@ -524,6 +540,7 @@
         "plugin:cmp-nvim-lsp": "plugin:cmp-nvim-lsp",
         "plugin:cmp-path": "plugin:cmp-path",
         "plugin:cmp_luasnip": "plugin:cmp_luasnip",
+        "plugin:csvview.nvim": "plugin:csvview.nvim",
         "plugin:goyo.vim": "plugin:goyo.vim",
         "plugin:guess-indent.nvim": "plugin:guess-indent.nvim",
         "plugin:indent-blankline.nvim": "plugin:indent-blankline.nvim",
