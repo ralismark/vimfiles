@@ -45,13 +45,15 @@ local function file_jumper_finder(opts)
 
 	return setmetatable({
 		entry_maker = opts.entry_maker,
+		close = function() end,
 	}, {
 		__call = function(self, prompt, process_result, process_complete)
 			for _, dir in ipairs(parents) do
 				local path = vim.fs.joinpath(dir, prompt)
 				if vim.fn.filereadable(path) == 1 then
 					local rel = vim.fs.relpath(opts.cwd, path)
-					process_result(rel)
+					print(rel)
+					process_result(self.entry_maker(rel))
 				end
 			end
 			process_complete()
@@ -65,8 +67,8 @@ local function recent_files_finder(opts)
 	local submit = function(path)
 		if vim.fn.filereadable(path) == 1 then
 			local rel = vim.fs.relpath(opts.cwd, path)
-			if rel then
-				results[#results] = rel
+			if rel and not vim.list_contains(results, rel) then
+				results[#results + 1] = rel
 			end
 		end
 	end
@@ -85,16 +87,10 @@ local function recent_files_finder(opts)
 		submit(file)
 	end
 
-	return setmetatable({
+	return require "telescope.finders".new_table {
+		results = results,
 		entry_maker = opts.entry_maker,
-	}, {
-		__call = function(self, prompt, process_result, process_complete)
-			for _, result in ipairs(results) do
-				process_result(result)
-			end
-			process_complete()
-		end,
-	})
+	}
 end
 
 local function merge_finders(finders)
@@ -125,7 +121,6 @@ local function combo_files(opts)
 	opts.cwd = opts.cwd or vim.uv.cwd()
 	opts.prompt_title = opts.results_title or "Files"
 	opts.entry_maker = opts.entry_maker or require "telescope.make_entry".gen_from_file(opts)
-	print(opts.cwd)
 
 	pickers.new(opts, {
 		finder = merge_finders {
@@ -144,6 +139,24 @@ vim.keymap.set("n", "<leader><leader>b", function()
 	require "telescope.builtin".buffers {
 		sort_mru = true,
 	}
+end)
+
+vim.keymap.set("n", "<space><space>r", function()
+	local opts = {
+		cwd = search_root()
+	}
+	opts.cwd = opts.cwd or vim.uv.cwd()
+	opts.prompt_title = opts.results_title or "Recent & Nearby Files"
+	opts.entry_maker = opts.entry_maker or require "telescope.make_entry".gen_from_file(opts)
+
+	pickers.new(opts, {
+		finder = merge_finders {
+			file_jumper_finder(opts),
+			recent_files_finder(opts),
+		},
+		previewer = conf.file_previewer(opts),
+		sorter = conf.generic_sorter(opts),
+	}):find()
 end)
 
 vim.keymap.set("n", "<space><space>f", function()
