@@ -1,6 +1,6 @@
 vim.g.mapleader = " "
 
-vim.keymap.set("n", "<leader>", function() end)
+vim.keymap.set("n", "<leader>", "")
 vim.keymap.set("n", "<leader>r", [[<cmd>mode | syntax sync fromstart<cr>]])
 
 vim.keymap.set("n", "<leader>w", "<cmd>w<cr>")
@@ -21,7 +21,7 @@ local function cmp_toggle_source(name)
 		end
 	end
 end
-vim.keymap.set("n", "<leader>o", "<nop>")
+vim.keymap.set("n", "<leader>o", "")
 vim.keymap.set("n", "<leader>ou", [[<cmd>UndotreeToggle<cr><c-w>999h]], { desc = "toggle UndoTree" })
 vim.keymap.set("n", "<leader>og", [[<cmd>Goyo<cr>ze]], { desc = "toggle Goyo (focus mode)" })
 vim.keymap.set("n", "<leader>ow", [[<cmd>set wrap! | set wrap?<cr>]], { desc = "toggle 'wrap'" })
@@ -32,7 +32,7 @@ vim.keymap.set("n", "<leader>oq", [[<cmd>if getqflist({"winid":0}).winid | cclos
 vim.keymap.set("n", "<leader>ol", [[<cmd>if getloclist(0, {"winid":0}).winid | lclose | else | botright lopen | endif<cr>]], { desc = "open/close loclist" })
 
 -- Splits
-vim.keymap.set("n", "<leader>s", "<nop>")
+vim.keymap.set("n", "<leader>s", "")
 vim.keymap.set("n", "<leader>ss", "<c-w>s")
 vim.keymap.set("n", "<leader>sv", "<c-w>v")
 vim.keymap.set("n", "<leader>sh", "<cmd>aboveleft vertical new<cr>")
@@ -43,7 +43,7 @@ vim.keymap.set("n", "<leader>sk", "<cmd>aboveleft horizontal new<cr>")
 vim.keymap.set("n", "<leader>t", "<cmd>tab new<cr>")
 
 -- Format
-vim.keymap.set("n", "<leader>f", "<nop>")
+vim.keymap.set("n", "<leader>f", "")
 vim.keymap.set("n", "<leader>fw", function()
 	local view = vim.fn.winsaveview()
 	vim.cmd("keepjumps keeppatterns %s/[\\x0d[:space:]]\\+$//e")
@@ -75,7 +75,7 @@ end)
 
 
 -- Open Files
-vim.keymap.set("n", "<leader>e", "<nop>")
+vim.keymap.set("n", "<leader>e", "")
 vim.keymap.set("n", "<leader>ev", "<cmd>e $MYVIMRC<cr>")
 vim.keymap.set("n", "<leader>ef", "<cmd>e ~/src/github.com/ralismark/nixfiles/assets/fortunes<cr>")
 vim.keymap.set("n", "<leader>et", "<cmd>term<cr>")
