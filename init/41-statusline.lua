@@ -84,7 +84,7 @@ end
 
 local filename = function(is_active) return {
 	function()
-		if vim.bo.buftype == "" then
+		if vim.bo.buftype == "" or vim.bo.buftype == "nowrite" then
 			local untitled = vim.api.nvim_buf_get_name(0) == ""
 			local displayname = untitled and "(untitled)" or shortname():gsub("%%", "%%%%")
 			local exists = not untitled and vim.fn.filereadable(vim.api.nvim_buf_get_name(0)) > 0

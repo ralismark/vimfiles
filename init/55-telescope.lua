@@ -38,8 +38,9 @@ end
 local function file_jumper_finder(opts)
 	-- if prompt is an existing file, if relative to (actual) cwd or one of its
 	-- parents within opts.cwd, also show it
-	local parents = {}
-	for dir in vim.fs.parents(vim.uv.cwd()) do
+	local cwd = vim.uv.cwd()
+	local parents = {cwd}
+	for dir in vim.fs.parents(cwd) do
 		table.insert(parents, dir)
 	end
 
@@ -50,9 +51,8 @@ local function file_jumper_finder(opts)
 		__call = function(self, prompt, process_result, process_complete)
 			for _, dir in ipairs(parents) do
 				local path = vim.fs.joinpath(dir, prompt)
-				if vim.fn.filereadable(path) == 1 then
+				if vim.uv.fs_stat(path) then
 					local rel = vim.fs.relpath(opts.cwd, path)
-					print(rel)
 					process_result(self.entry_maker(rel))
 				end
 			end
@@ -105,16 +105,37 @@ local function merge_finders(finders)
 	}, {
 		__call = function(self, prompt, process_result, process_complete)
 			local waiting = #finders
-			for _, finder in ipairs(finders) do
-				finder(prompt, process_result, function()
-					waiting = waiting - 1
-					if waiting == 0 then
-						process_complete()
+			for i, finder in ipairs(finders) do
+				finder(
+					prompt,
+					function(entity)
+						entity._finder_idx = i
+						process_result(entity)
+					end,
+					function()
+						waiting = waiting - 1
+						if waiting == 0 then
+							process_complete()
+						end
 					end
-				end)
+				)
 			end
 		end,
 	})
+end
+
+---@param sorter Sorter
+local function merge_sorter(sorter)
+	local scoring_function_super = sorter.scoring_function
+	sorter.scoring_function = function(self, prompt, ordinal, entity, cb_add, cb_filter)
+		local score = scoring_function_super(self, prompt, ordinal, entity, cb_add, cb_filter)
+		if score == -1 then
+			return -1
+		end
+
+		return 2 * entity._finder_idx + score
+	end
+	return sorter
 end
 
 local function combo_files(opts)
@@ -124,14 +145,14 @@ local function combo_files(opts)
 
 	pickers.new(opts, {
 		finder = merge_finders {
-			file_jumper_finder(opts),
 			recent_files_finder(opts),
+			file_jumper_finder(opts),
 			require("telescope.finders").new_oneshot_job({
 				"rg", "--files", "--color=never",
 			}, opts),
 		},
 		previewer = conf.file_previewer(opts),
-		sorter = conf.generic_sorter(opts),
+		sorter = merge_sorter(conf.generic_sorter(opts)),
 	}):find()
 end
 
@@ -151,11 +172,11 @@ vim.keymap.set("n", "<space><space>r", function()
 
 	pickers.new(opts, {
 		finder = merge_finders {
-			file_jumper_finder(opts),
 			recent_files_finder(opts),
+			file_jumper_finder(opts),
 		},
 		previewer = conf.file_previewer(opts),
-		sorter = conf.generic_sorter(opts),
+		sorter = merge_sorter(conf.generic_sorter(opts)),
 	}):find()
 end)
 

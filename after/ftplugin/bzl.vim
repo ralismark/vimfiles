@@ -1,11 +1,18 @@
 lua <<EOF
 function Starlark_includeexpr()
 	local fname = vim.v.fname
-	if fname:match("^//") then
-		fname = fname:gsub(":", "/")
+	if vim.v.fname:match("^//") then
 		local root = vim.fs.root(0, {"WORKSPACE", "MODULE.bazel"})
 		if root then
-			return fname:gsub("^/", root)
+			local file = fname:gsub(":", "/"):gsub("^/", root)
+			if vim.uv.fs_stat(file) then
+				return file
+			end
+
+			local dir = vim.fs.dirname(file)
+			if vim.uv.fs_stat(dir) then
+				return dir
+			end
 		end
 	end
 

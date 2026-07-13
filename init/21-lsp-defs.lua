@@ -94,21 +94,21 @@ lspconfig.clangd.setup {
 	single_file_support = true,
 }
 
-lspconfig.jdtls.setup {
-	cmd = {
-		"nix", "run", "nixpkgs#jdt-language-server", "--",
-		"-Xms512M",
-		"-Xmx1G",
-		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
-	},
-	root_dir = function(fname)
-		return (
-			lspconfig.util.find_git_ancestor(fname)
-			or lspconfig.util.root_pattern("build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts", ".project", ".classpath")(fname)
-			or lspconfig.util.root_pattern("build.gradle", "build.gradle.kts")
-		)
-	end,
-}
+-- lspconfig.jdtls.setup {
+-- 	cmd = {
+-- 		"nix", "run", "nixpkgs#jdt-language-server", "--",
+-- 		"-Xms512M",
+-- 		"-Xmx1G",
+-- 		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
+-- 	},
+-- 	root_dir = function(fname)
+-- 		return (
+-- 			lspconfig.util.find_git_ancestor(fname)
+-- 			or lspconfig.util.root_pattern("build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts", ".project", ".classpath")(fname)
+-- 			or lspconfig.util.root_pattern("build.gradle", "build.gradle.kts")
+-- 		)
+-- 	end,
+-- }
 
 lspconfig.gopls.setup {
 	nix = { "nixpkgs#gopls" },
