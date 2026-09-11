@@ -46,6 +46,7 @@
 
     # plugins with custom steps
     "telescope-fzf-native.nvim" = { url = "github:nvim-telescope/telescope-fzf-native.nvim"; flake = false; };
+    "snacks.nvim" = { url = "github:folke/snacks.nvim"; flake = false; }; # needs patching
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }@inputs:
@@ -76,6 +77,36 @@
             buildPhase = ''
               make
             '';
+          })
+          (pkgs.vimUtils.buildVimPlugin rec {
+            pname = "snacks.nvim";
+            src = inputs."${pname}";
+            version = src.shortRev;
+            doCheck = false;
+            patches = [
+              (builtins.toFile "fix-close-race.patch" ''
+                 --- a/lua/snacks/picker/core/finder.lua
+                 +++ b/lua/snacks/picker/core/finder.lua
+                 @@ -170,7 +170,7 @@
+                          return
+                        end
+                        add(item)
+                 -      picker.matcher.task:resume()
+                 +      if picker.matcher then picker.matcher.task:resume() end
+                        yield = yield or Async.yielder(YIELD_FIND)
+                        yield()
+                      end)
+                 @@ -177,7 +177,7 @@
+                    end):on("done", function()
+                      collectgarbage("restart")
+                      if not self.task:aborted() then
+                 -      picker.matcher.task:resume()
+                 +      if picker.matcher then picker.matcher.task:resume() end
+                        picker:update()
+                      end
+                      running = false
+              '')
+            ];
           })
         ] ++ autoPlugins;
 

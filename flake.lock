@@ -563,7 +563,24 @@
         "plugin:vim-textobj-indent": "plugin:vim-textobj-indent",
         "plugin:vim-textobj-parameter": "plugin:vim-textobj-parameter",
         "plugin:vim-textobj-user": "plugin:vim-textobj-user",
+        "snacks.nvim": "snacks.nvim",
         "telescope-fzf-native.nvim": "telescope-fzf-native.nvim"
+      }
+    },
+    "snacks.nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1779727538,
+        "narHash": "sha256-gU0XjCcnmZNwZ/erukA8miBiMKaSsSiInLtiv+OyEJI=",
+        "owner": "folke",
+        "repo": "snacks.nvim",
+        "rev": "882c996cf28183f4d63640de0b4c02ec886d01f2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "folke",
+        "repo": "snacks.nvim",
+        "type": "github"
       }
     },
     "systems": {

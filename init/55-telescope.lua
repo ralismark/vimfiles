@@ -156,53 +156,57 @@ local function combo_files(opts)
 	}):find()
 end
 
-vim.keymap.set("n", "<leader><leader>b", function()
-	require "telescope.builtin".buffers {
-		sort_mru = true,
-	}
-end)
+if false then
 
-vim.keymap.set("n", "<space><space>r", function()
-	local opts = {
-		cwd = search_root()
-	}
-	opts.cwd = opts.cwd or vim.uv.cwd()
-	opts.prompt_title = opts.results_title or "Recent & Nearby Files"
-	opts.entry_maker = opts.entry_maker or require "telescope.make_entry".gen_from_file(opts)
+	vim.keymap.set("n", "<leader><leader>b", function()
+		require "telescope.builtin".buffers {
+			sort_mru = true,
+		}
+	end)
 
-	pickers.new(opts, {
-		finder = merge_finders {
-			recent_files_finder(opts),
-			file_jumper_finder(opts),
-		},
-		previewer = conf.file_previewer(opts),
-		sorter = merge_sorter(conf.generic_sorter(opts)),
-	}):find()
-end)
+	vim.keymap.set("n", "<space><space>r", function()
+		local opts = {
+			cwd = search_root()
+		}
+		opts.cwd = opts.cwd or vim.uv.cwd()
+		opts.prompt_title = opts.results_title or "Recent & Nearby Files"
+		opts.entry_maker = opts.entry_maker or require "telescope.make_entry".gen_from_file(opts)
 
-vim.keymap.set("n", "<space><space>f", function()
-	combo_files {
-		cwd = search_root()
-	}
-end)
+		pickers.new(opts, {
+			finder = merge_finders {
+				recent_files_finder(opts),
+				file_jumper_finder(opts),
+			},
+			previewer = conf.file_previewer(opts),
+			sorter = merge_sorter(conf.generic_sorter(opts)),
+		}):find()
+	end)
 
-vim.keymap.set("n", "<space><space>F", function()
-	combo_files {
-	}
-end)
+	vim.keymap.set("n", "<space><space>f", function()
+		combo_files {
+			cwd = search_root()
+		}
+	end)
 
-vim.keymap.set("n", "<leader><leader>g", function()
-	require "telescope.builtin".live_grep {
-		cwd = search_root()
-	}
-end)
+	vim.keymap.set("n", "<space><space>F", function()
+		combo_files {
+		}
+	end)
 
-vim.keymap.set("n", "<leader><leader>G", function()
-	require "telescope.builtin".live_grep {
-	}
-end)
+	vim.keymap.set("n", "<leader><leader>g", function()
+		require "telescope.builtin".live_grep {
+			cwd = search_root()
+		}
+	end)
 
-vim.keymap.set("n", "<leader><leader>q", function()
-	require "telescope.builtin".quickfix {
-	}
-end)
+	vim.keymap.set("n", "<leader><leader>G", function()
+		require "telescope.builtin".live_grep {
+		}
+	end)
+
+	vim.keymap.set("n", "<leader><leader>q", function()
+		require "telescope.builtin".quickfix {
+		}
+	end)
+
+end
