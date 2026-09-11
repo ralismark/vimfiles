@@ -164,6 +164,7 @@ local skels = {
 			"  description = \"A very basic flake\";",
 			"",
 			"  inputs = {",
+			"    flake-compat = { url = \"github:NixOS/flake-compat\"; flake = false; };",
 			"    nixpkgs.url = \"github:nixos/nixpkgs/nixpkgs-unstable\"; # or \"nixpkgs/nixos-22.05\"",
 			"    flake-utils.url = \"github:numtide/flake-utils\";",
 			"  };",
