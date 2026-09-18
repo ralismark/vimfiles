@@ -1,27 +1,27 @@
-local lspconfig = require "lspconfig"
+rc.lspsetup "basedpyright" {
+	enable = false,
 
--- lspconfig.basedpyright.setup {
--- 	nix = { "nixpkgs#basedpyright" },
--- 	settings = {
--- 		python = {
--- 			pythonPath = vim.fn.exepath("python3"),
--- 		},
--- 		basedpyright = {
--- 			analysis = {
--- 				diagnosticMode = "openFilesOnly",
--- 				useLibraryCodeForTypes = true,
--- 				autoImportCompletions = true,
---
--- 				-- default diagnostic levels
--- 				diagnosticSeverityOverrides = {
--- 					reportUnusedCallResult = "none",
--- 				},
--- 			},
--- 		},
--- 	}
--- }
+	nix = { "nixpkgs#basedpyright" },
+	settings = {
+		python = {
+			pythonPath = vim.fn.exepath("python3"),
+		},
+		basedpyright = {
+			analysis = {
+				diagnosticMode = "openFilesOnly",
+				useLibraryCodeForTypes = true,
+				autoImportCompletions = true,
 
-lspconfig.pylsp.setup {
+				-- default diagnostic levels
+				diagnosticSeverityOverrides = {
+					reportUnusedCallResult = "none",
+				},
+			},
+		},
+	}
+}
+
+rc.lspsetup "pylsp" {
 	-- We wanna have the tools/etc be "globally" installed, as opposed to
 	-- requiring them to be installed in each individual venv. We can still use
 	-- venvs by passing the venv python3 to pylsp.
@@ -83,10 +83,10 @@ lspconfig.pylsp.setup {
 	},
 }
 
-lspconfig.rust_analyzer.setup {
+rc.lspsetup "rust_analyzer" {
 }
 
-lspconfig.clangd.setup {
+rc.lspsetup "clangd" {
 	nix = { "nixpkgs#clang-tools" },
 	cmd = {
 		"clangd",
@@ -94,28 +94,31 @@ lspconfig.clangd.setup {
 	single_file_support = true,
 }
 
--- lspconfig.jdtls.setup {
--- 	cmd = {
--- 		"nix", "run", "nixpkgs#jdt-language-server", "--",
--- 		"-Xms512M",
--- 		"-Xmx1G",
--- 		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
--- 	},
--- 	root_dir = function(fname)
--- 		return (
--- 			lspconfig.util.find_git_ancestor(fname)
--- 			or lspconfig.util.root_pattern("build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts", ".project", ".classpath")(fname)
--- 			or lspconfig.util.root_pattern("build.gradle", "build.gradle.kts")
--- 		)
--- 	end,
--- }
+rc.lspsetup {
+	enabled = false,
 
-lspconfig.gopls.setup {
+	nix = { "nixpkgs#jdt-language-server" },
+	cmd = {
+		"jdtls",
+		"-Xms512M",
+		"-Xmx1G",
+		"-data", vim.env.JDTLS_WORKSPACE or "/tmp/jdtls-workspace",
+	},
+	root_dir = function(fname)
+		return (
+			vim.fs.root(fname, ".git")
+			or vim.fs.root(fname, {"build.xml", "pom.xml", "settings.gradle", "settings.gradle.kts", ".project", ".classpath"})
+			or vim.fs.root(fname, {"build.gradle", "build.gradle.kts"})
+		)
+	end,
+}
+
+rc.lspsetup "gopls" {
 	nix = { "nixpkgs#gopls" },
 	cmd = { "gopls", "-remote=auto" },
 }
 
-lspconfig.lua_ls.setup {
+rc.lspsetup "lua_ls" {
 	nix = { "nixpkgs#lua-language-server" },
 	settings = {
 		Lua = {
@@ -137,17 +140,17 @@ lspconfig.lua_ls.setup {
 	},
 }
 
-lspconfig.ts_ls.setup {
+rc.lspsetup "ts_ls" {
 	nix = { "nixpkgs#typescript-language-server" },
 	settings = {
 	}
 }
 
-lspconfig.cssls.setup {
+rc.lspsetup "cssls" {
 	nix = { "nixpkgs#vscode-langservers-extracted" },
 }
 
-lspconfig.jsonls.setup {
+rc.lspsetup "jsonls" {
 	nix = { "nixpkgs#vscode-langservers-extracted" },
 	settings = {
 		json = {
@@ -157,13 +160,13 @@ lspconfig.jsonls.setup {
 	}
 }
 
-lspconfig.bashls.setup {
+rc.lspsetup "bashls" {
 	nix = {
 		"nixpkgs#bash-language-server", "nixpkgs#shellcheck",
 	},
 }
 
-lspconfig.jsonnet_ls.setup {
+rc.lspsetup "jsonnet_ls" {
 	nix = { "nixpkgs#jsonnet-language-server" },
 	settings = {
 		formatting = {
@@ -172,7 +175,7 @@ lspconfig.jsonnet_ls.setup {
 	}
 }
 
-lspconfig.nil_ls.setup {
+rc.lspsetup "nil_ls" {
 	nix = { "nixpkgs#nil" },
 
 	settings = {
@@ -190,8 +193,9 @@ lspconfig.nil_ls.setup {
 	}
 }
 
---[[
-lspconfig.vale_ls.setup {
+rc.lspsetup "vale_ls" {
+	enable = false,
+
 	nix = { "nixpkgs#vale-ls", "nixpkgs#vale" },
 
 	filetypes = {
@@ -202,4 +206,3 @@ lspconfig.vale_ls.setup {
 		installVale = false,
 	}
 }
-]]

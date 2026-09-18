@@ -75,7 +75,7 @@ end
 
 -------------------------------------------------------------------------------
 
-lspconfig.yamlls.setup {
+rc.lspsetup "yamlls" {
 	nix = { "nixpkgs#yaml-language-server" },
 	settings = {
 		yaml = {

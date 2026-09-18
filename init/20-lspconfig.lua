@@ -4,6 +4,7 @@ vim.loop.fs_unlink(logfile)
 -------------------------------------------------------------------------------
 
 local lspconfig = require "lspconfig"
+
 lspconfig.util.default_config = vim.tbl_extend(
 	"force",
 	lspconfig.util.default_config,
@@ -24,16 +25,27 @@ lspconfig.util.default_config = vim.tbl_extend(
 	}
 )
 
--- add nix= support, for wrapping cmd in nix shell/nix run
-if vim.fn.executable("nix") == 1 then
-	lspconfig.util.on_setup = lspconfig.util.add_hook_before(lspconfig.util.on_setup, function(cfg)
-		if vim.fn.executable(cfg.cmd[1]) ~= 0 then
-			-- cmd is runnable already, don't need to add nix
+function rc.lspsetup(server)
+	local has_nix = vim.fn.executable("nix") == 1
+
+	return function(cfg)
+		-- "enable": if set then don't setup
+		if cfg.enable == false then
 			return
 		end
 
-		if cfg.nix ~= nil then
-			cfg.cmd = vim.iter({ "nix", "shell", cfg.nix, "-c", cfg.cmd }):flatten():totable()
+		-- "nix": for wrapping cmd in nix shell/nix run
+		if has_nix and cfg.nix then
+			local cmd = cfg.cmd or lspconfig[server].config_def.default_config.cmd
+			if type(cmd) ~= "table" then
+				print(server .. ": cmd is not a table")
+			elseif vim.fn.executable(cmd[1]) ~= 0 then
+				-- cmd is runnable already, don't need to add nix
+			else
+				cfg.cmd = vim.iter({ "nix", "shell", cfg.nix, "-c", cmd }):flatten():totable()
+			end
 		end
-	end)
+
+		lspconfig[server].setup(cfg)
+	end
 end
