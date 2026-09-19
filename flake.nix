@@ -108,6 +108,7 @@
               '')
             ];
           })
+          pkgs.vimPlugins.nvim-treesitter.withAllGrammars
         ] ++ autoPlugins;
 
         # create a neovim package with a given RC
@@ -117,9 +118,7 @@
           configure = {
             inherit customRC;
             packages.main = {
-              start = plugins ++ [
-                pkgs.vimPlugins.nvim-treesitter.withAllGrammars
-              ];
+              start = plugins;
             };
           };
         };

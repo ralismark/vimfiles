@@ -1,51 +1,49 @@
-local logfile = vim.lsp.get_log_path()
-vim.loop.fs_unlink(logfile)
+vim.loop.fs_unlink(vim.lsp.log.get_filename())
 
--------------------------------------------------------------------------------
+local function nixify_cmd(cmd, cfg_nix)
+	if vim.fn.executable(cmd[1]) ~= 0 then
+		return cmd
+	end
 
-local lspconfig = require "lspconfig"
-
-lspconfig.util.default_config = vim.tbl_extend(
-	"force",
-	lspconfig.util.default_config,
-	{
-		capabilities = vim.tbl_deep_extend(
-			"force",
-			vim.lsp.protocol.make_client_capabilities(),
-			-- https://github.com/hrsh7th/cmp-nvim-lsp/issues/38#issuecomment-1815265121
-			require "cmp_nvim_lsp".default_capabilities()
-		),
-		handlers = {
-			["textDocument/hover"] = vim.lsp.with(
-				vim.lsp.handlers.hover, {
-					focusable = false
-				}
-			)
-		},
-	}
-)
+	return vim.iter({ "nix", "shell", cfg_nix, "-c", cmd }):flatten():totable()
+end
 
 function rc.lspsetup(server)
 	local has_nix = vim.fn.executable("nix") == 1
 
 	return function(cfg)
-		-- "enable": if set then don't setup
-		if cfg.enable == false then
-			return
-		end
-
 		-- "nix": for wrapping cmd in nix shell/nix run
 		if has_nix and cfg.nix then
-			local cmd = cfg.cmd or lspconfig[server].config_def.default_config.cmd
-			if type(cmd) ~= "table" then
-				print(server .. ": cmd is not a table")
-			elseif vim.fn.executable(cmd[1]) ~= 0 then
-				-- cmd is runnable already, don't need to add nix
+			local cmd = cfg.cmd or vim.lsp.config[server].cmd
+
+			if type(cmd) == "table" then
+				cfg.cmd = nixify_cmd(cmd, cfg.nix)
+			elseif type(cmd) == "function" then
+				cfg.cmd = function(dispatchers, config)
+					-- intercept vim.lsp.rpc.start call to nixifying cmd arg
+					local vim_lsp_rpc_start = vim.lsp.rpc.start
+					---@diagnostic disable-next-line: duplicate-set-field
+					vim.lsp.rpc.start = function(cmd_inner, dispatchers_inner, extra_spawn_params)
+						vim_lsp_rpc_start(nixify_cmd(cmd_inner, cfg.nix), dispatchers_inner, extra_spawn_params)
+					end
+
+					local ok, result = pcall(cmd, dispatchers, config)
+					vim.lsp.rpc.start = vim_lsp_rpc_start
+					if not ok then
+						error(result)
+					end
+					return result
+				end
 			else
-				cfg.cmd = vim.iter({ "nix", "shell", cfg.nix, "-c", cmd }):flatten():totable()
+				print(server .. ": cmd unexpected type: " .. vim.inspect(cmd))
 			end
 		end
 
-		lspconfig[server].setup(cfg)
+		vim.lsp.config(server, cfg)
+
+		-- "enable": if set to false then don't enable
+		if cfg.enable ~= false then
+			vim.lsp.enable(server)
+		end
 	end
 end

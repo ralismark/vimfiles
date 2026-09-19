@@ -59,6 +59,8 @@ vim.keymap.set("n", "<leader>fu", function()
 		["‘"] = "'",
 		["“"] = '"',
 		["”"] = '"',
+		["…"] = '...',
+		["–"] = '-',
 	}
 	for k, v in pairs(reps) do
 		vim.cmd("keepjumps keeppatterns %s/" .. k .. "/" .. v .. "/ge")
