@@ -24,7 +24,7 @@ function rc.lspsetup(server)
 					local vim_lsp_rpc_start = vim.lsp.rpc.start
 					---@diagnostic disable-next-line: duplicate-set-field
 					vim.lsp.rpc.start = function(cmd_inner, dispatchers_inner, extra_spawn_params)
-						vim_lsp_rpc_start(nixify_cmd(cmd_inner, cfg.nix), dispatchers_inner, extra_spawn_params)
+						return vim_lsp_rpc_start(nixify_cmd(cmd_inner, cfg.nix), dispatchers_inner, extra_spawn_params)
 					end
 
 					local ok, result = pcall(cmd, dispatchers, config)
