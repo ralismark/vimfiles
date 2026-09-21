@@ -23,8 +23,6 @@ vim.api.nvim_create_autocmd({ "BufReadCmd" }, {
 	pattern = { "*@*" },
 	desc = "git show <ref>:<file>",
 	callback = function(ev)
-		local buf = vim.api.nvim_get_current_buf()
-
 		if vim.uv.fs_stat(ev.match) then
 			return -- exists
 		end
@@ -38,10 +36,10 @@ vim.api.nvim_create_autocmd({ "BufReadCmd" }, {
 				cwd = vim.fs.dirname(path),
 				stdout = vim.schedule_wrap(function(err, data)
 					if data ~= nil then
-						vim.api.nvim_buf_set_text(buf, -1, -1, -1, -1, vim.split(data, "\n"))
+						vim.api.nvim_buf_set_text(ev.buf, -1, -1, -1, -1, vim.split(data, "\n"))
 					else
 						-- fix extra empty line at end
-						vim.api.nvim_buf_set_lines(buf, -2, -1, true, {})
+						vim.api.nvim_buf_set_lines(ev.buf, -2, -1, true, {})
 						done = true
 					end
 				end),
@@ -56,17 +54,17 @@ vim.api.nvim_create_autocmd({ "BufReadCmd" }, {
 			return
 		end
 
-		vim.bo[buf].modifiable = false
-		vim.bo[buf].buftype = "nowrite"
-		vim.bo[buf].bufhidden = "delete"
+		vim.bo[ev.buf].modifiable = false
+		vim.bo[ev.buf].buftype = "nowrite"
+		vim.bo[ev.buf].bufhidden = "delete"
 
 		-- filetype
-		local ft, ftfunc = vim.filetype.match({ buf = buf, filename = path })
+		local ft, ftfunc = vim.filetype.match({ buf = ev.buf, filename = path })
 		if ft then
-			vim.bo[buf].filetype = ft
+			vim.bo[ev.buf].filetype = ft
 		end
 		if ftfunc then
-			ftfunc(buf)
+			ftfunc(ev.buf)
 		end
 	end,
 })

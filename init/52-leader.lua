@@ -1,5 +1,3 @@
-vim.g.mapleader = " "
-
 vim.keymap.set("n", "<leader>", "")
 vim.keymap.set("n", "<leader>r", [[<cmd>mode | syntax sync fromstart<cr>]])
 

@@ -32,33 +32,33 @@ local function search_root()
 	if #search > 0 then
 		return vim.fs.dirname(search[1])
 	end
-	return vim.uv.cwd()
+	return nil
 end
 
-vim.keymap.set("n", "<space><space>b", function()
+vim.keymap.set("n", "<leader><leader>b", function()
 	Snacks.picker.buffers {
 		sort_lastused = true,
 	}
 end)
 
-vim.keymap.set("n", "<space><space>f", function()
-	Snacks.picker.files {
+vim.keymap.set("n", "<leader><leader>f", function()
+	Snacks.picker.smart {
 		cwd = search_root()
 	}
 end)
 
-vim.keymap.set("n", "<space><space>F", function()
-	Snacks.picker.files {
+vim.keymap.set("n", "<leader><leader>F", function()
+	Snacks.picker.smart {
 	}
 end)
 
-vim.keymap.set("n", "<space><space>g", function()
+vim.keymap.set("n", "<leader><leader>g", function()
 	Snacks.picker.grep {
 		cwd = search_root()
 	}
 end)
 
-vim.keymap.set("n", "<space><space>G", function()
+vim.keymap.set("n", "<leader><leader>G", function()
 	Snacks.picker.grep {
 	}
 end)
