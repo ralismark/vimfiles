@@ -25,13 +25,13 @@ more motions would be nice:
 ---|----------------|-------------------------|----------------
 key| regular        | shift                   | ctrl
 ---|----------------|-------------------------|----------------
-q  | record         | code action             | ?
+q  | record         | ?                       | ?
 w  | word           | WORD                    | multi (window)
 e  | end            | END                     | scroll down
 r  | replace char   | replace mode            | redo
 t  | til            | til prev                | ?
 y  | yank           | y$                      | scroll up
-u  | undo           | ?                       | up 1/2 page
+u  | undo           | code action             | up 1/2 page
 i  | insert         | insert at start         | (=tab) fold
 o  | new line after | new line before         | older pos
 p  | paste after    | past before             | newer pos

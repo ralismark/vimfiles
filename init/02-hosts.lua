@@ -1,8 +1,5 @@
 rc.host = {
 	freestanding = not not (vim.g.freestanding and vim.g.freestanding ~= 0), -- convert to bool
-
-	-- TODO potentially switch on this for per-system behaviour?
-	whoami = string.format("%s@%s", vim.env.USER, vim.fn.hostname()),
 }
 
 -------------------------------------------------------------------------------

@@ -50,7 +50,7 @@ function M.Repo:relpath(path)
 		path = vim.fn.expand("%")
 	end
 
-	return vim.fn.system({ "realpath", "--relative-to=" .. self.root, "--", path }):gsub("\n$", "")
+	return vim.fs.relpath(self.root, path)
 end
 
 ---@param path? string File path to create URL for. Defaults to buffer path.
@@ -62,29 +62,21 @@ function M.Repo:file_url(path)
 	return self.file_url_format:format(self:relpath(path))
 end
 
---- Get information about the repo
-function M.repo()
-	local data = {}
+---@class vimrc.git.UrlOpts
+---@field remote? string
+---@field path? string
+---@field commit? string
 
-	local gitdir = vim.fs.find(".git", { upward = true })
-	if #gitdir == 0 then
-		data.root = vim.fs.dirname(gitdir[1])
-		-- TODO support other repo types in future?
+---@param opts vimrc.git.UrlOpts
+function M.url(opts)
+	local root = vim.fs.root(0, { ".git" })
+	local remote = opts.remote or vim.fn.system({ "git", "remote", "get-url", "origin" }):gsub("\n$", "")
 
-		local remote = vim.fn.system({ "git", "remote", "get-url", "origin" }):gsub("\n$", "")
-		local commit_or_branch = vim.fn.system("git symbolic-ref -q --short HEAD 2>/dev/null || git rev-parse HEAD"):gsub("\n$", "")
-
-		local m_github = remote:match("%S*@github.com:(.*)") or remote:match("https?://github.com/(.*)")
-		if m_github ~= nil then
-			data.url = "https://github.com/" .. m_github:gsub(".git$", "")
-			data.commit_url_format = data.url .. "/commit/%s"
-			data.file_url_format = data.url .. "/blob/" .. commit_or_branch .. "/%s"
-		end
-	end
-
-	return data
+	-- TODO
+	print(remote)
 end
 
+--- Get information about the repo
 function M.blame_data()
 	local result = vim.fn.systemlist({
 			"git",

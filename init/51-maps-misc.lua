@@ -17,7 +17,6 @@ end, {
 
 -- Multitools {{{1
 
-
 local function has_words_before()
 	local line, col = unpack(vim.api.nvim_win_get_cursor(0))
 	return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
@@ -146,9 +145,37 @@ vim.keymap.set("i", "<c-e>", "<c-o><c-e>")
 vim.keymap.set("i", "<c-y>", "<c-o><c-y>")
 
 -- readline
-vim.keymap.set({"i", "c"}, "<c-a>", "<Home>")
-vim.keymap.set({"i", "c"}, "", "<c-w>")
-vim.keymap.set({"i", "c"}, "<c-bs>", "<c-w>")
+vim.keymap.set({"i", "s", "c"}, "<c-a>", "<Home>")
+vim.keymap.set({"i", "s", "c"}, "", "<c-w>")
+vim.keymap.set({"i", "s", "c"}, "<c-bs>", "<c-w>")
+vim.keymap.set({"i", "s", "c"}, "<m-bs>", "<c-w>") -- macos
+
+-- <c-r>` is lua
+vim.keymap.set({"i", "s", "c"}, "<c-r>`", [[<c-r>=luaeval(input({"prompt": "`", "completion": "lua"}) ?? '""')<cr>]])
+vim.keymap.set("n", "`", ":lua ")
+
+-- <c-l> is for path (*L*ocation)
+local function map_c_l(map, fn)
+	vim.keymap.set({"i", "s", "c"}, "<c-l>" .. map, function()
+		vim.api.nvim_paste(fn(), false, -1)
+	end)
+	vim.keymap.set({"n"}, "y<c-l>" .. map, function()
+		local val = fn()
+		vim.fn.setreg(vim.v.register, val)
+		print("yanked:", val)
+	end)
+end
+vim.keymap.set({"i", "s", "c"}, "<c-l>", "")
+vim.keymap.set({"n"}, "y<c-l>", "")
+map_c_l("<c-l>", function() return vim.fn.expand("%:p") end)
+map_c_l("<c-r>", function()
+	local root = vim.fs.root(0, { ".git" })
+	if root == nil then
+		return vim.fn.expand("%:p")
+	else
+		return vim.fs.relpath(root, vim.fn.expand("%:p"))
+	end
+end)
 
 -- Motions & Text Objects {{{1
 
@@ -243,24 +270,12 @@ end)
 vim.keymap.set({ "i", "s" }, "<c-r><c-d>", function()
 	vim.api.nvim_put({ vim.fn.strftime("%Y-%m-%d") }, "c", false, true)
 end)
-vim.keymap.set({ "i", "s" }, "<c-r><c-p>", function()
-	vim.api.nvim_put({ vim.fn.expand("%:p") }, "c", false, true)
-end)
 
 -- scroll window
 vim.keymap.set({"n", "x"}, "<left>", "zh")
 vim.keymap.set({"n", "x"}, "<down>", "<c-e>")
 vim.keymap.set({"n", "x"}, "<up>", "<c-y>")
 vim.keymap.set({"n", "x"}, "<right>", "zl")
-
-vim.keymap.set({"i"}, "<c-l>", function()
-	local parts = vim.fn.split(vim.o.commentstring, "%s", true)
-	if #parts ~= 2 then
-		return
-	end
-	vim.api.nvim_put({ parts[1] }, "c", false, true)
-	vim.api.nvim_put({ parts[2] }, "b", false, false) -- <2024-04-05> Using b here is a bit of a hack but c doesn't work
-end)
 
 -- Git stuff
 vim.keymap.set("n", "<c-g><c-g>", function()

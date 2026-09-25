@@ -27,7 +27,7 @@ end, {
 })
 
 vim.api.nvim_create_user_command("LspDebug", function()
-	vim.lsp.set_log_level(vim.log.levels.DEBUG)
+	vim.lsp.log.set_level(vim.log.levels.DEBUG)
 end, {
 	nargs = 0,
 	desc = "vim.lsp.set_log_level(vim.log.levels.DEBUG)",
@@ -56,4 +56,4 @@ vim.keymap.set("n", "gt", function()
 end, { desc = "vim.lsp.buf.type_definition" })
 
 vim.keymap.set("n", "K", function() vim.lsp.buf.hover { focuable = false } end, { desc = "vim.lsp.buf.hover" })
-vim.keymap.set("n", "Q", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })
+vim.keymap.set("n", "U", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })
