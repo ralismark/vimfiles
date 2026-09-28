@@ -1,31 +1,31 @@
 local M = {}
 
----@class Segment
+---@class vimrc.hemline.Segment
 ---@field content string
 ---@field hl HighlightParams
 
----@alias SegmentSpec
----| ConcreteSegmentSpec
+---@alias vimrc.hemline.SegmentSpec
+---| vimrc.hemline.ConcreteSegmentSpec
 ---| string
 ---| nil
----| fun(): ConcreteSegmentSpec
+---| fun(): vimrc.hemline.ConcreteSegmentSpec
 ---| fun(): string
 ---| fun(): nil
 
----@alias SepFn fun(l: Segment, r: Segment, props: table): Segment[]
+---@alias vimrc.hemlime.SepFn fun(l: vimrc.hemline.Segment, r: vimrc.hemline.Segment, props: table): vimrc.hemline.Segment[]
 
----@class ConcreteSegmentSpec
----@field [integer] SegmentSpec
+---@class vimrc.hemline.ConcreteSegmentSpec
+---@field [integer] vimrc.hemline.SegmentSpec
 ---@field hl? HighlightParams
 ---@field sep? SepFn | "inherit"
 
----@class ParentProps
+---@class vimrc.hemline.ParentProps
 ---@field hl HighlightParams
 ---@field sep SepFn | nil
 
----@param spec SegmentSpec
----@param parent ParentProps
----@return Segment[]
+---@param spec vimrc.hemline.SegmentSpec
+---@param parent vimrc.hemline.ParentProps
+---@return vimrc.hemline.Segment[]
 local function expand_spec(spec, parent)
 	if type(spec) == "function" then
 		spec = spec()

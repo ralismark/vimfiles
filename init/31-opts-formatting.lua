@@ -4,8 +4,9 @@ vim.opt.comments = {
 
 -- word formatting
 vim.opt.textwidth = 80 -- non-zero so that it's not dependent on window width
-vim.opt.formatoptions = "ro/qnj" -- no tc to not wrap in insert mode
 vim.opt.joinspaces = false
+vim.opt.formatoptions = "ro/qnj" -- no tc to not wrap in insert mode
+vim.opt.formatlistpat = [[^\s*\(\d\+[).]\|[-*+]\)\s\+]]
 
 -- kernel style indents
 vim.opt.tabstop = 4

@@ -1,4 +1,4 @@
-vim.loop.fs_unlink(vim.lsp.log.get_filename())
+vim.uv.fs_unlink(vim.lsp.log.get_filename())
 
 local function nixify_cmd(cmd, cfg_nix)
 	if vim.fn.executable(cmd[1]) ~= 0 then

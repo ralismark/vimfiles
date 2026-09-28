@@ -55,5 +55,5 @@ vim.keymap.set("n", "gt", function()
 	}
 end, { desc = "vim.lsp.buf.type_definition" })
 
-vim.keymap.set("n", "K", function() vim.lsp.buf.hover { focuable = false } end, { desc = "vim.lsp.buf.hover" })
+vim.keymap.set("n", "K", function() vim.lsp.buf.hover { focusable = false } end, { desc = "vim.lsp.buf.hover" })
 vim.keymap.set("n", "U", vim.lsp.buf.code_action, { desc = "vim.lsp.buf.code_action" })
