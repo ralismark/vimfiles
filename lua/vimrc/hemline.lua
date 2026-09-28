@@ -106,4 +106,81 @@ function M.make_statusline(config)
 	end
 end
 
+-- Powerline ------------------------------------------------------------------
+M.powerline = {}
+
+-- unicode
+M.powerline.light_horizontal = "─"
+M.powerline.heavy_horizontal = "━"
+M.powerline.light_dashed_horizontal = "╌"
+M.powerline.heavy_dashed_horizontal = "╍"
+M.powerline.heavy_left = ""
+M.powerline.heavy_right = ""
+M.powerline.light_left = ""
+M.powerline.light_right = ""
+
+-- TODO more comprehensive special-casing of "" segments
+
+---@type vimrc.hemlime.SepFn
+function M.powerline.sep_right(l, r, props)
+	local rpad = r.content ~= "" and " " or ""
+	if r.hl.bg == l.hl.bg then
+		return {
+			{ content = " " .. M.powerline.light_right .. rpad, hl = { fg = props.hl.fg, bg = l.hl.bg } },
+		}
+	else
+		return {
+			{ content = " ", hl = { bg = l.hl.bg } },
+			{ content = M.powerline.heavy_right .. rpad, hl = { bg = r.hl.bg, fg = l.hl.bg } },
+		}
+	end
+end
+
+---@type vimrc.hemlime.SepFn
+function M.powerline.sep_left(l, r, props)
+	local lpad = l.content ~= "" and " " or ""
+	if r.hl.bg == l.hl.bg then
+		return {
+			{ content = lpad .. M.powerline.light_left .. " ", hl = { fg = props.hl.fg, bg = l.hl.bg } },
+		}
+	else
+		return {
+			{ content = lpad .. M.powerline.heavy_left, hl = { bg = l.hl.bg, fg = r.hl.bg } },
+			{ content = " ", hl = { bg = r.hl.bg } },
+		}
+	end
+end
+
+function M.powerline.lcap(ch)
+	return {
+		"",
+		ch,
+		sep = function(_, r, props)
+			if r.hl.bg == props.hl.bg then return {} end
+			return {
+				{ content = M.powerline.heavy_left, hl = { fg = r.hl.bg, bg = props.hl.bg } },
+				{ content = " ", hl = r.hl },
+			}
+		end,
+	}
+end
+
+function M.powerline.rcap(ch)
+	return {
+		ch,
+		"",
+			sep = function(l, _, props)
+				if l.hl.bg == props.hl.bg then return {} end
+				return {
+					{ content = " ", hl = l.hl },
+					{ content = M.powerline.heavy_right, hl = { fg = l.hl.bg, bg = props.hl.bg } },
+				}
+			end,
+	}
+end
+
+function M.powerline.lrcap(x)
+	return M.powerline.lcap(M.powerline.rcap(x))
+end
+
 return M

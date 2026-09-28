@@ -5,7 +5,7 @@ local tabline = {
 
 	{
 		"%=",
-		sep = powerline_right,
+		sep = hemline.powerline.sep_right,
 	},
 
 	function()
@@ -14,7 +14,7 @@ local tabline = {
 		for i, handle in ipairs(vim.api.nvim_list_tabpages()) do
 			local bufs = vim.tbl_map(vim.api.nvim_win_get_buf, vim.api.nvim_tabpage_list_wins(handle))
 			local any_modified = vim.tbl_contains(
-				vim.tbl_map(function(b) return vim.api.nvim_buf_get_option(b, "modified") end, bufs),
+				vim.tbl_map(function(b) return vim.bo[b].modified end, bufs),
 				true
 			)
 			-- local win = vim.api.nvim_tabpage_get_win(handle)
@@ -36,11 +36,11 @@ local tabline = {
 			local s = {}
 			if l.content ~= "" then
 				table.insert(s, { content = " ", hl={bg=l.hl.bg} })
-				table.insert(s, { content = require"unicode".powerline_heavy_right, hl={fg=l.hl.bg, bg=props.hl.bg} })
+				table.insert(s, { content = hemline.powerline.heavy_right, hl={fg=l.hl.bg, bg=props.hl.bg} })
 			end
 			table.insert(s, { content = " ", hl = props.hl })
 			if r.content ~= "" then
-				table.insert(s, { content = require"unicode".powerline_heavy_left, hl={fg=r.hl.bg, bg=props.hl.bg} })
+				table.insert(s, { content = hemline.powerline.heavy_left, hl={fg=r.hl.bg, bg=props.hl.bg} })
 				table.insert(s, { content = " ", hl={bg=r.hl.bg} })
 			end
 			return s
@@ -59,7 +59,7 @@ local tabline = {
 				errs > 0 and { "×" .. errs .. " ", hl={fg="red",bold=true} },
 			}
 		end,
-		sep = powerline_left,
+		sep = hemline.powerline.sep_left,
 	},
 }
 

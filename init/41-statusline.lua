@@ -1,69 +1,5 @@
 local hemline = require "vimrc.hemline"
 
--- TODO more comprehensive special-casing of "" segments
-
-function _G.powerline_right(l, r, props)
-	local rpad = r.content ~= "" and " " or ""
-	if r.hl.bg == l.hl.bg then
-		return {
-			{ content = " " .. require"unicode".powerline_light_right .. rpad, hl = { fg = props.hl.fg, bg = l.hl.bg } },
-		}
-	else
-		return {
-			{ content = " ", hl = { bg = l.hl.bg } },
-			{ content = require"unicode".powerline_heavy_right .. rpad, hl = { bg = r.hl.bg, fg = l.hl.bg } },
-		}
-	end
-end
-
-function _G.powerline_left(l, r, props)
-	local lpad = l.content ~= "" and " " or ""
-	if r.hl.bg == l.hl.bg then
-		return {
-			{ content = lpad .. require"unicode".powerline_light_left .. " ", hl = { fg = props.hl.fg, bg = l.hl.bg } },
-		}
-	else
-		return {
-			{ content = lpad .. require"unicode".powerline_heavy_left, hl = { bg = l.hl.bg, fg = r.hl.bg } },
-			{ content = " ", hl = { bg = r.hl.bg } },
-		}
-	end
-end
-
-function _G.lcap(ch)
-	return {
-		"",
-		ch,
-		sep = function(_, r, props)
-			if r.hl.bg == props.hl.bg then return {} end
-			return {
-				{ content = require"unicode".powerline_heavy_left, hl = { fg = r.hl.bg, bg = props.hl.bg } },
-				{ content = " ", hl = r.hl },
-			}
-		end,
-	}
-end
-
-function _G.rcap(ch)
-	return {
-		ch,
-		"",
-			sep = function(l, _, props)
-				if l.hl.bg == props.hl.bg then return {} end
-				return {
-					{ content = " ", hl = l.hl },
-					{ content = require"unicode".powerline_heavy_right, hl = { fg = l.hl.bg, bg = props.hl.bg } },
-				}
-			end,
-	}
-end
-
-function _G.lrcap(x)
-	return lcap(rcap(x))
-end
-
--------------------------------------------------------------------------------
-
 local function relpath()
 	local pathparts = vim.fn.split(vim.fn.expand("%:p"), "/")
 	local cwdparts = vim.fn.split(vim.fn.getcwd(), "/")
@@ -87,7 +23,7 @@ local filename = function(is_active) return {
 		if vim.bo.buftype == "" or vim.bo.buftype == "nowrite" then
 			local untitled = vim.api.nvim_buf_get_name(0) == ""
 			local displayname = untitled and "(untitled)" or shortname():gsub("%%", "%%%%")
-			local exists = not untitled and vim.fn.filereadable(vim.api.nvim_buf_get_name(0)) > 0
+			local exists = not untitled and vim.uv.fs_stat(vim.api.nvim_buf_get_name(0)) ~= nil
 			return {
 				{ displayname, hl={fg=not exists and "grey" or nil} },
 				vim.bo.modified and "*",
@@ -98,34 +34,22 @@ local filename = function(is_active) return {
 		elseif vim.bo.buftype == "quickfix" then
 			return { vim.fn.win_gettype(), hl={bg="green"} }
 		elseif vim.bo.buftype == "help" then
-			return { vim.fn.expand("%:t"), hl={bg="darkyellow"} }
+			return { vim.fs.basename(vim.api.nvim_buf_get_name(0)), hl={bg="darkyellow"} }
 		else
 			return vim.api.nvim_buf_get_name(0)
 		end
 	end,
 } end
 
+local sysname = vim.uv.os_uname().sysname
+
 local eol = function()
 	if vim.o.ff == "unix" then
-		if vim.fn.has("unix") > 0 or vim.fn.has("linux") > 0 or vim.fn.has("bsd") > 0 then
-			return nil
-		else
-			return "\\n"
-		end
-	end
-	if vim.o.ff == "dos" then
-		if vim.fn.has("win32") > 0 then
-			return nil
-		else
-			return "\\r\\n"
-		end
-	end
-	if vim.o.ff == "mac" then
-		if vim.fn.has("mac") > 0 then
-			return nil
-		else
-			return "\\r"
-		end
+		return sysname == "Windows_NT" and "\\n" or nil
+	elseif vim.o.ff == "dos" then
+		return sysname ~= "Windows_NT" and "\\r\\n" or nil
+	elseif vim.o.ff == "mac" then
+		return sysname ~= "Darwin" and "\\r" or nil
 	end
 end
 
@@ -136,7 +60,7 @@ local function mainbar(is_active)
 	}
 
 	return {
-		lrcap {
+		hemline.powerline.lrcap {
 			{
 				filename(is_active),
 
@@ -151,12 +75,11 @@ local function mainbar(is_active)
 				hl = theme.b,
 				sep = "inherit",
 			} end,
-			sep = powerline_right,
+			sep = hemline.powerline.sep_right,
 		},
 
 		function()
-			local u = require "unicode"
-			local ch = u[
+			local ch = hemline.powerline[
 				(is_active and "heavy" or "light")
 				.. (vim.bo.modified and "_dashed" or "")
 				.. "_horizontal"
@@ -168,7 +91,7 @@ local function mainbar(is_active)
 			}
 		end,
 
-		lrcap {
+		hemline.powerline.lrcap {
 			{
 				-- diagnostics
 				function()
@@ -188,7 +111,8 @@ local function mainbar(is_active)
 					if #clients == 0 then
 						return nil
 					end
-					return { {"🗲 ", hl={fg="darkyellow"}}, table.concat(vim.fn.uniq(vim.fn.sort(clients)), " ")}
+					table.sort(clients)
+					return { {"🗲 ", hl={fg="darkyellow"}}, table.concat(vim.list.unique(clients), " ")}
 				end,
 
 				hl = theme.b,
@@ -212,7 +136,7 @@ local function mainbar(is_active)
 				sep = "inherit",
 			},
 
-			sep = powerline_left,
+			sep = hemline.powerline.sep_left,
 		},
 	}
 end
