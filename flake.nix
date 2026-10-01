@@ -25,7 +25,6 @@
     "plugin:cmp_luasnip" = { url = "github:saadparwaiz1/cmp_luasnip"; flake = false; };
     "plugin:goyo.vim" = { url = "github:junegunn/goyo.vim"; flake = false; };
     "plugin:undotree" = { url = "github:mbbill/undotree"; flake = false; };
-    "plugin:telescope.nvim" = { url = "github:nvim-telescope/telescope.nvim"; flake = false; };
     "plugin:vim-eunuch" = { url = "github:tpope/vim-eunuch"; flake = false; };
     "plugin:vim-recover" = { url = "github:ralismark/vim-recover"; flake = false; };
     "plugin:Colorizer" = { url = "github:chrisbra/Colorizer"; flake = false; };
@@ -45,7 +44,6 @@
     "plugin:indent-blankline.nvim" = { url = "github:lukas-reineke/indent-blankline.nvim"; flake = false; };
 
     # plugins with custom steps
-    "telescope-fzf-native.nvim" = { url = "github:nvim-telescope/telescope-fzf-native.nvim"; flake = false; };
     "snacks.nvim" = { url = "github:folke/snacks.nvim"; flake = false; }; # needs patching
   };
 
@@ -69,15 +67,6 @@
 
         # full list of plugins
         plugins = [
-          (pkgs.vimUtils.buildVimPlugin rec {
-            pname = "telescope-fzf-native.nvim";
-            src = inputs."${pname}";
-            version = src.shortRev;
-
-            buildPhase = ''
-              make
-            '';
-          })
           (pkgs.vimUtils.buildVimPlugin rec {
             pname = "snacks.nvim";
             src = inputs."${pname}";

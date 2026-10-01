@@ -352,22 +352,6 @@
         "type": "github"
       }
     },
-    "plugin:telescope.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1786964191,
-        "narHash": "sha256-Ci7D8aTUhh9DwwHvEV8Pndma8b/iwylUcoDKrIKVYN4=",
-        "owner": "nvim-telescope",
-        "repo": "telescope.nvim",
-        "rev": "40aedd8a68c78a656a10a8d62d80c54af59420fb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nvim-telescope",
-        "repo": "telescope.nvim",
-        "type": "github"
-      }
-    },
     "plugin:undotree": {
       "flake": false,
       "locked": {
@@ -552,7 +536,6 @@
         "plugin:opsort.vim": "plugin:opsort.vim",
         "plugin:plenary.nvim": "plugin:plenary.nvim",
         "plugin:rainbow-delimiters.nvim": "plugin:rainbow-delimiters.nvim",
-        "plugin:telescope.nvim": "plugin:telescope.nvim",
         "plugin:undotree": "plugin:undotree",
         "plugin:vim-easy-align": "plugin:vim-easy-align",
         "plugin:vim-eunuch": "plugin:vim-eunuch",
@@ -563,8 +546,7 @@
         "plugin:vim-textobj-indent": "plugin:vim-textobj-indent",
         "plugin:vim-textobj-parameter": "plugin:vim-textobj-parameter",
         "plugin:vim-textobj-user": "plugin:vim-textobj-user",
-        "snacks.nvim": "snacks.nvim",
-        "telescope-fzf-native.nvim": "telescope-fzf-native.nvim"
+        "snacks.nvim": "snacks.nvim"
       }
     },
     "snacks.nvim": {
@@ -595,22 +577,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "telescope-fzf-native.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1778077831,
-        "narHash": "sha256-FMzAAkS/TgdINK/YuadHXikFcTYtgYeXcEL0jDvWKzk=",
-        "owner": "nvim-telescope",
-        "repo": "telescope-fzf-native.nvim",
-        "rev": "b25b749b9db64d375d782094e2b9dce53ad53a40",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nvim-telescope",
-        "repo": "telescope-fzf-native.nvim",
         "type": "github"
       }
     }
