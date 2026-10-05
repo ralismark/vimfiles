@@ -15,9 +15,6 @@ else
 end
 
 -- Shell things
--- TODO are these still relevant? <2023-02-24>
-vim.opt.shell = vim.env.SHELL
---vim.opt.shellslash = true
 vim.opt.shellpipe = "2>&1 | tee"
 
 -- Automate/persistence

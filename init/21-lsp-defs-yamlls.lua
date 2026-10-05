@@ -1,5 +1,3 @@
-local lspconfig = require "lspconfig"
-
 local k8s_version = "v1.31.1"
 
 local builtin_resource_regex = {

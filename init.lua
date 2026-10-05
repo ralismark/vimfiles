@@ -53,7 +53,11 @@ n  | next match     | prev match              | ?
 m  | mark           | ?mid                    | ?
 ---|----------------|-------------------------|----------------
 
-other keys
+-- TODOs ----------------------------------------------------------------------
+
+TODO replace LuaSnip with builtin vim.snippet
+TODO replace nvim-cmp with 'autocomplete' and complete-functions
+TODO replace lua/vimrc/git.lua with Snacks.git and Snacks.gitbrowse?
 
 --]]
 
