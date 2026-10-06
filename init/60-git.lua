@@ -27,7 +27,8 @@ vim.api.nvim_create_autocmd({ "BufReadCmd" }, {
 			return -- exists
 		end
 
-		local done = false
+		vim.bo[ev.buf].buftype = "nowrite"
+		vim.bo[ev.buf].bufhidden = "delete"
 
 		local path, ref = ev.match:match("(.*)@(.*)")
 		local exit = vim.system(
@@ -40,31 +41,26 @@ vim.api.nvim_create_autocmd({ "BufReadCmd" }, {
 					else
 						-- fix extra empty line at end
 						vim.api.nvim_buf_set_lines(ev.buf, -2, -1, true, {})
-						done = true
+
+						-- file loaded, now do post-processing
+						vim.bo[ev.buf].modifiable = false
+
+						-- filetype
+						local ft, ftfunc = vim.filetype.match({ buf = ev.buf, filename = path })
+						if ft then
+							vim.bo[ev.buf].filetype = ft
+						end
+						if ftfunc then
+							ftfunc(ev.buf)
+						end
 					end
 				end),
 			}
 		):wait()
 
-		-- race conditions...
-		vim.wait(1000, function() return done end)
-
 		if exit.stderr ~= "" then
 			vim.api.nvim_echo({{ exit.stderr  }}, true, { err = true })
 			return
-		end
-
-		vim.bo[ev.buf].modifiable = false
-		vim.bo[ev.buf].buftype = "nowrite"
-		vim.bo[ev.buf].bufhidden = "delete"
-
-		-- filetype
-		local ft, ftfunc = vim.filetype.match({ buf = ev.buf, filename = path })
-		if ft then
-			vim.bo[ev.buf].filetype = ft
-		end
-		if ftfunc then
-			ftfunc(ev.buf)
 		end
 	end,
 })

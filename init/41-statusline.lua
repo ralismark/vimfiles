@@ -112,7 +112,7 @@ local function mainbar(is_active)
 						return nil
 					end
 					table.sort(clients)
-					return { {"🗲 ", hl={fg="darkyellow"}}, table.concat(vim.list.unique(clients), " ")}
+					return { {"〄", hl={fg="darkyellow"}}, table.concat(vim.list.unique(clients), " ")}
 				end,
 
 				hl = theme.b,
